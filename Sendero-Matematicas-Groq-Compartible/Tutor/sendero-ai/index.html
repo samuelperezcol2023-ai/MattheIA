@@ -7,6 +7,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>MatheIA — Tutor Adaptativo</title>
+
+<!-- ANEXO 1: SDK de Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
 
@@ -541,6 +545,30 @@
 </div>
 
 <script>
+// ANEXO 2: Configuración de la conexión con Supabase
+const SUPABASE_URL = 'https://uuzwdzmviayagnptndm.supabase.co';
+const SUPABASE_KEY = 'TU_PUBLISHABLE_KEY_AQUI'; // Reemplaza con la clave Publishable Key que guardaste antes
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ANEXO 3: Función de guardado de datos en Supabase
+async function guardarUsuario(nombre, estilo, progreso) {
+  const { data, error } = await supabase
+    .from('Usuarios')
+    .insert([
+      { 
+        Nombre_Usuario: nombre, 
+        Estilo_Aprendizaje: estilo, 
+        Progreso: progreso 
+      }
+    ]);
+
+  if (error) {
+    console.error('Error al guardar datos en Supabase:', error.message);
+  } else {
+    console.log('Datos guardados con éxito en Supabase:', data);
+  }
+}
+
 const STYLE_LABEL = { V:"Visual", A:"Auditivo", K:"Kinestésico", L:"Lector/escritor" };
 
 let state = {
@@ -711,6 +739,14 @@ async function finishOnboarding(styleCode){
   };
 
   await saveProfile();
+  
+  // Guardado de usuario en Supabase
+  await guardarUsuario(
+    state.profile.name, 
+    STYLE_LABEL[styleCode] || 'Visual', 
+    state.profile.level
+  );
+
   enterApp();
   addSystemNote('Sendero creado para '+state.profile.name);
   addSystemNote('¡Hola! '+state.profile.name+', soy tu tutor adaptativo de aprendizaje');
