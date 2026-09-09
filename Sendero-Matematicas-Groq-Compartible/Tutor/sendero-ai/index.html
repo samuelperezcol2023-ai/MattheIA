@@ -713,6 +713,7 @@ async function finishOnboarding(styleCode){
   await saveProfile();
   enterApp();
   addSystemNote('Sendero creado para '+state.profile.name);
+  addSystemNote('¡Hola! '+state.profile.name+', soy tu tutor adaptativo de aprendizaje');
   addSystemNote(state.pendingDiagnosticNote || `Nivel inicial ${level}.`);
   requestNextTurn(null);
 }
@@ -1083,6 +1084,7 @@ document.getElementById('resetBtn').addEventListener('click', async ()=>{
 
     enterApp();
     addSystemNote('Continuando sendero de '+state.profile.name);
+    addSystemNote('¡Hola! '+state.profile.name+', soy tu tutor adaptativo de aprendizaje');
     requestNextTurn(null);
   }
 })();
