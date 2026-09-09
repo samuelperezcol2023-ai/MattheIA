@@ -716,6 +716,11 @@ async function finishOnboarding(styleCode){
   addSystemNote(state.pendingDiagnosticNote || `Nivel inicial ${level}.`);
   requestNextTurn(null);
 }
+   await saveProfile();
+  enterApp();
+  addSystemNote('¡Hola!' +state.profile.name 'Soy tu tutor adaptativo de aprendizaje');
+  addSystemNote(state.pendingDiagnosticNote || `Nivel inicial ${level}.`);
+  requestNextTurn(null);
 
 // ---------- topbar / header ----------
 function refreshHeader(){
