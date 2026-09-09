@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#564FE0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Sendero — tutor adaptativo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+
+  :root{
+    --bg:#EEF1F6; --surface:#FFFFFF; --surface-alt:#F4F6FB;
+    --ink:#1E2635; --ink-soft:#5B6472; --border:rgba(30,38,53,0.10);
+    --primary:#564FE0; --primary-soft:#EDECFC; --primary-deep:#413AC2;
+    --success:#2E9E6D; --success-soft:#E4F5EC;
+    --amber:#D79A2C; --amber-soft:#FBF0DA;
+    --danger:#C1523D; --danger-soft:#F7E7E3;
+    --display:'Space Grotesk',sans-serif; --sans:'Inter',sans-serif; --mono:'IBM Plex Mono',monospace;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans);
+    display:flex; justify-content:center;
+  }
+  button{ font-family:inherit; cursor:pointer; }
+  ::selection{ background:var(--primary-soft); }
+
+  #app{ width:100%; max-width:1180px; min-height:100vh; display:flex; }
+
+  /* ---------------- SIDEBAR (web) / hidden on mobile ---------------- */
+  .rail{
+    width:220px; flex-shrink:0; border-right:1px solid var(--border);
+    padding:1.6rem 1.2rem; display:none; flex-direction:column;
+  }
+  .brand{ font-family:var(--display); font-weight:700; font-size:1.15rem; margin-bottom:2.4rem; }
+  .brand span{ color:var(--primary); }
+  .rail-nav button{
+    display:flex; align-items:center; gap:0.7rem; width:100%; text-align:left;
+    background:none; border:none; padding:0.7rem 0.8rem; border-radius:10px;
+    font-size:0.92rem; color:var(--ink-soft); margin-bottom:0.3rem; font-weight:500;
+  }
+  .rail-nav button.active{ background:var(--primary-soft); color:var(--primary-deep); }
+  .rail-nav svg{ width:18px; height:18px; flex-shrink:0; }
+
+  /* ---------------- MAIN COLUMN ---------------- */
+  .main-col{ flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; position:relative; }
+
+  .topbar{
+    padding:1.1rem 1.4rem; border-bottom:1px solid var(--border); background:var(--surface);
+    display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+  }
+  .topbar .who{ display:flex; align-items:center; gap:0.6rem; }
+  .avatar{
+    width:34px; height:34px; border-radius:50%; background:var(--primary);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-family:var(--display); font-weight:600; font-size:0.9rem; flex-shrink:0;
+  }
+  .who h4{ margin:0; font-size:0.92rem; font-weight:600; }
+  .who p{ margin:0; font-size:0.76rem; color:var(--ink-soft); }
+  .level-chip{
+    font-family:var(--mono); font-size:0.78rem; background:var(--amber-soft); color:#8a6a1f;
+    padding:0.3rem 0.65rem; border-radius:20px; font-weight:500;
+  }
+
+  /* ---------------- VIEWS ---------------- */
+  .view{ flex:1; overflow-y:auto; display:none; }
+  .view.active{ display:block; }
+
+  /* onboarding */
+  #view-onboard.active{ display:flex; align-items:center; justify-content:center; padding:2rem 1.4rem; }
+  .ob-card{ max-width:420px; width:100%; }
+  .ob-step{ display:none; }
+  .ob-step.active{ display:block; animation:fadeUp .35s ease; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+  .ob-eyebrow{ font-family:var(--mono); font-size:0.78rem; color:var(--primary); margin-bottom:0.6rem; }
+  .ob-card h2{ font-family:var(--display); font-size:1.55rem; margin:0 0 0.5rem; line-height:1.25; }
+  .ob-card p.sub{ color:var(--ink-soft); margin:0 0 1.6rem; font-size:0.95rem; }
+  .ob-input{
+    width:100%; padding:0.85rem 1rem; border:1px solid var(--border); border-radius:12px;
+    font-size:1rem; font-family:inherit; margin-bottom:1.2rem; background:var(--surface-alt);
+  }
+  .ob-input:focus{ outline:2px solid var(--primary); outline-offset:1px; }
+  .choice-grid{ display:grid; gap:0.6rem; margin-bottom:1.4rem; }
+  .choice{
+    text-align:left; padding:0.85rem 1rem; border:1px solid var(--border); border-radius:12px;
+    background:var(--surface); font-size:0.92rem; font-weight:500; color:var(--ink);
+  }
+  .choice:hover{ border-color:var(--primary); }
+  .choice.selected{ border-color:var(--primary); background:var(--primary-soft); color:var(--primary-deep); }
+  .btn-primary{
+    width:100%; padding:0.9rem; border:none; border-radius:12px; background:var(--primary);
+    color:#fff; font-size:0.95rem; font-weight:600;
+  }
+  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; }
+  .btn-primary:not(:disabled):hover{ background:var(--primary-deep); }
+  .ob-dots{ display:flex; gap:6px; margin-bottom:1.6rem; }
+  .ob-dots span{ height:4px; flex:1; border-radius:2px; background:var(--border); }
+  .ob-dots span.done{ background:var(--primary); }
+
+  /* chat */
+  #view-chat.active{ display:flex; flex-direction:column; }
+  .chat-scroll{ flex:1; overflow-y:auto; padding:1.4rem; display:flex; flex-direction:column; gap:0.9rem; }
+  .msg{ max-width:78%; padding:0.8rem 1rem; border-radius:16px; font-size:0.94rem; line-height:1.5; }
+  .msg.bot{ background:var(--surface); border:1px solid var(--border); border-bottom-left-radius:4px; align-self:flex-start; }
+  .msg.user{ background:var(--primary); color:#fff; border-bottom-right-radius:4px; align-self:flex-end; }
+  .msg.system-note{ align-self:center; font-family:var(--mono); font-size:0.74rem; color:var(--ink-soft); background:var(--surface-alt); padding:0.4rem 0.8rem; border-radius:20px; }
+  .explain-card{
+    align-self:flex-start; max-width:82%; background:var(--surface); border:1px solid var(--border);
+    border-left:3px solid var(--amber); border-radius:12px; padding:0.9rem 1rem;
+  }
+  .explain-tag{ font-family:var(--mono); font-size:0.7rem; color:#8a6a1f; margin-bottom:0.4rem; display:block; }
+  .fb-card{ align-self:flex-start; max-width:82%; border-radius:12px; padding:0.85rem 1rem; font-size:0.92rem; font-weight:500; }
+  .fb-card.ok{ background:var(--success-soft); color:#1d6e4c; }
+  .fb-card.no{ background:var(--danger-soft); color:#8a3b28; }
+  .typing{ align-self:flex-start; display:flex; gap:4px; padding:0.9rem 1rem; }
+  .typing span{ width:6px; height:6px; border-radius:50%; background:var(--ink-soft); animation:blink 1.2s infinite; }
+  .typing span:nth-child(2){ animation-delay:0.2s; } .typing span:nth-child(3){ animation-delay:0.4s; }
+  @keyframes blink{ 0%,80%,100%{opacity:0.25;} 40%{opacity:1;} }
+
+  .composer{ border-top:1px solid var(--border); background:var(--surface); padding:0.8rem 1rem; display:flex; gap:0.6rem; flex-shrink:0; }
+  .composer input{
+    flex:1; border:1px solid var(--border); border-radius:24px; padding:0.75rem 1.1rem;
+    font-size:0.95rem; font-family:inherit; background:var(--surface-alt);
+  }
+  .composer input:focus{ outline:2px solid var(--primary); outline-offset:1px; }
+  .send-btn{
+    width:44px; height:44px; border-radius:50%; background:var(--primary); border:none;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .send-btn:disabled{ opacity:0.4; }
+  .send-btn svg{ width:18px; height:18px; fill:#fff; }
+
+  /* progress view */
+  #view-progress .inner{ padding:1.6rem 1.4rem 2rem; }
+  #view-progress h2{ font-family:var(--display); font-size:1.3rem; margin:0 0 1.4rem; }
+  .path{ display:flex; align-items:center; gap:4px; margin-bottom:1.8rem; overflow-x:auto; padding:0.4rem 0.1rem; }
+  .path-node{
+    width:34px; height:34px; border-radius:50%; flex-shrink:0; display:flex; align-items:center;
+    justify-content:center; font-family:var(--mono); font-size:0.75rem; border:2px solid var(--border);
+    color:var(--ink-soft); background:var(--surface);
+  }
+  .path-node.filled{ background:var(--primary); border-color:var(--primary); color:#fff; }
+  .path-node.current{ border-color:var(--primary); color:var(--primary-deep); font-weight:700; }
+  .path-line{ height:2px; width:14px; background:var(--border); flex-shrink:0; }
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-bottom:1.8rem; }
+  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1rem 1.1rem; }
+  .stat-card .num{ font-family:var(--mono); font-size:1.5rem; color:var(--primary-deep); }
+  .stat-card .lbl{ font-size:0.78rem; color:var(--ink-soft); margin-top:0.2rem; }
+  .hist-item{ display:flex; justify-content:space-between; padding:0.75rem 0; border-bottom:1px solid var(--border); font-size:0.9rem; }
+  .hist-item:last-child{ border-bottom:none; }
+  .hist-tag{ font-family:var(--mono); font-size:0.72rem; padding:0.15rem 0.5rem; border-radius:6px; }
+  .hist-tag.ok{ background:var(--success-soft); color:#1d6e4c; } .hist-tag.no{ background:var(--danger-soft); color:#8a3b28; }
+
+  /* profile view */
+  #view-profile .inner{ padding:1.6rem 1.4rem 2rem; }
+  #view-profile h2{ font-family:var(--display); font-size:1.3rem; margin:0 0 1.2rem; }
+  .field-row{ display:flex; justify-content:space-between; padding:0.9rem 0; border-bottom:1px solid var(--border); font-size:0.92rem; }
+  .field-row span:first-child{ color:var(--ink-soft); }
+  .reset-btn{ margin-top:1.6rem; width:100%; padding:0.85rem; border-radius:12px; border:1px solid var(--danger); background:none; color:var(--danger); font-weight:600; font-size:0.9rem; }
+
+  /* bottom nav (mobile) */
+  .tabbar{
+    display:flex; border-top:1px solid var(--border); background:var(--surface); flex-shrink:0;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .tabbar button{
+    flex:1; background:none; border:none; padding:0.6rem 0 0.5rem; display:flex; flex-direction:column;
+    align-items:center; gap:2px; color:var(--ink-soft); font-size:0.68rem; font-weight:500;
+  }
+  .tabbar button.active{ color:var(--primary); }
+  .tabbar svg{ width:20px; height:20px; }
+
+
+  /* ---------------- AI HELP / FILES ---------------- */
+  .ai-help{
+    margin:0 0 1rem; padding:1rem; background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; box-shadow:0 4px 18px rgba(30,38,53,.04);
+  }
+  .ai-help-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:.7rem}
+  .ai-help-title{font-family:var(--display);font-weight:700;font-size:.98rem;margin:0}
+  .ai-help-sub{font-size:.76rem;color:var(--ink-soft);margin:.2rem 0 0}
+  .ai-help-grid{display:flex;gap:.55rem;align-items:stretch}
+  .ai-help-grid textarea{flex:1;min-height:76px;resize:vertical;border:1px solid var(--border);border-radius:12px;padding:.75rem .9rem;background:var(--surface-alt);font:inherit;font-size:.9rem}
+  .ai-help-grid textarea:focus{outline:2px solid var(--primary);outline-offset:1px}
+  .ai-actions{display:flex;flex-direction:column;gap:.45rem;min-width:118px}
+  .file-label,.ai-ask-btn{border-radius:10px;padding:.65rem .75rem;font-size:.8rem;font-weight:600;text-align:center}
+  .file-label{border:1px solid var(--border);background:var(--surface-alt);color:var(--ink);cursor:pointer}
+  .file-label:hover{border-color:var(--primary)}
+  .ai-ask-btn{border:none;background:var(--primary);color:#fff;cursor:pointer}
+  .ai-ask-btn:disabled{opacity:.45;cursor:not-allowed}
+  #aiFileInput{display:none}
+  .file-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+  .file-chip{display:flex;align-items:center;gap:.35rem;background:var(--primary-soft);color:var(--primary-deep);border-radius:999px;padding:.3rem .55rem;font-size:.72rem;max-width:100%}
+  .file-chip button{border:0;background:none;color:inherit;font-weight:700;padding:0;line-height:1}
+  .ai-status{font-size:.72rem;color:var(--ink-soft);margin-top:.5rem;min-height:1em}
+  .msg.ai{border-left:3px solid var(--primary);}
+  @media (max-width:560px){
+    .ai-help-grid{flex-direction:column}.ai-actions{flex-direction:row}.ai-actions>*{flex:1}
+  }
+
+  @media (min-width:780px){
+    .rail{ display:flex; }
+    .tabbar{ display:none; }
+    .topbar{ display:none; }
+    #view-chat .chat-scroll{ padding:2rem 3rem; }
+    #view-chat .composer{ padding:1rem 3rem; }
+    .msg, .explain-card, .fb-card{ max-width:60%; }
+  }
+  .offline-note{
+    align-self:center; font-family:var(--mono); font-size:0.68rem; color:var(--ink-soft);
+    background:var(--surface-alt); padding:0.35rem 0.7rem; border-radius:16px; display:none;
+  }
+
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- SIDEBAR (web) -->
+  <div class="rail">
+    <div class="brand">Sendero<span>.</span></div>
+    <div class="rail-nav">
+      <button data-view="chat" class="nav-btn active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        Conversación
+      </button>
+      <button data-view="progress" class="nav-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        Progreso
+      </button>
+      <button data-view="profile" class="nav-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        Perfil
+      </button>
+    </div>
+  </div>
+
+  <div class="main-col">
+
+    <div class="topbar">
+      <div class="who">
+        <div class="avatar" id="topAvatar">?</div>
+        <div><h4 id="topName">Estudiante</h4><p id="topSubject">—</p></div>
+      </div>
+      <div class="level-chip" id="topLevel">Nivel 1</div>
+    </div>
+
+    <!-- ONBOARDING / DIAGNÓSTICO -->
+    <div class="view active" id="view-onboard">
+      <div class="ob-card">
+        <div class="ob-step active" data-step="0">
+          <p class="ob-eyebrow">Bienvenida</p>
+          <h2>Vamos a conocer tu nivel de matemáticas</h2>
+          <p class="sub">Primero dinos tu nombre. Después harás un diagnóstico corto de 10 preguntas, desde lo más básico hasta ejercicios más avanzados.</p>
+          <input class="ob-input" id="inputName" placeholder="Tu nombre" maxlength="24">
+          <button class="btn-primary" id="btnStep0">Comenzar diagnóstico</button>
+        </div>
+
+        <div class="ob-step" data-step="1">
+          <p class="ob-eyebrow">Diagnóstico de matemáticas · 1/10</p>
+          <h2>Calcula: 7 + 5.</h2>
+          <div class="choice-grid" id="diagQ1">
+            <button class="choice" data-val="0" data-correct="1">12</button>
+            <button class="choice" data-val="1" data-correct="0">10</button>
+            <button class="choice" data-val="2" data-correct="0">11</button>
+            <button class="choice" data-val="3" data-correct="0">13</button>
+          </div>
+          <button class="btn-primary" id="btnDiag1" disabled>Siguiente</button>
+        </div>
+
+        <div class="ob-step" data-step="2">
+          <p class="ob-eyebrow">Diagnóstico de matemáticas · 2/10</p>
+          <h2>Calcula: 15 − 8.</h2>
+          <div class="choice-grid" id="diagQ2">
+            <button class="choice" data-val="0" data-correct="1">7</button>
+            <button class="choice" data-val="1" data-correct="0">6</button>
+            <button class="choice" data-val="2" data-correct="0">8</button>
+            <button class="choice" data-val="3" data-correct="0">9</button>
+          </div>
+          <button class="btn-primary" id="btnDiag2" disabled>Siguiente</button>
+        </div>
+
+        <div class="ob-step" data-step="3">
+          <p class="ob-eyebrow">Diagnóstico de matemáticas · 3/10</p>
+          <h2>¿Cuánto es 6 × 7?</h2>
+          <div class="choice-grid" id="diagQ3">
+            <button class="choice" data-val="0" data-correct="1">42</button>
+            <button class="choice" data-val="1" data-correct="0">36</button>
+            <button class="choice" data-val="2" data-correct="0">48</button>
+            <button class="choice" data-val="3" data-correct="0">49</button>
+          </div>
+          <button class="btn-primary" id="btnDiag3" disabled>Siguiente</button>
+        </div>
+
+        <div class="ob-step" data-step="4">
+          <p class="ob-eyebrow">Diagnóstico de matemáticas · 4/10</p>
+          <h2>¿Cuánto es 72 ÷ 8?</h2>
+          <div class="choice-grid" id="diagQ4">
+            <button class="choice" data-val="0" data-correct="1">9</button>
+            <button class="choice" data-val="1" data-correct="0">8</button>
+            <button class="choice" data-val="2" data-correct="0">10</button>
+            <button class="choice" data-val="3" data-correct="0">12</button>
+          </div>
+          <button class="btn-primary" id="btnDiag4" disabled>Siguiente</button>
+        </div>
+
+        <div class="ob-step" data-step="5">
+          <p class="ob-eyebrow">Diagnóstico de matemáticas · 5/10</p>
+          <h2>¿Cuánto es 3/4 + 1/4?</h2>
+          <div class="choice-grid" id="diagQ5">
+            <button class="choice" data-val="0" data-correct="1">1</button>
+            <button class="choice" data-val="1" data-correct="0">1/2</button>
+            <button class="choice" data-val="2" data-correct="0">3/8</button>
+            <button class="choice" data-val="3" data-correct="0">4/8</button>
+          </div>
+          <button class="btn-primary" id="btnDiag5" disabled>Siguiente</button>
+        </div>
+
+        <div class="ob-step" data-step="6">
+          <p class="ob-eyebrow">Diagnóstico de matemáticas · 6/10</p>
+          <h2>Calcula respetando el orden de las operaciones: 5 + 3 × 2.</h2>
+          <div class="choice-grid" id="diagQ6">
+            <button class="choice" data-val="0" data-correct="1">11</button>
+            <button class="choice" data-val="1" data-correct="0">16</button>
+            <button class="choice" data-val="2" data-correct="0">13</button>
+            <button class="choice" data-val="3" data-correct="0">10</button>
+          </div>
+          <button class="btn-primary" id="btnDiag6" disabled>Siguiente</button>
+        </div>
+
+        <div class="ob-step" data-step="7">
+          <p class="ob-eyebrow">Diagnóstico de matemáticas · 7/10</p>
+          <h2>¿Cuánto es el 20% de 150?</h2>
+          <div class="choice-grid" id="diagQ7">
+            <button class="choice" data-val="0" data-correct="1">30</button>
+            <button class="choice" data-val="1" data-correct="0">20</button>
+            <button class="choice" data-val="2" data-correct="0">25</button>
+            <button class="choice" data-val="3" data-correct="0">35</button>
+          </div>
+          <button class="btn-primary" id="btnDiag7" disabled>Siguiente</button>
+        </div>
+
+        <div class="ob-step" data-step="8">
+          <p class="ob-eyebrow">Diagnóstico de matemáticas · 8/10</p>
+          <h2>Resuelve: 3x + 2 = 14.</h2>
+          <div class="choice-grid" id="diagQ8">
+            <button class="choice" data-val="0" data-correct="1">x = 4</button>
+            <button class="choice" data-val="1" data-correct="0">x = 3</button>
+            <button class="choice" data-val="2" data-correct="0">x = 5</button>
+            <button class="choice" data-val="3" data-correct="0">x = 6</button>
+          </div>
+          <button class="btn-primary" id="btnDiag8" disabled>Siguiente</button>
+        </div>
+
+        <div class="ob-step" data-step="9">
+          <p class="ob-eyebrow">Diagnóstico de matemáticas · 9/10</p>
+          <h2>Un triángulo tiene base de 8 cm y altura de 5 cm. ¿Cuál es su área?</h2>
+          <div class="choice-grid" id="diagQ9">
+            <button class="choice" data-val="0" data-correct="1">20 cm²</button>
+            <button class="choice" data-val="1" data-correct="0">40 cm²</button>
+            <button class="choice" data-val="2" data-correct="0">13 cm²</button>
+            <button class="choice" data-val="3" data-correct="0">26 cm²</button>
+          </div>
+          <button class="btn-primary" id="btnDiag9" disabled>Siguiente</button>
+        </div>
+
+        <div class="ob-step" data-step="10">
+          <p class="ob-eyebrow">Diagnóstico de matemáticas · 10/10</p>
+          <h2>Resuelve: x/3 + 5 = 11.</h2>
+          <div class="choice-grid" id="diagQ10">
+            <button class="choice" data-val="0" data-correct="1">x = 18</button>
+            <button class="choice" data-val="1" data-correct="0">x = 12</button>
+            <button class="choice" data-val="2" data-correct="0">x = 16</button>
+            <button class="choice" data-val="3" data-correct="0">x = 21</button>
+          </div>
+          <button class="btn-primary" id="btnDiag10" disabled>Terminar diagnóstico</button>
+        </div>
+
+        <div class="ob-step" data-step="11">
+          <p class="ob-eyebrow">Personalización · 1/3</p>
+          <h2>Cuando algo no te queda claro, prefieres...</h2>
+          <div class="choice-grid" id="quizQ1">
+            <button class="choice" data-val="V">Que te lo muestren con un dibujo o esquema</button>
+            <button class="choice" data-val="A">Que te lo expliquen hablando, paso a paso</button>
+            <button class="choice" data-val="K">Probarlo tú mismo hasta entenderlo</button>
+            <button class="choice" data-val="L">Leer la explicación con calma</button>
+          </div>
+          <button class="btn-primary" id="btnQ1" disabled>Siguiente</button>
+        </div>
+
+        <div class="ob-step" data-step="12">
+          <p class="ob-eyebrow">Personalización · 2/3</p>
+          <h2>Recuerdas mejor algo si...</h2>
+          <div class="choice-grid" id="quizQ2">
+            <button class="choice" data-val="V">Viste un color, gráfico o imagen relacionada</button>
+            <button class="choice" data-val="A">Lo escuchaste explicado en voz alta</button>
+            <button class="choice" data-val="K">Lo hiciste con tus manos o en un ejercicio práctico</button>
+            <button class="choice" data-val="L">Lo escribiste o lo leíste en un texto</button>
+          </div>
+          <button class="btn-primary" id="btnQ2" disabled>Siguiente</button>
+        </div>
+
+        <div class="ob-step" data-step="13">
+          <p class="ob-eyebrow">Personalización · 3/3</p>
+          <h2>En un ejercicio difícil, tu primer impulso es...</h2>
+          <div class="choice-grid" id="quizQ3">
+            <button class="choice" data-val="V">Buscar un diagrama que lo represente</button>
+            <button class="choice" data-val="A">Explicártelo a ti mismo en voz alta</button>
+            <button class="choice" data-val="K">Intentar resolverlo por ensayo y error</button>
+            <button class="choice" data-val="L">Volver a leer el enunciado con cuidado</button>
+          </div>
+          <button class="btn-primary" id="btnQ3" disabled>Empezar a aprender</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="view" id="view-chat">
+      <div class="chat-scroll" id="chatScroll">
+        <div class="ai-help">
+          <div class="ai-help-head">
+            <div>
+              <p class="ai-help-title">Ayuda con IA</p>
+              <p class="ai-help-sub">Pregunta lo que necesites y, si quieres, adjunta hasta 3 imágenes o archivos de texto.</p>
+            </div>
+          </div>
+          <div class="ai-help-grid">
+            <textarea id="aiQuestion" maxlength="6000" placeholder="Ej.: Explícame este tema paso a paso..." aria-label="Pregunta para la IA"></textarea>
+            <div class="ai-actions">
+              <label class="file-label" for="aiFileInput">📎 Adjuntar</label>
+              <input id="aiFileInput" type="file" multiple accept=".txt,.md,.csv,.json,.png,.jpg,.jpeg,.webp">
+              <button class="ai-ask-btn" id="aiAskBtn">Preguntar</button>
+            </div>
+          </div>
+          <div class="file-list" id="aiFileList"></div>
+          <div class="ai-status" id="aiStatus" role="status"></div>
+        </div>
+      </div>
+      <div class="composer">
+        <input id="chatInput" placeholder="Escribe tu respuesta..." autocomplete="off">
+        <button class="send-btn" id="sendBtn">
+          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="view" id="view-progress">
+      <div class="inner">
+        <h2>Tu sendero</h2>
+        <div class="path" id="pathTrack"></div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="num" id="statLevel">1</div><div class="lbl">Nivel actual</div></div>
+          <div class="stat-card"><div class="num" id="statStreak">0</div><div class="lbl">Racha de aciertos</div></div>
+          <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">Ejercicios resueltos</div></div>
+          <div class="stat-card"><div class="num" id="statAcc">—</div><div class="lbl">Precisión</div></div>
+        </div>
+        <h2 style="font-size:1rem;">Historial reciente</h2>
+        <div id="histList"></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="view" id="view-profile">
+      <div class="inner">
+        <h2>Tu perfil</h2>
+        <div class="field-row"><span>Nombre</span><span id="pfName">—</span></div>
+        <div class="field-row"><span>Materia</span><span id="pfSubject">—</span></div>
+        <div class="field-row"><span>Estilo de aprendizaje</span><span id="pfStyle">—</span></div>
+        <div class="field-row"><span>Resultado diagnóstico</span><span id="pfDiagnostic">—</span></div>
+        <div class="field-row"><span>Nivel actual</span><span id="pfLevel">—</span></div>
+        <button class="reset-btn" id="resetBtn">Reiniciar sendero</button>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <button data-view="chat" class="tab-btn active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        Chat
+      </button>
+      <button data-view="progress" class="tab-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        Progreso
+      </button>
+      <button data-view="profile" class="tab-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        Perfil
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const STYLE_LABEL = { V:"Visual", A:"Auditivo", K:"Kinestésico", L:"Lector/escritor" };
+
+let state = {
+  profile: null,
+  history: [],
+  currentQuestion: null,
+  quizTally: { V:0, A:0, K:0, L:0 },
+  diagnostic: { current: 1, score: 0 },
+  onboard: { name:"" }
+};
+
+// ---------- persistence ----------
+const STORAGE_KEY = 'sendero-student-profile-v2';
+
+async function loadProfile(){
+  try{
+    if(window.storage && typeof window.storage.get === 'function'){
+      const r = await window.storage.get('student-profile');
+      if(r && typeof r.value === 'string' && r.value.trim()){
+        try { return JSON.parse(r.value); }
+        catch(e){ console.warn('Datos guardados inválidos; se usarán datos locales.', e); }
+      }
+    }
+  }catch(e){
+    console.warn('Storage del entorno no disponible; usando almacenamiento local.', e);
+  }
+
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw && raw.trim()) return JSON.parse(raw);
+  }catch(e){
+    console.warn('No se pudo leer localStorage.', e);
+  }
+  return null;
+}
+
+async function saveProfile(){
+  const payload = {
+    profile: state.profile,
+    historyLog: state.historyLog || []
+  };
+  const serialized = JSON.stringify(payload);
+  let saved = false;
+
+  try{
+    if(window.storage && typeof window.storage.set === 'function'){
+      await window.storage.set('student-profile', serialized);
+      saved = true;
+    }
+  }catch(e){
+    console.warn('No se pudo guardar en el storage del entorno; usando localStorage.', e);
+  }
+
+  if(!saved){
+    try{
+      localStorage.setItem(STORAGE_KEY, serialized);
+      saved = true;
+    }catch(e){
+      console.error('No se pudo guardar en localStorage.', e);
+    }
+  }
+}
+
+// ---------- navigation ----------
+function goView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.nav-btn, .tab-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view===name);
+  });
+  if(name==='progress') renderProgress();
+  if(name==='profile') renderProfile();
+}
+document.querySelectorAll('.nav-btn, .tab-btn').forEach(b=>{
+  b.addEventListener('click', ()=>goView(b.dataset.view));
+});
+
+// ---------- onboarding / diagnostic ----------
+function wireChoiceGroup(groupId, btnId, onDone){
+  const group = document.getElementById(groupId);
+  let selected = null;
+  group.querySelectorAll('.choice').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      group.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));
+      c.classList.add('selected');
+      selected = c.dataset.val;
+      document.getElementById(btnId).disabled = false;
+    });
+  });
+  document.getElementById(btnId).addEventListener('click', ()=> onDone(selected));
+}
+
+function showStep(n){
+  document.querySelectorAll('.ob-step').forEach(s=>s.classList.remove('active'));
+  const step = document.querySelector('.ob-step[data-step="'+n+'"]');
+  if(step) step.classList.add('active');
+}
+
+const DIAGNOSTIC_QUESTIONS = [
+  { answer:'0' }, { answer:'0' }, { answer:'0' }, { answer:'0' }, { answer:'0' },
+  { answer:'0' }, { answer:'0' }, { answer:'0' }, { answer:'0' }, { answer:'0' }
+];
+
+function levelFromDiagnostic(score){
+  if(score <= 2) return 1;
+  if(score <= 4) return 2;
+  if(score <= 6) return 3;
+  if(score === 7) return 4;
+  if(score === 8) return 5;
+  if(score === 9) return 6;
+  return 7;
+}
+
+document.getElementById('inputName').addEventListener('input', e=>{
+  document.getElementById('btnStep0').disabled = e.target.value.trim().length===0;
+});
+document.getElementById('btnStep0').disabled = true;
+document.getElementById('btnStep0').addEventListener('click', ()=>{
+  state.onboard.name = document.getElementById('inputName').value.trim();
+  state.diagnostic = { current:1, score:0 };
+  showStep(1);
+});
+
+for(let i=1;i<=10;i++){
+  wireChoiceGroup('diagQ'+i, 'btnDiag'+i, (selected)=>{
+    if(selected === '0') state.diagnostic.score++;
+    if(i < 10){
+      state.diagnostic.current = i + 1;
+      showStep(i + 1);
+    }else{
+      const level = levelFromDiagnostic(state.diagnostic.score);
+      state.profile = {
+        name: state.onboard.name,
+        subject: 'Matemáticas',
+        learningStyle: 'V',
+        level,
+        streak: 0,
+        diagnosticScore: state.diagnostic.score
+      };
+      addDiagnosticResult(level, state.diagnostic.score);
+      showStep(11);
+    }
+  });
+}
+
+wireChoiceGroup('quizQ1','btnQ1', (val)=>{ state.quizTally[val]++; showStep(12); });
+wireChoiceGroup('quizQ2','btnQ2', (val)=>{ state.quizTally[val]++; showStep(13); });
+wireChoiceGroup('quizQ3','btnQ3', async (val)=>{
+  state.quizTally[val]++;
+  const style = Object.entries(state.quizTally).sort((a,b)=>b[1]-a[1])[0][0];
+  await finishOnboarding(style);
+});
+
+function addDiagnosticResult(level, score){
+  const old = document.getElementById('diagnosticResult');
+  if(old) old.remove();
+
+  const card = document.createElement('div');
+  card.id = 'diagnosticResult';
+  card.className = 'msg system-note';
+  card.textContent = `Diagnóstico: ${score}/10 · Nivel inicial ${level}.`;
+  // Se muestra después de entrar a la app.
+  state.pendingDiagnosticNote = card.textContent;
+}
+
+async function finishOnboarding(styleCode){
+  const level = levelFromDiagnostic(state.profile.diagnosticScore || 0);
+  state.profile = {
+    ...state.profile,
+    subject: 'Matemáticas',
+    learningStyle: styleCode,
+    level,
+    streak: 0
+  };
+
+  await saveProfile();
+  enterApp();
+  addSystemNote('Sendero creado para '+state.profile.name);
+  addSystemNote(state.pendingDiagnosticNote || `Nivel inicial ${level}.`);
+  requestNextTurn(null);
+}
+
+// ---------- topbar / header ----------
+function refreshHeader(){
+  document.getElementById('topAvatar').textContent = (state.profile.name[0]||'?').toUpperCase();
+  document.getElementById('topName').textContent = state.profile.name;
+  document.getElementById('topSubject').textContent = 'Matemáticas · ' + STYLE_LABEL[state.profile.learningStyle];
+  document.getElementById('topLevel').textContent = 'Nivel ' + state.profile.level;
+}
+
+function enterApp(){
+  refreshHeader();
+  goView('chat');
+}
+
+// ---------- chat rendering ----------
+const scrollEl = document.getElementById('chatScroll');
+function scrollBottom(){ scrollEl.scrollTop = scrollEl.scrollHeight; }
+
+function addBotMsg(text){
+  const d = document.createElement('div');
+  d.className = 'msg bot';
+  d.textContent = text;
+  scrollEl.appendChild(d); scrollBottom();
+}
+function addUserMsg(text){
+  const d = document.createElement('div');
+  d.className = 'msg user';
+  d.textContent = text;
+  scrollEl.appendChild(d); scrollBottom();
+}
+function addSystemNote(text){
+  const d = document.createElement('div');
+  d.className = 'msg system-note';
+  d.textContent = text;
+  scrollEl.appendChild(d); scrollBottom();
+}
+function addFeedback(correct, text){
+  const d = document.createElement('div');
+  d.className = 'fb-card ' + (correct ? 'ok':'no');
+  d.textContent = (correct ? '✓ ' : '✕ ') + text;
+  scrollEl.appendChild(d); scrollBottom();
+}
+function addExplanation(text){
+  const d = document.createElement('div');
+  d.className = 'explain-card';
+  const tag = document.createElement('span');
+  tag.className='explain-tag';
+  tag.textContent = 'Explicación ' + STYLE_LABEL[state.profile.learningStyle].toLowerCase();
+  d.appendChild(tag);
+  const p = document.createElement('div');
+  p.textContent = text;
+  d.appendChild(p);
+  scrollEl.appendChild(d); scrollBottom();
+}
+function showTyping(){
+  const d = document.createElement('div');
+  d.className='typing'; d.id='typingIndicator';
+  d.innerHTML = '<span></span><span></span><span></span>';
+  scrollEl.appendChild(d); scrollBottom();
+}
+function hideTyping(){
+  const t = document.getElementById('typingIndicator');
+  if(t) t.remove();
+}
+
+// ---------- agent call ----------
+function buildSystemPrompt(){
+  return `Eres un tutor adaptativo para un estudiante de nivel escolar. Materia: Matemáticas. Estilo de aprendizaje del estudiante: ${STYLE_LABEL[state.profile.learningStyle]}. Nivel actual de dificultad: ${state.profile.level} (escala 1 a 10).
+
+Reglas:
+- Si te piden una pregunta nueva (sin respuesta que evaluar), genera un único ejercicio breve y claro de Matemáticas, calibrado al nivel ${state.profile.level}.
+- Si te dan una respuesta del estudiante a evaluar, decide si es correcta, da retroalimentación breve y amable, una explicación adaptada al estilo de aprendizaje indicado (usa lenguaje simple, ejemplos concretos), ajusta el nivel (+1 si acierta con facilidad, -1 si falla, igual si es ambiguo, sin salir del rango 1-10), y genera el siguiente ejercicio.
+- Nunca reveles la respuesta correcta dentro del enunciado del ejercicio.
+- Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional ni backticks, con esta forma exacta:
+{"correct": true|false|null, "feedback": "string o null", "explanation": "string o null", "new_level": number, "next_question": "string"}
+Usa "correct": null y "feedback": null y "explanation": null únicamente cuando estés generando la primera pregunta sin nada que evaluar.`;
+}
+
+async function callAgent(userAnswer){
+  const messages = state.history.slice(-10).map(h=>({role:h.role, content:h.content}));
+
+  if(userAnswer !== null){
+    messages.push({
+      role:'user',
+      content:`Mi respuesta al ejercicio ("${state.currentQuestion}") es: ${userAnswer}`
+    });
+  }else{
+    messages.push({role:'user', content:'Genera la primera pregunta.'});
+  }
+
+  /*
+   * IMPORTANTE:
+   * No se intenta llamar directamente a la API de Groq desde un HTML
+   * estático sin una clave/API proxy. Eso provoca respuestas 401/4xx y,
+   * posteriormente, JSON.parse('') => "Unexpected end of JSON input".
+   *
+   * Si tienes un backend propio, define:
+   *   window.SENDERO_API_URL = "https://tu-servidor.com/api/tutor";
+   * y ese endpoint debe devolver el JSON del tutor.
+   */
+  const apiBase = window.SENDERO_API_BASE || (location.protocol === 'file:' ? 'http://localhost:3000' : '');
+  const apiUrl = window.SENDERO_API_URL || `${apiBase}/api/tutor`;
+  try{
+    const response = await fetch(apiUrl, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        messages,
+        system: buildSystemPrompt()
+      })
+    });
+    const text = await response.text();
+    if(!response.ok) throw new Error(`API ${response.status}: ${text.slice(0,300)}`);
+    if(!text.trim()) throw new Error('La API devolvió una respuesta vacía.');
+    let data;
+    try{ data = JSON.parse(text); }catch(e){ throw new Error('La API no devolvió JSON válido.'); }
+    const parsed = data.parsed || data;
+    validateTutorResult(parsed);
+    return { parsed, rawUser:userAnswer };
+  }catch(err){
+    console.error('Error del backend:', err);
+    throw err;
+  }
+}
+
+function validateTutorResult(result){
+  if(!result || typeof result !== 'object'){
+    throw new Error('Respuesta del tutor inválida.');
+  }
+  if(typeof result.next_question !== 'string' || !result.next_question.trim()){
+    throw new Error('La respuesta del tutor no contiene next_question.');
+  }
+  if(!Number.isFinite(Number(result.new_level))){
+    throw new Error('La respuesta del tutor no contiene new_level válido.');
+  }
+}
+
+function normalizeAnswer(text){
+  return String(text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/[¿?¡!.,;:]/g,'')
+    .trim();
+}
+
+const LOCAL_QUESTIONS = {
+  "Matemáticas": [
+    {q:"Calcula: 7 + 8.", answers:["15"], explanation:"Suma las unidades: 7 + 8 = 15."},
+    {q:"Calcula: 12 − 5.", answers:["7"], explanation:"Si a 12 le quitas 5, quedan 7."},
+    {q:"¿Cuánto es 6 × 4?", answers:["24"], explanation:"6 grupos de 4 equivalen a 24."},
+    {q:"¿Cuánto es 36 ÷ 6?", answers:["6"], explanation:"36 dividido entre 6 es 6."},
+    {q:"¿Cuál es el área de un cuadrado de lado 5 cm?", answers:["25","25 cm2","25 cm²"], explanation:"El área del cuadrado es lado × lado: 5 × 5 = 25 cm²."},
+    {q:"Resuelve: 3x = 18. ¿Cuánto vale x?", answers:["6","x=6"], explanation:"Divide ambos lados entre 3: x = 18 ÷ 3 = 6."}
+  ],
+  "Lenguaje": [
+    {q:"¿Cuál es el sustantivo en la oración «El perro corre rápido»?", answers:["perro","el perro"], explanation:"«Perro» es el sustantivo porque nombra a un ser."},
+    {q:"¿Cuál es el antónimo de «alto»?", answers:["bajo"], explanation:"El antónimo es una palabra de significado contrario. Alto ↔ bajo."},
+    {q:"¿Cuál es el verbo en «María estudia matemáticas»?", answers:["estudia"], explanation:"«Estudia» indica la acción que realiza María."}
+  ],
+  "Ciencias": [
+    {q:"¿Qué planeta es conocido como el planeta rojo?", answers:["marte"], explanation:"Marte tiene una apariencia rojiza debido a minerales de hierro en su superficie."},
+    {q:"¿Qué órgano bombea la sangre por el cuerpo?", answers:["corazon","el corazon"], explanation:"El corazón impulsa la sangre mediante sus contracciones."},
+    {q:"¿En qué estado se encuentra el agua cuando se convierte en hielo?", answers:["solido","sólido"], explanation:"El hielo es agua en estado sólido."}
+  ]
+};
+
+function getLocalQuestion(){
+  const list = LOCAL_QUESTIONS[state.profile.subject] || LOCAL_QUESTIONS["Matemáticas"];
+  const index = (state.historyLog || []).length % list.length;
+  return list[index];
+}
+
+function localTutor(userAnswer){
+  const level = Number(state.profile.level) || 1;
+  const question = getLocalQuestion();
+
+  if(userAnswer === null){
+    return {
+      correct:null,
+      feedback:null,
+      explanation:null,
+      new_level:level,
+      next_question:question.q
+    };
+  }
+
+  const normalized = normalizeAnswer(userAnswer);
+  const correct = question.answers.some(a => normalizeAnswer(a) === normalized);
+
+  let newLevel = level;
+  if(correct) newLevel = Math.min(10, level + 1);
+  else newLevel = Math.max(1, level - 1);
+
+  return {
+    correct,
+    feedback: correct
+      ? "¡Muy bien! Tu respuesta es correcta."
+      : "No es correcto todavía. Vamos a revisar el procedimiento.",
+    explanation: correct
+      ? question.explanation
+      : `${question.explanation} Intenta identificar el paso clave y vuelve a practicar.`,
+    new_level:newLevel,
+    next_question:question.q
+  };
+}
+
+async function requestNextTurn(userAnswer){
+  showTyping();
+  document.getElementById('sendBtn').disabled = true;
+
+  try{
+    const { parsed } = await callAgent(userAnswer);
+    validateTutorResult(parsed);
+    hideTyping();
+
+    if(userAnswer !== null){
+      const questionBeforeAnswer = state.currentQuestion;
+
+      state.history.push({
+        role:'user',
+        content:`Mi respuesta al ejercicio ("${questionBeforeAnswer}") es: ${userAnswer}`
+      });
+
+      if(parsed.feedback) addFeedback(!!parsed.correct, parsed.feedback);
+      if(parsed.explanation) addExplanation(parsed.explanation);
+
+      state.profile.streak = parsed.correct ? (state.profile.streak + 1) : 0;
+
+      state.history.push({
+        role:'assistant',
+        content:JSON.stringify(parsed)
+      });
+
+      state.historyLog = state.historyLog || [];
+      state.historyLog.unshift({
+        q: questionBeforeAnswer || 'Ejercicio',
+        correct: parsed.correct === true,
+        level: state.profile.level
+      });
+      state.historyLog = state.historyLog.slice(0,20);
+    }
+
+    const nextLevel = Number(parsed.new_level);
+    if(Number.isFinite(nextLevel)){
+      state.profile.level = Math.max(1, Math.min(10, nextLevel));
+    }
+
+    refreshHeader();
+    state.currentQuestion = parsed.next_question;
+    addBotMsg(parsed.next_question);
+    await saveProfile();
+  }catch(err){
+    hideTyping();
+    addSystemNote('No pude procesar la pregunta. Se ha mantenido tu progreso. Intenta de nuevo.');
+    console.error('Error del tutor:', err);
+  }finally{
+    document.getElementById('sendBtn').disabled = false;
+  }
+}
+
+document.getElementById('sendBtn').addEventListener('click', submitAnswer);
+document.getElementById('chatInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter') submitAnswer();
+});
+function submitAnswer(){
+  const input = document.getElementById('chatInput');
+  const val = input.value.trim();
+  if(!val) return;
+  addUserMsg(val);
+  input.value='';
+  requestNextTurn(val);
+}
+
+// ---------- AI help with files ----------
+const aiQuestionEl = document.getElementById('aiQuestion');
+const aiFileInput = document.getElementById('aiFileInput');
+const aiFileList = document.getElementById('aiFileList');
+const aiAskBtn = document.getElementById('aiAskBtn');
+const aiStatus = document.getElementById('aiStatus');
+let aiFiles = [];
+
+function renderAiFiles(){
+  aiFileList.innerHTML='';
+  aiFiles.forEach((file,index)=>{
+    const chip=document.createElement('div');
+    chip.className='file-chip';
+    const name=document.createElement('span');
+    name.textContent=file.name;
+    const remove=document.createElement('button');
+    remove.type='button'; remove.textContent='×'; remove.setAttribute('aria-label','Quitar '+file.name);
+    remove.addEventListener('click',()=>{aiFiles.splice(index,1);renderAiFiles();});
+    chip.append(name,remove); aiFileList.appendChild(chip);
+  });
+}
+
+aiFileInput.addEventListener('change',()=>{
+  const incoming=[...aiFileInput.files];
+  const merged=[...aiFiles,...incoming];
+  const unique=[]; const seen=new Set();
+  for(const f of merged){
+    const key=`${f.name}:${f.size}:${f.lastModified}`;
+    if(!seen.has(key)){seen.add(key);unique.push(f);}
+  }
+  aiFiles=unique.slice(0,3);
+  aiFileInput.value='';
+  renderAiFiles();
+});
+
+async function askAi(){
+  const question=aiQuestionEl.value.trim();
+  if(!question && aiFiles.length===0) return;
+  aiAskBtn.disabled=true;
+  aiStatus.textContent='Analizando tu pregunta...';
+  try{
+    const form=new FormData();
+    form.append('question',question);
+    form.append('subject',state.profile?.subject || 'General');
+    form.append('learningStyle',STYLE_LABEL[state.profile?.learningStyle] || 'General');
+    aiFiles.forEach(f=>form.append('files',f,f.name));
+    const apiBase = window.SENDERO_API_BASE || (location.protocol === 'file:' ? 'http://localhost:3000' : '');
+    const response=await fetch(window.SENDERO_ASK_URL || `${apiBase}/api/ask`,{method:'POST',body:form});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(data.error || `API ${response.status}`);
+    if(question) addUserMsg(question);
+    aiFiles.forEach(f=>addUserMsg('📎 '+f.name));
+    addBotMsg(data.answer || 'No recibí una respuesta de la IA.');
+    aiQuestionEl.value=''; aiFiles=[]; renderAiFiles();
+    aiStatus.textContent='Listo.';
+  }catch(err){
+    console.error(err);
+    const message = err?.message || 'Error de conexión';
+    if(message.includes('Failed to fetch') || message.includes('NetworkError')){
+      aiStatus.textContent='No se pudo conectar con el backend. Verifica que el servidor esté activo o que la URL pública de la API esté configurada.';
+    }else{
+      aiStatus.textContent='Error del servidor: ' + message;
+    }
+    addSystemNote('No se pudo procesar la ayuda de IA. Revisa el estado del backend.');
+  }finally{ aiAskBtn.disabled=false; }
+}
+aiAskBtn.addEventListener('click',askAi);
+aiQuestionEl.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter') askAi(); });
+
+// ---------- progress view ----------
+function renderProgress(){
+  const track = document.getElementById('pathTrack');
+  track.innerHTML='';
+  for(let i=1;i<=10;i++){
+    const node = document.createElement('div');
+    node.className = 'path-node' + (i < state.profile.level ? ' filled' : '') + (i===state.profile.level ? ' current' : '');
+    node.textContent = i;
+    track.appendChild(node);
+    if(i<10){ const line=document.createElement('div'); line.className='path-line'; track.appendChild(line); }
+  }
+  document.getElementById('statLevel').textContent = state.profile.level;
+  document.getElementById('statStreak').textContent = state.profile.streak;
+  const log = state.historyLog || [];
+  document.getElementById('statTotal').textContent = log.length;
+  const correctCount = log.filter(l=>l.correct).length;
+  document.getElementById('statAcc').textContent = log.length ? Math.round(100*correctCount/log.length)+'%' : '—';
+
+  const list = document.getElementById('histList');
+  list.innerHTML='';
+  if(log.length===0){
+    list.innerHTML = '<p style="color:var(--ink-soft); font-size:0.9rem;">Aún no hay ejercicios resueltos.</p>';
+  }
+  log.forEach(item=>{
+    const row = document.createElement('div');
+    row.className='hist-item';
+    row.innerHTML = `<span>${item.q.length>46 ? item.q.slice(0,46)+'…' : item.q}</span><span class="hist-tag ${item.correct?'ok':'no'}">${item.correct?'Correcto':'A revisar'}</span>`;
+    list.appendChild(row);
+  });
+}
+
+// ---------- profile view ----------
+function renderProfile(){
+  document.getElementById('pfName').textContent = state.profile.name;
+  document.getElementById('pfSubject').textContent = 'Matemáticas';
+  document.getElementById('pfStyle').textContent = STYLE_LABEL[state.profile.learningStyle] || 'Visual';
+  document.getElementById('pfDiagnostic').textContent =
+    Number.isFinite(Number(state.profile.diagnosticScore))
+      ? `${state.profile.diagnosticScore}/10`
+      : 'No disponible';
+  document.getElementById('pfLevel').textContent = state.profile.level;
+}
+document.getElementById('resetBtn').addEventListener('click', async ()=>{
+  try{
+    if(window.storage && typeof window.storage.delete === 'function'){
+      await window.storage.delete('student-profile');
+    }
+  }catch(e){ console.warn('No se pudo borrar el storage del entorno.', e); }
+
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  location.reload();
+});
+
+// ---------- boot ----------
+(async function boot(){
+  const saved = await loadProfile();
+
+  if(saved && saved.profile){
+    state.profile = saved.profile;
+    state.historyLog = Array.isArray(saved.historyLog)
+      ? saved.historyLog
+      : (Array.isArray(saved.history) ? saved.history : []);
+
+    // Garantizar campos y convertir perfiles antiguos al modo exclusivo de Matemáticas.
+    state.profile.subject = 'Matemáticas';
+    state.profile.learningStyle = STYLE_LABEL[state.profile.learningStyle]
+      ? state.profile.learningStyle
+      : 'V';
+    state.profile.level = Math.max(1, Math.min(10, Number(state.profile.level) || 1));
+    state.profile.streak = Number(state.profile.streak) || 0;
+    state.profile.diagnosticScore = Number.isFinite(Number(state.profile.diagnosticScore))
+      ? Number(state.profile.diagnosticScore)
+      : null;
+    state.history = [];
+
+    enterApp();
+    addSystemNote('Continuando sendero de '+state.profile.name);
+    requestNextTurn(null);
+  }
+})();
+</script>
+</body>
+</html>
