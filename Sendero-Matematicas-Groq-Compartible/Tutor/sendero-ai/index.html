@@ -6,214 +6,229 @@
 <meta name="theme-color" content="#564FE0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Sendero — tutor adaptativo</title>
+<title>MatheIA — Tutor Adaptativo</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
 
-  :root{
-    --bg:#EEF1F6; --surface:#FFFFFF; --surface-alt:#F4F6FB;
-    --ink:#1E2635; --ink-soft:#5B6472; --border:rgba(30,38,53,0.10);
-    --primary:#564FE0; --primary-soft:#EDECFC; --primary-deep:#413AC2;
-    --success:#2E9E6D; --success-soft:#E4F5EC;
-    --amber:#D79A2C; --amber-soft:#FBF0DA;
-    --danger:#C1523D; --danger-soft:#F7E7E3;
-    --display:'Space Grotesk',sans-serif; --sans:'Inter',sans-serif; --mono:'IBM Plex Mono',monospace;
+  :root {
+    --bg: #EEF1F6; 
+    --surface: #FFFFFF; 
+    --surface-alt: #F4F6FB;
+    --ink: #1E2635; 
+    --ink-soft: #5B6472; 
+    --border: rgba(30, 38, 53, 0.10);
+    --primary: #564FE0; 
+    --primary-soft: #EDECFC; 
+    --primary-deep: #413AC2;
+    --success: #2E9E6D; 
+    --success-soft: #E4F5EC;
+    --amber: #D79A2C; 
+    --amber-soft: #FBF0DA;
+    --danger: #C1523D; 
+    --danger-soft: #F7E7E3;
+    --display: 'Space Grotesk', sans-serif; 
+    --sans: 'Inter', sans-serif; 
+    --mono: 'IBM Plex Mono', monospace;
   }
-  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body{ height:100%; }
-  body{
-    margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans);
-    display:flex; justify-content:center;
-  }
-  button{ font-family:inherit; cursor:pointer; }
-  ::selection{ background:var(--primary-soft); }
 
-  #app{ width:100%; max-width:1180px; min-height:100vh; display:flex; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--sans);
+    display: flex; justify-content: center;
+  }
+  button { font-family: inherit; cursor: pointer; }
+  ::selection { background: var(--primary-soft); }
+
+  #app { width: 100%; max-width: 1180px; min-height: 100vh; display: flex; }
 
   /* ---------------- SIDEBAR (web) / hidden on mobile ---------------- */
-  .rail{
-    width:220px; flex-shrink:0; border-right:1px solid var(--border);
-    padding:1.6rem 1.2rem; display:none; flex-direction:column;
+  .rail {
+    width: 240px; flex-shrink: 0; border-right: 1px solid var(--border);
+    padding: 1.6rem 1.2rem; display: none; flex-direction: column; background: var(--surface);
   }
-  .brand{ font-family:var(--display); font-weight:700; font-size:1.15rem; margin-bottom:2.4rem; }
-  .brand span{ color:var(--primary); }
-  .rail-nav button{
-    display:flex; align-items:center; gap:0.7rem; width:100%; text-align:left;
-    background:none; border:none; padding:0.7rem 0.8rem; border-radius:10px;
-    font-size:0.92rem; color:var(--ink-soft); margin-bottom:0.3rem; font-weight:500;
+  .brand { font-family: var(--display); font-weight: 700; font-size: 1.25rem; margin-bottom: 2.4rem; }
+  .brand span { color: var(--primary); }
+  .rail-nav button {
+    display: flex; align-items: center; gap: 0.7rem; width: 100%; text-align: left;
+    background: none; border: none; padding: 0.75rem 0.8rem; border-radius: 10px;
+    font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 0.3rem; font-weight: 500; transition: all 0.2s;
   }
-  .rail-nav button.active{ background:var(--primary-soft); color:var(--primary-deep); }
-  .rail-nav svg{ width:18px; height:18px; flex-shrink:0; }
+  .rail-nav button:hover, .rail-nav button.active { background: var(--primary-soft); color: var(--primary-deep); }
+  .rail-nav svg { width: 18px; height: 18px; flex-shrink: 0; }
 
   /* ---------------- MAIN COLUMN ---------------- */
-  .main-col{ flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; position:relative; }
+  .main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100vh; position: relative; }
 
-  .topbar{
-    padding:1.1rem 1.4rem; border-bottom:1px solid var(--border); background:var(--surface);
-    display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+  .topbar {
+    padding: 1.1rem 1.4rem; border-bottom: 1px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
   }
-  .topbar .who{ display:flex; align-items:center; gap:0.6rem; }
-  .avatar{
-    width:34px; height:34px; border-radius:50%; background:var(--primary);
-    color:#fff; display:flex; align-items:center; justify-content:center;
-    font-family:var(--display); font-weight:600; font-size:0.9rem; flex-shrink:0;
+  .topbar .who { display: flex; align-items: center; gap: 0.6rem; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%; background: var(--primary);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 600; font-size: 0.9rem; flex-shrink: 0;
   }
-  .who h4{ margin:0; font-size:0.92rem; font-weight:600; }
-  .who p{ margin:0; font-size:0.76rem; color:var(--ink-soft); }
-  .level-chip{
-    font-family:var(--mono); font-size:0.78rem; background:var(--amber-soft); color:#8a6a1f;
-    padding:0.3rem 0.65rem; border-radius:20px; font-weight:500;
+  .who h4 { margin: 0; font-size: 0.92rem; font-weight: 600; }
+  .who p { margin: 0; font-size: 0.76rem; color: var(--ink-soft); }
+  .level-chip {
+    font-family: var(--mono); font-size: 0.78rem; background: var(--amber-soft); color: #8a6a1f;
+    padding: 0.3rem 0.65rem; border-radius: 20px; font-weight: 500;
   }
 
   /* ---------------- VIEWS ---------------- */
-  .view{ flex:1; overflow-y:auto; display:none; }
-  .view.active{ display:block; }
+  .view { flex: 1; overflow-y: auto; display: none; }
+  .view.active { display: block; }
 
-  /* onboarding */
-  #view-onboard.active{ display:flex; align-items:center; justify-content:center; padding:2rem 1.4rem; }
-  .ob-card{ max-width:420px; width:100%; }
-  .ob-step{ display:none; }
-  .ob-step.active{ display:block; animation:fadeUp .35s ease; }
-  @keyframes fadeUp{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
-  .ob-eyebrow{ font-family:var(--mono); font-size:0.78rem; color:var(--primary); margin-bottom:0.6rem; }
-  .ob-card h2{ font-family:var(--display); font-size:1.55rem; margin:0 0 0.5rem; line-height:1.25; }
-  .ob-card p.sub{ color:var(--ink-soft); margin:0 0 1.6rem; font-size:0.95rem; }
-  .ob-input{
-    width:100%; padding:0.85rem 1rem; border:1px solid var(--border); border-radius:12px;
-    font-size:1rem; font-family:inherit; margin-bottom:1.2rem; background:var(--surface-alt);
+  /* ONBOARDING */
+  #view-onboard.active { display: flex; align-items: center; justify-content: center; padding: 2rem 1.4rem; }
+  .ob-card { max-width: 420px; width: 100%; }
+  .ob-step { display: none; }
+  .ob-step.active { display: block; animation: fadeUp .35s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .ob-eyebrow { font-family: var(--mono); font-size: 0.78rem; color: var(--primary); margin-bottom: 0.6rem; }
+  .ob-card h2 { font-family: var(--display); font-size: 1.55rem; margin: 0 0 0.5rem; line-height: 1.25; }
+  .ob-card p.sub { color: var(--ink-soft); margin: 0 0 1.6rem; font-size: 0.95rem; }
+  .ob-input {
+    width: 100%; padding: 0.85rem 1rem; border: 1px solid var(--border); border-radius: 12px;
+    font-size: 1rem; font-family: inherit; margin-bottom: 1.2rem; background: var(--surface-alt);
   }
-  .ob-input:focus{ outline:2px solid var(--primary); outline-offset:1px; }
-  .choice-grid{ display:grid; gap:0.6rem; margin-bottom:1.4rem; }
-  .choice{
-    text-align:left; padding:0.85rem 1rem; border:1px solid var(--border); border-radius:12px;
-    background:var(--surface); font-size:0.92rem; font-weight:500; color:var(--ink);
+  .ob-input:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .choice-grid { display: grid; gap: 0.6rem; margin-bottom: 1.4rem; }
+  .choice {
+    text-align: left; padding: 0.85rem 1rem; border: 1px solid var(--border); border-radius: 12px;
+    background: var(--surface); font-size: 0.92rem; font-weight: 500; color: var(--ink);
   }
-  .choice:hover{ border-color:var(--primary); }
-  .choice.selected{ border-color:var(--primary); background:var(--primary-soft); color:var(--primary-deep); }
-  .btn-primary{
-    width:100%; padding:0.9rem; border:none; border-radius:12px; background:var(--primary);
-    color:#fff; font-size:0.95rem; font-weight:600;
+  .choice:hover { border-color: var(--primary); }
+  .choice.selected { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-deep); }
+  .btn-primary {
+    width: 100%; padding: 0.9rem; border: none; border-radius: 12px; background: var(--primary);
+    color: #fff; font-size: 0.95rem; font-weight: 600; transition: background 0.2s;
   }
-  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; }
-  .btn-primary:not(:disabled):hover{ background:var(--primary-deep); }
-  .ob-dots{ display:flex; gap:6px; margin-bottom:1.6rem; }
-  .ob-dots span{ height:4px; flex:1; border-radius:2px; background:var(--border); }
-  .ob-dots span.done{ background:var(--primary); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary:not(:disabled):hover { background: var(--primary-deep); }
 
-  /* chat */
-  #view-chat.active{ display:flex; flex-direction:column; }
-  .chat-scroll{ flex:1; overflow-y:auto; padding:1.4rem; display:flex; flex-direction:column; gap:0.9rem; }
-  .msg{ max-width:78%; padding:0.8rem 1rem; border-radius:16px; font-size:0.94rem; line-height:1.5; }
-  .msg.bot{ background:var(--surface); border:1px solid var(--border); border-bottom-left-radius:4px; align-self:flex-start; }
-  .msg.user{ background:var(--primary); color:#fff; border-bottom-right-radius:4px; align-self:flex-end; }
-  .msg.system-note{ align-self:center; font-family:var(--mono); font-size:0.74rem; color:var(--ink-soft); background:var(--surface-alt); padding:0.4rem 0.8rem; border-radius:20px; }
-  .explain-card{
-    align-self:flex-start; max-width:82%; background:var(--surface); border:1px solid var(--border);
-    border-left:3px solid var(--amber); border-radius:12px; padding:0.9rem 1rem;
+  /* CHAT / CONVERSACIÓN */
+  #view-chat.active { display: flex; flex-direction: column; }
+  .chat-scroll { flex: 1; overflow-y: auto; padding: 1.4rem; display: flex; flex-direction: column; gap: 0.9rem; }
+  .msg { max-width: 78%; padding: 0.8rem 1rem; border-radius: 16px; font-size: 0.94rem; line-height: 1.5; white-space: pre-wrap; }
+  .msg.bot { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; align-self: flex-start; }
+  .msg.user { background: var(--primary); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+  .msg.system-note { align-self: center; font-family: var(--mono); font-size: 0.74rem; color: var(--ink-soft); background: var(--surface-alt); padding: 0.4rem 0.8rem; border-radius: 20px; }
+  .explain-card {
+    align-self: flex-start; max-width: 82%; background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--amber); border-radius: 12px; padding: 0.9rem 1rem;
   }
-  .explain-tag{ font-family:var(--mono); font-size:0.7rem; color:#8a6a1f; margin-bottom:0.4rem; display:block; }
-  .fb-card{ align-self:flex-start; max-width:82%; border-radius:12px; padding:0.85rem 1rem; font-size:0.92rem; font-weight:500; }
-  .fb-card.ok{ background:var(--success-soft); color:#1d6e4c; }
-  .fb-card.no{ background:var(--danger-soft); color:#8a3b28; }
-  .typing{ align-self:flex-start; display:flex; gap:4px; padding:0.9rem 1rem; }
-  .typing span{ width:6px; height:6px; border-radius:50%; background:var(--ink-soft); animation:blink 1.2s infinite; }
-  .typing span:nth-child(2){ animation-delay:0.2s; } .typing span:nth-child(3){ animation-delay:0.4s; }
-  @keyframes blink{ 0%,80%,100%{opacity:0.25;} 40%{opacity:1;} }
+  .explain-tag { font-family: var(--mono); font-size: 0.7rem; color: #8a6a1f; margin-bottom: 0.4rem; display: block; }
+  .fb-card { align-self: flex-start; max-width: 82%; border-radius: 12px; padding: 0.85rem 1rem; font-size: 0.92rem; font-weight: 500; }
+  .fb-card.ok { background: var(--success-soft); color: #1d6e4c; }
+  .fb-card.no { background: var(--danger-soft); color: #8a3b28; }
+  .typing { align-self: flex-start; display: flex; gap: 4px; padding: 0.9rem 1rem; }
+  .typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-soft); animation: blink 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; } .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0.25;} 40%{opacity:1;} }
 
-  .composer{ border-top:1px solid var(--border); background:var(--surface); padding:0.8rem 1rem; display:flex; gap:0.6rem; flex-shrink:0; }
-  .composer input{
-    flex:1; border:1px solid var(--border); border-radius:24px; padding:0.75rem 1.1rem;
-    font-size:0.95rem; font-family:inherit; background:var(--surface-alt);
+  .composer { border-top: 1px solid var(--border); background: var(--surface); padding: 0.8rem 1rem; display: flex; gap: 0.6rem; flex-shrink: 0; }
+  .composer input {
+    flex: 1; border: 1px solid var(--border); border-radius: 24px; padding: 0.75rem 1.1rem;
+    font-size: 0.95rem; font-family: inherit; background: var(--surface-alt);
   }
-  .composer input:focus{ outline:2px solid var(--primary); outline-offset:1px; }
-  .send-btn{
-    width:44px; height:44px; border-radius:50%; background:var(--primary); border:none;
-    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  .composer input:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .send-btn {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--primary); border: none;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .send-btn:disabled{ opacity:0.4; }
-  .send-btn svg{ width:18px; height:18px; fill:#fff; }
+  .send-btn:disabled { opacity: 0.4; }
+  .send-btn svg { width: 18px; height: 18px; fill: #fff; }
 
-  /* progress view */
-  #view-progress .inner{ padding:1.6rem 1.4rem 2rem; }
-  #view-progress h2{ font-family:var(--display); font-size:1.3rem; margin:0 0 1.4rem; }
-  .path{ display:flex; align-items:center; gap:4px; margin-bottom:1.8rem; overflow-x:auto; padding:0.4rem 0.1rem; }
-  .path-node{
-    width:34px; height:34px; border-radius:50%; flex-shrink:0; display:flex; align-items:center;
-    justify-content:center; font-family:var(--mono); font-size:0.75rem; border:2px solid var(--border);
-    color:var(--ink-soft); background:var(--surface);
+  /* AI HELP CARD INTEGRADO */
+  .ai-help {
+    margin: 0 0 1rem; padding: 1.2rem; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; box-shadow: 0 4px 18px rgba(30, 38, 53, 0.04);
   }
-  .path-node.filled{ background:var(--primary); border-color:var(--primary); color:#fff; }
-  .path-node.current{ border-color:var(--primary); color:var(--primary-deep); font-weight:700; }
-  .path-line{ height:2px; width:14px; background:var(--border); flex-shrink:0; }
-  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-bottom:1.8rem; }
-  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1rem 1.1rem; }
-  .stat-card .num{ font-family:var(--mono); font-size:1.5rem; color:var(--primary-deep); }
-  .stat-card .lbl{ font-size:0.78rem; color:var(--ink-soft); margin-top:0.2rem; }
-  .hist-item{ display:flex; justify-content:space-between; padding:0.75rem 0; border-bottom:1px solid var(--border); font-size:0.9rem; }
-  .hist-item:last-child{ border-bottom:none; }
-  .hist-tag{ font-family:var(--mono); font-size:0.72rem; padding:0.15rem 0.5rem; border-radius:6px; }
-  .hist-tag.ok{ background:var(--success-soft); color:#1d6e4c; } .hist-tag.no{ background:var(--danger-soft); color:#8a3b28; }
+  .ai-help-head { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: 0.7rem; }
+  .ai-help-title { font-family: var(--display); font-weight: 700; font-size: 1rem; margin: 0; }
+  .ai-help-sub { font-size: 0.82rem; color: var(--ink-soft); margin: 0.2rem 0 0; }
+  .ai-help-grid { display: flex; gap: 0.55rem; align-items: stretch; }
+  .ai-help-grid textarea { flex: 1; min-height: 76px; resize: vertical; border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 0.9rem; background: var(--surface-alt); font: inherit; font-size: 0.9rem; }
+  .ai-help-grid textarea:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .ai-actions { display: flex; flex-direction: column; gap: 0.45rem; min-width: 118px; }
+  .file-label, .ai-ask-btn { border-radius: 10px; padding: 0.65rem 0.75rem; font-size: 0.8rem; font-weight: 600; text-align: center; }
+  .file-label { border: 1px solid var(--border); background: var(--surface-alt); color: var(--ink); cursor: pointer; }
+  .file-label:hover { border-color: var(--primary); }
+  .ai-ask-btn { border: none; background: var(--primary); color: #fff; cursor: pointer; }
+  .ai-ask-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  #aiFileInput { display: none; }
+  .file-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
+  .file-chip { display: flex; align-items: center; gap: 0.35rem; background: var(--primary-soft); color: var(--primary-deep); border-radius: 999px; padding: 0.3rem 0.55rem; font-size: 0.72rem; max-width: 100%; }
+  .file-chip button { border: 0; background: none; color: inherit; font-weight: 700; padding: 0; line-height: 1; }
+  .ai-status { font-size: 0.72rem; color: var(--ink-soft); margin-top: 0.5rem; min-height: 1em; }
 
-  /* profile view */
-  #view-profile .inner{ padding:1.6rem 1.4rem 2rem; }
-  #view-profile h2{ font-family:var(--display); font-size:1.3rem; margin:0 0 1.2rem; }
-  .field-row{ display:flex; justify-content:space-between; padding:0.9rem 0; border-bottom:1px solid var(--border); font-size:0.92rem; }
-  .field-row span:first-child{ color:var(--ink-soft); }
-  .reset-btn{ margin-top:1.6rem; width:100%; padding:0.85rem; border-radius:12px; border:1px solid var(--danger); background:none; color:var(--danger); font-weight:600; font-size:0.9rem; }
+  /* PROGRESS VIEW */
+  #view-progress .inner { padding: 1.6rem 1.4rem 2rem; }
+  #view-progress h2 { font-family: var(--display); font-size: 1.3rem; margin: 0 0 1.4rem; }
+  .path { display: flex; align-items: center; gap: 4px; margin-bottom: 1.8rem; overflow-x: auto; padding: 0.4rem 0.1rem; }
+  .path-node {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-family: var(--mono); font-size: 0.75rem; border: 2px solid var(--border);
+    color: var(--ink-soft); background: var(--surface);
+  }
+  .path-node.filled { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .path-node.current { border-color: var(--primary); color: var(--primary-deep); font-weight: 700; }
+  .path-line { height: 2px; width: 14px; background: var(--border); flex-shrink: 0; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.8rem; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; }
+  .stat-card .num { font-family: var(--mono); font-size: 1.5rem; color: var(--primary-deep); }
+  .stat-card .lbl { font-size: 0.78rem; color: var(--ink-soft); margin-top: 0.2rem; }
+  .hist-item { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-tag { font-family: var(--mono); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 6px; }
+  .hist-tag.ok { background: var(--success-soft); color: #1d6e4c; } 
+  .hist-tag.no { background: var(--danger-soft); color: #8a3b28; }
 
-  /* bottom nav (mobile) */
-  .tabbar{
-    display:flex; border-top:1px solid var(--border); background:var(--surface); flex-shrink:0;
-    padding-bottom:env(safe-area-inset-bottom);
-  }
-  .tabbar button{
-    flex:1; background:none; border:none; padding:0.6rem 0 0.5rem; display:flex; flex-direction:column;
-    align-items:center; gap:2px; color:var(--ink-soft); font-size:0.68rem; font-weight:500;
-  }
-  .tabbar button.active{ color:var(--primary); }
-  .tabbar svg{ width:20px; height:20px; }
+  /* PRACTICA VIEW */
+  #view-practica .inner { padding: 1.6rem 1.4rem 2rem; }
+  #view-practica h2 { font-family: var(--display); font-size: 1.3rem; margin: 0 0 0.5rem; }
+  .quiz-card { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); padding: 1.5rem; max-width: 800px; margin-top: 1rem; }
+  .quiz-option { display: block; margin: 0.8rem 0; cursor: pointer; font-size: 0.95rem; }
+  .alert { padding: 1rem; border-radius: 10px; margin-top: 1.2rem; font-size: 0.9rem; line-height: 1.4; }
+  .alert-success { background: var(--success-soft); color: #1d6e4c; border: 1px solid #A7F3D0; }
+  .alert-danger { background: var(--danger-soft); color: #8a3b28; border: 1px solid #FECACA; }
 
+  /* PROFILE VIEW */
+  #view-profile .inner { padding: 1.6rem 1.4rem 2rem; }
+  #view-profile h2 { font-family: var(--display); font-size: 1.3rem; margin: 0 0 1.2rem; }
+  .field-row { display: flex; justify-content: space-between; padding: 0.9rem 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
+  .field-row span:first-child { color: var(--ink-soft); }
+  .reset-btn { margin-top: 1.6rem; width: 100%; padding: 0.85rem; border-radius: 12px; border: 1px solid var(--danger); background: none; color: var(--danger); font-weight: 600; font-size: 0.9rem; }
 
-  /* ---------------- AI HELP / FILES ---------------- */
-  .ai-help{
-    margin:0 0 1rem; padding:1rem; background:var(--surface); border:1px solid var(--border);
-    border-radius:16px; box-shadow:0 4px 18px rgba(30,38,53,.04);
+  /* TABBAR (mobile) */
+  .tabbar {
+    display: flex; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0;
+    padding-bottom: env(safe-area-inset-bottom);
   }
-  .ai-help-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:.7rem}
-  .ai-help-title{font-family:var(--display);font-weight:700;font-size:.98rem;margin:0}
-  .ai-help-sub{font-size:.76rem;color:var(--ink-soft);margin:.2rem 0 0}
-  .ai-help-grid{display:flex;gap:.55rem;align-items:stretch}
-  .ai-help-grid textarea{flex:1;min-height:76px;resize:vertical;border:1px solid var(--border);border-radius:12px;padding:.75rem .9rem;background:var(--surface-alt);font:inherit;font-size:.9rem}
-  .ai-help-grid textarea:focus{outline:2px solid var(--primary);outline-offset:1px}
-  .ai-actions{display:flex;flex-direction:column;gap:.45rem;min-width:118px}
-  .file-label,.ai-ask-btn{border-radius:10px;padding:.65rem .75rem;font-size:.8rem;font-weight:600;text-align:center}
-  .file-label{border:1px solid var(--border);background:var(--surface-alt);color:var(--ink);cursor:pointer}
-  .file-label:hover{border-color:var(--primary)}
-  .ai-ask-btn{border:none;background:var(--primary);color:#fff;cursor:pointer}
-  .ai-ask-btn:disabled{opacity:.45;cursor:not-allowed}
-  #aiFileInput{display:none}
-  .file-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
-  .file-chip{display:flex;align-items:center;gap:.35rem;background:var(--primary-soft);color:var(--primary-deep);border-radius:999px;padding:.3rem .55rem;font-size:.72rem;max-width:100%}
-  .file-chip button{border:0;background:none;color:inherit;font-weight:700;padding:0;line-height:1}
-  .ai-status{font-size:.72rem;color:var(--ink-soft);margin-top:.5rem;min-height:1em}
-  .msg.ai{border-left:3px solid var(--primary);}
-  @media (max-width:560px){
-    .ai-help-grid{flex-direction:column}.ai-actions{flex-direction:row}.ai-actions>*{flex:1}
+  .tabbar button {
+    flex: 1; background: none; border: none; padding: 0.6rem 0 0.5rem; display: flex; flex-direction: column;
+    align-items: center; gap: 2px; color: var(--ink-soft); font-size: 0.68rem; font-weight: 500;
   }
+  .tabbar button.active { color: var(--primary); }
+  .tabbar svg { width: 20px; height: 20px; }
 
-  @media (min-width:780px){
-    .rail{ display:flex; }
-    .tabbar{ display:none; }
-    .topbar{ display:none; }
-    #view-chat .chat-scroll{ padding:2rem 3rem; }
-    #view-chat .composer{ padding:1rem 3rem; }
-    .msg, .explain-card, .fb-card{ max-width:60%; }
-  }
-  .offline-note{
-    align-self:center; font-family:var(--mono); font-size:0.68rem; color:var(--ink-soft);
-    background:var(--surface-alt); padding:0.35rem 0.7rem; border-radius:16px; display:none;
+  @media (max-width: 560px) {
+    .ai-help-grid { flex-direction: column; }
+    .ai-actions { flex-direction: row; }
+    .ai-actions > * { flex: 1; }
   }
 
+  @media (min-width: 780px) {
+    .rail { display: flex; }
+    .tabbar { display: none; }
+    .topbar { display: none; }
+    #view-chat .chat-scroll { padding: 2rem 3rem; }
+    #view-chat .composer { padding: 1rem 3rem; }
+    .msg, .explain-card, .fb-card { max-width: 60%; }
+  }
 </style>
 </head>
 <body>
@@ -222,7 +237,7 @@
 
   <!-- SIDEBAR (web) -->
   <div class="rail">
-    <div class="brand">MatheIA<span>.</span></div>
+    <div class="brand">Mathe<span>IA</span></div>
     <div class="rail-nav">
       <button data-view="chat" class="nav-btn active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
@@ -231,6 +246,10 @@
       <button data-view="progress" class="nav-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
         Progreso
+      </button>
+      <button data-view="practica" class="nav-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Práctica
       </button>
       <button data-view="profile" class="nav-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -418,14 +437,14 @@
       </div>
     </div>
 
-    <!-- CHAT -->
+    <!-- CHAT / CONVERSACIÓN -->
     <div class="view" id="view-chat">
       <div class="chat-scroll" id="chatScroll">
         <div class="ai-help">
           <div class="ai-help-head">
             <div>
               <p class="ai-help-title">Ayuda con IA</p>
-              <p class="ai-help-sub">Pregunta lo que necesites y, si quieres, adjunta hasta 3 imágenes o archivos de texto.</p>
+              <p class="ai-help-sub">Escribe tu duda o adjunta hasta 3 archivos. Tu tutor responderá directamente en el chat.</p>
             </div>
           </div>
           <div class="ai-help-grid">
@@ -448,7 +467,7 @@
       </div>
     </div>
 
-    <!-- PROGRESS -->
+    <!-- PROGRESS VIEW -->
     <div class="view" id="view-progress">
       <div class="inner">
         <h2>Tu sendero</h2>
@@ -464,7 +483,28 @@
       </div>
     </div>
 
-    <!-- PROFILE -->
+    <!-- PRACTICA VIEW -->
+    <div class="view" id="view-practica">
+      <div class="inner">
+        <h2>Examen Simulado de Práctica</h2>
+        <p style="color:var(--ink-soft); font-size:0.9rem;">Resuelve ejercicios independientes para evaluar tus conocimientos generales.</p>
+        
+        <div class="quiz-card">
+          <h3 style="margin-bottom:0.6rem; font-size:1rem;">Pregunta 1:</h3>
+          <p style="margin-bottom: 1rem;">Si un auto viaja a una velocidad constante de 60 km/h, ¿cuántos kilómetros recorrerá en 3.5 horas?</p>
+          
+          <label class="quiz-option"><input type="radio" name="p1" value="a"> 180 km</label>
+          <label class="quiz-option"><input type="radio" name="p1" value="b"> 210 km</label>
+          <label class="quiz-option"><input type="radio" name="p1" value="c"> 240 km</label>
+
+          <button class="btn-primary" style="margin-top:1rem; width:auto; padding:0.7rem 1.4rem;" onclick="evaluarPractica()">Enviar Examen</button>
+
+          <div id="quiz-results" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE VIEW -->
     <div class="view" id="view-profile">
       <div class="inner">
         <h2>Tu perfil</h2>
@@ -477,6 +517,7 @@
       </div>
     </div>
 
+    <!-- TABBAR (mobile) -->
     <div class="tabbar">
       <button data-view="chat" class="tab-btn active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
@@ -485,6 +526,10 @@
       <button data-view="progress" class="tab-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
         Progreso
+      </button>
+      <button data-view="practica" class="tab-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Práctica
       </button>
       <button data-view="profile" class="tab-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -594,11 +639,6 @@ function showStep(n){
   if(step) step.classList.add('active');
 }
 
-const DIAGNOSTIC_QUESTIONS = [
-  { answer:'0' }, { answer:'0' }, { answer:'0' }, { answer:'0' }, { answer:'0' },
-  { answer:'0' }, { answer:'0' }, { answer:'0' }, { answer:'0' }, { answer:'0' }
-];
-
 function levelFromDiagnostic(score){
   if(score <= 2) return 1;
   if(score <= 4) return 2;
@@ -657,7 +697,6 @@ function addDiagnosticResult(level, score){
   card.id = 'diagnosticResult';
   card.className = 'msg system-note';
   card.textContent = `Diagnóstico: ${score}/10 · Nivel inicial ${level}.`;
-  // Se muestra después de entrar a la app.
   state.pendingDiagnosticNote = card.textContent;
 }
 
@@ -767,16 +806,6 @@ async function callAgent(userAnswer){
     messages.push({role:'user', content:'Genera la primera pregunta.'});
   }
 
-  /*
-   * IMPORTANTE:
-   * No se intenta llamar directamente a la API de Groq desde un HTML
-   * estático sin una clave/API proxy. Eso provoca respuestas 401/4xx y,
-   * posteriormente, JSON.parse('') => "Unexpected end of JSON input".
-   *
-   * Si tienes un backend propio, define:
-   *   window.SENDERO_API_URL = "https://tu-servidor.com/api/tutor";
-   * y ese endpoint debe devolver el JSON del tutor.
-   */
   const apiBase = window.SENDERO_API_BASE || (location.protocol === 'file:' ? 'http://localhost:3000' : '');
   const apiUrl = window.SENDERO_API_URL || `${apiBase}/api/tutor`;
   try{
@@ -812,76 +841,6 @@ function validateTutorResult(result){
   if(!Number.isFinite(Number(result.new_level))){
     throw new Error('La respuesta del tutor no contiene new_level válido.');
   }
-}
-
-function normalizeAnswer(text){
-  return String(text || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g,'')
-    .replace(/[¿?¡!.,;:]/g,'')
-    .trim();
-}
-
-const LOCAL_QUESTIONS = {
-  "Matemáticas": [
-    {q:"Calcula: 7 + 8.", answers:["15"], explanation:"Suma las unidades: 7 + 8 = 15."},
-    {q:"Calcula: 12 − 5.", answers:["7"], explanation:"Si a 12 le quitas 5, quedan 7."},
-    {q:"¿Cuánto es 6 × 4?", answers:["24"], explanation:"6 grupos de 4 equivalen a 24."},
-    {q:"¿Cuánto es 36 ÷ 6?", answers:["6"], explanation:"36 dividido entre 6 es 6."},
-    {q:"¿Cuál es el área de un cuadrado de lado 5 cm?", answers:["25","25 cm2","25 cm²"], explanation:"El área del cuadrado es lado × lado: 5 × 5 = 25 cm²."},
-    {q:"Resuelve: 3x = 18. ¿Cuánto vale x?", answers:["6","x=6"], explanation:"Divide ambos lados entre 3: x = 18 ÷ 3 = 6."}
-  ],
-  "Lenguaje": [
-    {q:"¿Cuál es el sustantivo en la oración «El perro corre rápido»?", answers:["perro","el perro"], explanation:"«Perro» es el sustantivo porque nombra a un ser."},
-    {q:"¿Cuál es el antónimo de «alto»?", answers:["bajo"], explanation:"El antónimo es una palabra de significado contrario. Alto ↔ bajo."},
-    {q:"¿Cuál es el verbo en «María estudia matemáticas»?", answers:["estudia"], explanation:"«Estudia» indica la acción que realiza María."}
-  ],
-  "Ciencias": [
-    {q:"¿Qué planeta es conocido como el planeta rojo?", answers:["marte"], explanation:"Marte tiene una apariencia rojiza debido a minerales de hierro en su superficie."},
-    {q:"¿Qué órgano bombea la sangre por el cuerpo?", answers:["corazon","el corazon"], explanation:"El corazón impulsa la sangre mediante sus contracciones."},
-    {q:"¿En qué estado se encuentra el agua cuando se convierte en hielo?", answers:["solido","sólido"], explanation:"El hielo es agua en estado sólido."}
-  ]
-};
-
-function getLocalQuestion(){
-  const list = LOCAL_QUESTIONS[state.profile.subject] || LOCAL_QUESTIONS["Matemáticas"];
-  const index = (state.historyLog || []).length % list.length;
-  return list[index];
-}
-
-function localTutor(userAnswer){
-  const level = Number(state.profile.level) || 1;
-  const question = getLocalQuestion();
-
-  if(userAnswer === null){
-    return {
-      correct:null,
-      feedback:null,
-      explanation:null,
-      new_level:level,
-      next_question:question.q
-    };
-  }
-
-  const normalized = normalizeAnswer(userAnswer);
-  const correct = question.answers.some(a => normalizeAnswer(a) === normalized);
-
-  let newLevel = level;
-  if(correct) newLevel = Math.min(10, level + 1);
-  else newLevel = Math.max(1, level - 1);
-
-  return {
-    correct,
-    feedback: correct
-      ? "¡Muy bien! Tu respuesta es correcta."
-      : "No es correcto todavía. Vamos a revisar el procedimiento.",
-    explanation: correct
-      ? question.explanation
-      : `${question.explanation} Intenta identificar el paso clave y vuelve a practicar.`,
-    new_level:newLevel,
-    next_question:question.q
-  };
 }
 
 async function requestNextTurn(userAnswer){
@@ -951,7 +910,7 @@ function submitAnswer(){
   requestNextTurn(val);
 }
 
-// ---------- AI help with files ----------
+// ---------- AI help con archivos ----------
 const aiQuestionEl = document.getElementById('aiQuestion');
 const aiFileInput = document.getElementById('aiFileInput');
 const aiFileList = document.getElementById('aiFileList');
@@ -994,31 +953,58 @@ async function askAi(){
   try{
     const form=new FormData();
     form.append('question',question);
-    form.append('subject',state.profile?.subject || 'General');
-    form.append('learningStyle',STYLE_LABEL[state.profile?.learningStyle] || 'General');
+    form.append('subject',state.profile?.subject || 'Matemáticas');
+    form.append('learningStyle',STYLE_LABEL[state.profile?.learningStyle] || 'Visual');
     aiFiles.forEach(f=>form.append('files',f,f.name));
+    
     const apiBase = window.SENDERO_API_BASE || (location.protocol === 'file:' ? 'http://localhost:3000' : '');
     const response=await fetch(window.SENDERO_ASK_URL || `${apiBase}/api/ask`,{method:'POST',body:form});
     const data=await response.json().catch(()=>({}));
     if(!response.ok) throw new Error(data.error || `API ${response.status}`);
+    
     if(question) addUserMsg(question);
     aiFiles.forEach(f=>addUserMsg('📎 '+f.name));
     addBotMsg(data.answer || 'No recibí una respuesta de la IA.');
+    
     aiQuestionEl.value=''; aiFiles=[]; renderAiFiles();
     aiStatus.textContent='Listo.';
   }catch(err){
     console.error(err);
     const message = err?.message || 'Error de conexión';
-    if(message.includes('Failed to fetch') || message.includes('NetworkError')){
-      aiStatus.textContent='No se pudo conectar con el backend. Verifica que el servidor esté activo o que la URL pública de la API esté configurada.';
-    }else{
-      aiStatus.textContent='Error del servidor: ' + message;
-    }
+    aiStatus.textContent='Error del servidor: ' + message;
     addSystemNote('No se pudo procesar la ayuda de IA. Revisa el estado del backend.');
   }finally{ aiAskBtn.disabled=false; }
 }
 aiAskBtn.addEventListener('click',askAi);
 aiQuestionEl.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter') askAi(); });
+
+// ---------- practica view ----------
+function evaluarPractica(){
+  const seleccion = document.querySelector('input[name="p1"]:checked');
+  const resultadosDiv = document.getElementById('quiz-results');
+  
+  if (!seleccion) {
+    alert("Selecciona una opción antes de enviar.");
+    return;
+  }
+  
+  resultadosDiv.style.display = 'block';
+  if (seleccion.value === 'b') {
+    resultadosDiv.innerHTML = `
+      <div class="alert alert-success">
+        <strong>¡Respuesta Correcta! (210 km)</strong><br>
+        <em>Explicación paso a paso:</em> Usamos la fórmula de distancia: $Distancia = Velocidad \\times Tiempo$.<br>
+        Multiplicamos $60 \\text{ km/h} \\times 3.5 \\text{ horas} = 210 \\text{ km}$.
+      </div>`;
+  } else {
+    resultadosDiv.innerHTML = `
+      <div class="alert alert-danger">
+        <strong>Respuesta Incorrecta.</strong><br>
+        <em>Explicación detallada:</em> Recuerda multiplicar la velocidad constante por el tiempo total.<br>
+        El cálculo correcto es: $60 \\text{ km/h} \\times 3.5 \\text{ h} = 210 \\text{ km}$. Intenta revisar la multiplicación en decimales.
+      </div>`;
+  }
+}
 
 // ---------- progress view ----------
 function renderProgress(){
@@ -1062,6 +1048,7 @@ function renderProfile(){
       : 'No disponible';
   document.getElementById('pfLevel').textContent = state.profile.level;
 }
+
 document.getElementById('resetBtn').addEventListener('click', async ()=>{
   try{
     if(window.storage && typeof window.storage.delete === 'function'){
@@ -1083,7 +1070,6 @@ document.getElementById('resetBtn').addEventListener('click', async ()=>{
       ? saved.historyLog
       : (Array.isArray(saved.history) ? saved.history : []);
 
-    // Garantizar campos y convertir perfiles antiguos al modo exclusivo de Matemáticas.
     state.profile.subject = 'Matemáticas';
     state.profile.learningStyle = STYLE_LABEL[state.profile.learningStyle]
       ? state.profile.learningStyle
