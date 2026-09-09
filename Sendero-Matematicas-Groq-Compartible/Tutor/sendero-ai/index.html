@@ -731,16 +731,35 @@ function enterApp(){
   goView('chat');
 }
 
-// ---------- limpiador de notaciones matemáticas ----------
+// Limpiador mejorado de notaciones
 function cleanMathNotation(text) {
   if (!text) return '';
   return text
-    .replace(/\\text\{([^}]+)\}/g, '$1')   // Remueve \text{...}
-    .replace(/\\times/g, '×')             // Cambia \times por ×
-    .replace(/\\div/g, '÷')               // Cambia \div por ÷
-    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2') // Cambia \frac{a}{b} por a/b
-    .replace(/\\/g, '')                  // Quita barras invertidas restantes
-    .replace(/\$/g, '');                 // Quita signos de peso ($) de LaTeX
+    .replace(/\\text\{([^}]+)\}/g, '$1')   
+    .replace(/\\times/g, '×')             
+    .replace(/\\div/g, '÷')               
+    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2') 
+    .replace(/\\quad/g, ' ')               // Elimina \quad de LaTeX
+    .replace(/\\/g, '')                  
+    .replace(/\$/g, '');                 
+}
+
+// Renderiza mensajes con formato visible limpio (negritas, encabezados y saltos)
+function addBotFormattedMsg(text){
+  const clean = cleanMathNotation(text);
+  
+  // Convierte Markdown básico a HTML
+  let html = clean
+    .replace(/^## (.*$)/gim, '<strong style="font-size: 1.05em; display:block; margin-top:0.6em;">$1</strong>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/---/g, '<hr style="border:0; border-top:1px solid var(--border); margin:0.8em 0;">')
+    .replace(/\n/g, '<br>');
+
+  const d = document.createElement('div');
+  d.className = 'msg bot';
+  d.innerHTML = html;
+  scrollEl.appendChild(d); 
+  scrollBottom();
 }
 
 // ---------- chat rendering ----------
@@ -978,7 +997,13 @@ async function askAi(){
     
     if(question) addUserMsg(question);
     aiFiles.forEach(f=>addUserMsg('📎 '+f.name));
-    addBotMsg(data.answer || 'No recibí una respuesta de la IA.');
+
+    // Limpia notaciones y renderiza el formato correctamente
+    if (data.answer) {
+      addBotFormattedMsg(data.answer);
+    } else {
+      addBotMsg('No recibí una respuesta de la IA.');
+    }
     
     aiQuestionEl.value=''; aiFiles=[]; renderAiFiles();
     aiStatus.textContent='Listo.';
