@@ -731,6 +731,18 @@ function enterApp(){
   goView('chat');
 }
 
+// ---------- limpiador de notaciones matemáticas ----------
+function cleanMathNotation(text) {
+  if (!text) return '';
+  return text
+    .replace(/\\text\{([^}]+)\}/g, '$1')   // Remueve \text{...}
+    .replace(/\\times/g, '×')             // Cambia \times por ×
+    .replace(/\\div/g, '÷')               // Cambia \div por ÷
+    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2') // Cambia \frac{a}{b} por a/b
+    .replace(/\\/g, '')                  // Quita barras invertidas restantes
+    .replace(/\$/g, '');                 // Quita signos de peso ($) de LaTeX
+}
+
 // ---------- chat rendering ----------
 const scrollEl = document.getElementById('chatScroll');
 function scrollBottom(){ scrollEl.scrollTop = scrollEl.scrollHeight; }
@@ -738,7 +750,7 @@ function scrollBottom(){ scrollEl.scrollTop = scrollEl.scrollHeight; }
 function addBotMsg(text){
   const d = document.createElement('div');
   d.className = 'msg bot';
-  d.textContent = text;
+  d.textContent = cleanMathNotation(text);
   scrollEl.appendChild(d); scrollBottom();
 }
 function addUserMsg(text){
@@ -756,7 +768,7 @@ function addSystemNote(text){
 function addFeedback(correct, text){
   const d = document.createElement('div');
   d.className = 'fb-card ' + (correct ? 'ok':'no');
-  d.textContent = (correct ? '✓ ' : '✕ ') + text;
+  d.textContent = (correct ? '✓ ' : '✕ ') + cleanMathNotation(text);
   scrollEl.appendChild(d); scrollBottom();
 }
 function addExplanation(text){
@@ -767,7 +779,7 @@ function addExplanation(text){
   tag.textContent = 'Explicación ' + STYLE_LABEL[state.profile.learningStyle].toLowerCase();
   d.appendChild(tag);
   const p = document.createElement('div');
-  p.textContent = text;
+  p.textContent = cleanMathNotation(text);
   d.appendChild(p);
   scrollEl.appendChild(d); scrollBottom();
 }
@@ -786,13 +798,14 @@ function hideTyping(){
 function buildSystemPrompt(){
   return `Eres un tutor adaptativo para un estudiante de nivel escolar. Materia: Matemáticas. Estilo de aprendizaje del estudiante: ${STYLE_LABEL[state.profile.learningStyle]}. Nivel actual de dificultad: ${state.profile.level} (escala 1 a 10).
 
-Reglas:
+Reglas de formato y lenguaje:
+- NO uses sintaxis LaTeX (evita comas decimales con llaves, \\text{}, \\times, \\frac{}, etc.).
+- Usa formato de texto normal y limpio. Por ejemplo, utiliza 'x' o '*' para multiplicar, '/' para dividir, y números ordinarios (ejemplo: 210 km, no 210 \\text{ km}).
 - Si te piden una pregunta nueva (sin respuesta que evaluar), genera un único ejercicio breve y claro de Matemáticas, calibrado al nivel ${state.profile.level}.
 - Si te dan una respuesta del estudiante a evaluar, decide si es correcta, da retroalimentación breve y amable, una explicación adaptada al estilo de aprendizaje indicado (usa lenguaje simple, ejemplos concretos), ajusta el nivel (+1 si acierta con facilidad, -1 si falla, igual si es ambiguo, sin salir del rango 1-10), y genera el siguiente ejercicio.
 - Nunca reveles la respuesta correcta dentro del enunciado del ejercicio.
-- Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional ni backticks, con esta forma exacta:
-{"correct": true|false|null, "feedback": "string o null", "explanation": "string o null", "new_level": number, "next_question": "string"}
-Usa "correct": null y "feedback": null y "explanation": null únicamente cuando estés generando la primera pregunta sin nada que evaluar.`;
+- Responde ÚNICAMENTE con un objeto JSON válido sin bloques de código ni notaciones complejas:
+{"correct": true|false|null, "feedback": "string o null", "explanation": "string o null", "new_level": number, "next_question": "string"}`;
 }
 
 async function callAgent(userAnswer){
@@ -994,15 +1007,15 @@ function evaluarPractica(){
     resultadosDiv.innerHTML = `
       <div class="alert alert-success">
         <strong>¡Respuesta Correcta! (210 km)</strong><br>
-        <em>Explicación paso a paso:</em> Usamos la fórmula de distancia: $Distancia = Velocidad \\times Tiempo$.<br>
-        Multiplicamos $60 \\text{ km/h} \\times 3.5 \\text{ horas} = 210 \\text{ km}$.
+        <em>Explicación paso a paso:</em> Usamos la fórmula de distancia: Distancia = Velocidad × Tiempo.<br>
+        Multiplicamos 60 km/h × 3.5 horas = 210 km.
       </div>`;
   } else {
     resultadosDiv.innerHTML = `
       <div class="alert alert-danger">
         <strong>Respuesta Incorrecta.</strong><br>
         <em>Explicación detallada:</em> Recuerda multiplicar la velocidad constante por el tiempo total.<br>
-        El cálculo correcto es: $60 \\text{ km/h} \\times 3.5 \\text{ h} = 210 \\text{ km}$. Intenta revisar la multiplicación en decimales.
+        El cálculo correcto es: 60 km/h × 3.5 h = 210 km. Intenta revisar la multiplicación en decimales.
       </div>`;
   }
 }
