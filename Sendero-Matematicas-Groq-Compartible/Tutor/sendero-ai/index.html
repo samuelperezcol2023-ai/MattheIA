@@ -206,6 +206,7 @@
   .field-row { display: flex; justify-content: space-between; padding: 0.9rem 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
   .field-row span:first-child { color: var(--ink-soft); }
   .reset-btn { margin-top: 1.6rem; width: 100%; padding: 0.85rem; border-radius: 12px; border: 1px solid var(--danger); background: none; color: var(--danger); font-weight: 600; font-size: 0.9rem; }
+  #supabaseStatus { color: var(--success); font-weight: 600; }
 
   /* TABBAR (mobile) */
   .tabbar {
@@ -517,6 +518,7 @@
         <div class="field-row"><span>Estilo de aprendizaje</span><span id="pfStyle">—</span></div>
         <div class="field-row"><span>Resultado diagnóstico</span><span id="pfDiagnostic">—</span></div>
         <div class="field-row"><span>Nivel actual</span><span id="pfLevel">—</span></div>
+        <div class="field-row"><span>Base de datos</span><span id="supabaseStatus">Pendiente</span></div>
         <button class="reset-btn" id="resetBtn">Reiniciar sendero</button>
       </div>
     </div>
@@ -545,32 +547,100 @@
 </div>
 
 <script>
-// ANEXO 2: Configuración corregida de Supabase
+// ========================= SUPABASE =========================
+// Usa solamente la Publishable/anon key en el navegador.
+// NUNCA coloques una service_role key en este archivo.
 const SUPABASE_URL = 'https://uuzwdzmviayagynptndm.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_eWyDYAnOBJKY2oH-Cfpjzg_8Xr3aImb'; 
+const SUPABASE_KEY = 'sb_publishable_eWyDYAnOBJKY2oH-Cfpjzg_8Xr3aImb';
 
-// Usamos una variable dedicada 'dbClient' para evitar sobreescribir el objeto global del SDK
 const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ANEXO 3: Función de guardado de datos en Supabase
-// ANEXO 3: Función de guardado optimizada
-async function guardarUsuario(nombre, estilo, progreso) {
-  const { data, error } = await dbClient
-    .from('Usuarios')
-    .insert([
-      { 
-        Nombre_Usuario: nombre, 
-        Estilo_Aprendizaje: estilo, 
-        Progreso: progreso 
-      }
-    ]);
+// Identificador local del estudiante. Permite actualizar siempre la misma fila.
+const STUDENT_ID_KEY = 'sendero-student-id-v1';
 
-  if (error) {
-    console.error('Error al guardar datos en Supabase:', error.message);
-  } else {
-    console.log('Datos guardados con éxito en Supabase:', data);
+function getStudentId() {
+  let id = localStorage.getItem(STUDENT_ID_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(STUDENT_ID_KEY, id);
+  }
+  return id;
+}
+
+// Convierte el estado de la aplicación al formato de la tabla usuarios.
+function buildSupabaseStudent() {
+  if (!state.profile) return null;
+
+  return {
+    id: getStudentId(),
+    nombre: String(state.profile.name || '').trim(),
+    estilo_aprendizaje: STYLE_LABEL[state.profile.learningStyle] || 'Visual',
+    materia: state.profile.subject || 'Matemáticas',
+    nivel: Number(state.profile.level) || 1,
+    racha: Number(state.profile.streak) || 0,
+    diagnostico: Number.isFinite(Number(state.profile.diagnosticScore))
+      ? Number(state.profile.diagnosticScore)
+      : null,
+    historial: Array.isArray(state.historyLog) ? state.historyLog : [],
+    updated_at: new Date().toISOString()
+  };
+}
+
+// Guarda o actualiza el estudiante en Supabase.
+async function sincronizarUsuario() {
+  const student = buildSupabaseStudent();
+  if (!student || !student.nombre) return false;
+
+  try {
+    const { error } = await dbClient
+      .from('usuarios')
+      .upsert(student, { onConflict: 'id' });
+
+    if (error) {
+      console.error('Error sincronizando con Supabase:', error);
+      setSupabaseStatus('Error al sincronizar con Supabase');
+      return false;
+    }
+
+    console.log('Datos sincronizados con Supabase.');
+    setSupabaseStatus('Sincronizado con Supabase ✓');
+    return true;
+  } catch (error) {
+    console.error('Error de conexión con Supabase:', error);
+    setSupabaseStatus('Sin conexión con Supabase');
+    return false;
   }
 }
+
+// Recupera el estudiante desde Supabase usando el ID guardado en este navegador.
+async function cargarUsuarioDesdeSupabase() {
+  const id = localStorage.getItem(STUDENT_ID_KEY);
+  if (!id) return null;
+
+  try {
+    const { data, error } = await dbClient
+      .from('usuarios')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error cargando usuario desde Supabase:', error);
+      return null;
+    }
+
+    return data || null;
+  } catch (error) {
+    console.error('Error de conexión cargando usuario:', error);
+    return null;
+  }
+}
+
+function setSupabaseStatus(text) {
+  const el = document.getElementById('supabaseStatus');
+  if (el) el.textContent = text;
+}
+
 const STYLE_LABEL = { V:"Visual", A:"Auditivo", K:"Kinestésico", L:"Lector/escritor" };
 
 let state = {
@@ -585,53 +655,79 @@ let state = {
 // ---------- persistence ----------
 const STORAGE_KEY = 'sendero-student-profile-v2';
 
-async function loadProfile(){
-  try{
-    if(window.storage && typeof window.storage.get === 'function'){
+async function loadProfileLocal() {
+  try {
+    if (window.storage && typeof window.storage.get === 'function') {
       const r = await window.storage.get('student-profile');
-      if(r && typeof r.value === 'string' && r.value.trim()){
+      if (r && typeof r.value === 'string' && r.value.trim()) {
         try { return JSON.parse(r.value); }
-        catch(e){ console.warn('Datos guardados inválidos; se usarán datos locales.', e); }
+        catch(e) { console.warn('Datos guardados inválidos.', e); }
       }
     }
-  }catch(e){
-    console.warn('Storage del entorno no disponible; usando almacenamiento local.', e);
+  } catch(e) {
+    console.warn('Storage del entorno no disponible.', e);
   }
 
-  try{
+  try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw && raw.trim()) return JSON.parse(raw);
-  }catch(e){
+    if (raw && raw.trim()) return JSON.parse(raw);
+  } catch(e) {
     console.warn('No se pudo leer localStorage.', e);
   }
+
   return null;
 }
 
-async function saveProfile(){
+async function loadProfile() {
+  // 1. Intentamos primero Supabase.
+  const remote = await cargarUsuarioDesdeSupabase();
+
+  if (remote) {
+    return {
+      profile: {
+        name: remote.nombre,
+        subject: remote.materia || 'Matemáticas',
+        learningStyle: Object.keys(STYLE_LABEL).find(
+          key => STYLE_LABEL[key] === remote.estilo_aprendizaje
+        ) || 'V',
+        level: Math.max(1, Math.min(10, Number(remote.nivel) || 1)),
+        streak: Number(remote.racha) || 0,
+        diagnosticScore: Number.isFinite(Number(remote.diagnostico))
+          ? Number(remote.diagnostico)
+          : null
+      },
+      historyLog: Array.isArray(remote.historial) ? remote.historial : []
+    };
+  }
+
+  // 2. Si Supabase no está disponible, usamos la copia local.
+  return await loadProfileLocal();
+}
+
+async function saveProfile() {
   const payload = {
     profile: state.profile,
     historyLog: state.historyLog || []
   };
   const serialized = JSON.stringify(payload);
-  let saved = false;
 
-  try{
-    if(window.storage && typeof window.storage.set === 'function'){
+  // Siempre conservamos una copia local como respaldo.
+  try {
+    if (window.storage && typeof window.storage.set === 'function') {
       await window.storage.set('student-profile', serialized);
-      saved = true;
     }
-  }catch(e){
-    console.warn('No se pudo guardar en el storage del entorno; usando localStorage.', e);
+  } catch(e) {
+    console.warn('No se pudo guardar en storage del entorno.', e);
   }
 
-  if(!saved){
-    try{
-      localStorage.setItem(STORAGE_KEY, serialized);
-      saved = true;
-    }catch(e){
-      console.error('No se pudo guardar en localStorage.', e);
-    }
+  try {
+    localStorage.setItem(STORAGE_KEY, serialized);
+  } catch(e) {
+    console.error('No se pudo guardar en localStorage.', e);
   }
+
+  // Y sincronizamos con Supabase.
+  return await sincronizarUsuario();
 }
 
 // ---------- navigation ----------
@@ -732,6 +828,7 @@ function addDiagnosticResult(level, score){
 
 async function finishOnboarding(styleCode){
   const level = levelFromDiagnostic(state.profile.diagnosticScore || 0);
+
   state.profile = {
     ...state.profile,
     subject: 'Matemáticas',
@@ -740,22 +837,25 @@ async function finishOnboarding(styleCode){
     streak: 0
   };
 
-  await saveProfile();
-  
-  // Guardado de usuario en Supabase
-  await guardarUsuario(
-    state.profile.name, 
-    STYLE_LABEL[styleCode] || 'Visual', 
-    state.profile.level
-  );
+  state.historyLog = [];
+
+  // Primer guardado: crea el estudiante en Supabase.
+  const synced = await saveProfile();
 
   enterApp();
-  addSystemNote('Sendero creado para '+state.profile.name);
-  addSystemNote('¡Hola! '+state.profile.name+', soy tu tutor adaptativo de aprendizaje');
+  addSystemNote('Sendero creado para ' + state.profile.name);
+  addSystemNote('¡Hola! ' + state.profile.name + ', soy tu tutor adaptativo de aprendizaje');
   addSystemNote(state.pendingDiagnosticNote || `Nivel inicial ${level}.`);
+
+  if (synced) {
+    addSystemNote('✓ Tu perfil quedó guardado en la base de datos.');
+  } else {
+    addSystemNote('⚠ No se pudo sincronizar ahora; tu progreso quedó guardado localmente y se reintentará al guardar de nuevo.');
+  }
+
   requestNextTurn(null);
 }
-  
+
 // ---------- topbar / header ----------
 function refreshHeader(){
   document.getElementById('topAvatar').textContent = (state.profile.name[0]||'?').toUpperCase();
@@ -1127,6 +1227,9 @@ function renderProfile(){
 }
 
 document.getElementById('resetBtn').addEventListener('click', async ()=>{
+  const confirmed = confirm('¿Quieres reiniciar tu sendero? También se eliminará el progreso guardado en Supabase para este dispositivo.');
+  if(!confirmed) return;
+
   try{
     if(window.storage && typeof window.storage.delete === 'function'){
       await window.storage.delete('student-profile');
@@ -1134,6 +1237,18 @@ document.getElementById('resetBtn').addEventListener('click', async ()=>{
   }catch(e){ console.warn('No se pudo borrar el storage del entorno.', e); }
 
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+
+  const id = localStorage.getItem(STUDENT_ID_KEY);
+  if(id){
+    try{
+      const { error } = await dbClient.from('usuarios').delete().eq('id', id);
+      if(error) console.error('No se pudo eliminar el usuario de Supabase:', error);
+    }catch(e){
+      console.error('Error eliminando usuario de Supabase:', e);
+    }
+  }
+
+  try{ localStorage.removeItem(STUDENT_ID_KEY); }catch(e){}
   location.reload();
 });
 
@@ -1159,9 +1274,12 @@ document.getElementById('resetBtn').addEventListener('click', async ()=>{
     state.history = [];
 
     enterApp();
-    addSystemNote('Continuando sendero de '+state.profile.name);
-    addSystemNote('¡Hola! '+state.profile.name+', soy tu tutor adaptativo de aprendizaje');
+    addSystemNote('Continuando sendero de ' + state.profile.name);
+    addSystemNote('¡Hola! ' + state.profile.name + ', soy tu tutor adaptativo de aprendizaje');
+    setSupabaseStatus('Datos cargados');
     requestNextTurn(null);
+  } else {
+    setSupabaseStatus('Esperando registro');
   }
 })();
 </script>
