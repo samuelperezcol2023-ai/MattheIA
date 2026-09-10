@@ -545,14 +545,17 @@
 </div>
 
 <script>
-// ANEXO 2: Configuración de la conexión con Supabase (Uso del CDN global)[cite: 7]
+// ANEXO 2: Configuración de la conexión con Supabase
 const SUPABASE_URL = 'https://uuzwdzmviayagnptndm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_eWyDYAnOBJKY2oH-Cfpjzg_8Xr3aImb'; 
+// Si 'supabase' ya fue declarado en otra parte, inicialízalo directamente sin 'const':
+if (typeof supabase === 'undefined') {
+  var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} else {
+  window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
 
-const { createClient } = window.supabase;
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ANEXO 3: Función de guardado de datos en Supabase[cite: 7]
+// ANEXO 3: Función de guardado de datos en Supabase
 async function guardarUsuario(nombre, estilo, progreso) {
   const { data, error } = await supabase
     .from('Usuarios')
@@ -570,7 +573,6 @@ async function guardarUsuario(nombre, estilo, progreso) {
     console.log('Datos guardados con éxito en Supabase:', data);
   }
 }
-
 const STYLE_LABEL = { V:"Visual", A:"Auditivo", K:"Kinestésico", L:"Lector/escritor" };
 
 let state = {
@@ -679,23 +681,12 @@ function levelFromDiagnostic(score){
   return 7;
 }
 
-const inputName = document.getElementById('inputName');
-const btnStep0 = document.getElementById('btnStep0');
-
-function validarNombre() {
-  const hasText = inputName.value.trim().length > 0;
-  btnStep0.disabled = !hasText;
-}
-
-inputName.addEventListener('input', validarNombre);
-inputName.addEventListener('keyup', validarNombre);
-inputName.addEventListener('change', validarNombre);
-
-btnStep0.disabled = true;
-btnStep0.addEventListener('click', ()=>{
-  const nombre = inputName.value.trim();
-  if (nombre.length === 0) return;
-  state.onboard.name = nombre;
+document.getElementById('inputName').addEventListener('input', e=>{
+  document.getElementById('btnStep0').disabled = e.target.value.trim().length===0;
+});
+document.getElementById('btnStep0').disabled = true;
+document.getElementById('btnStep0').addEventListener('click', ()=>{
+  state.onboard.name = document.getElementById('inputName').value.trim();
   state.diagnostic = { current:1, score:0 };
   showStep(1);
 });
@@ -753,6 +744,7 @@ async function finishOnboarding(styleCode){
 
   await saveProfile();
   
+  // Guardado de usuario en Supabase
   await guardarUsuario(
     state.profile.name, 
     STYLE_LABEL[styleCode] || 'Visual', 
@@ -779,6 +771,7 @@ function enterApp(){
   goView('chat');
 }
 
+// Limpiador mejorado de notaciones
 function cleanMathNotation(text) {
   if (!text) return '';
   return text
@@ -786,14 +779,16 @@ function cleanMathNotation(text) {
     .replace(/\\times/g, '×')             
     .replace(/\\div/g, '÷')               
     .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2') 
-    .replace(/\\quad/g, ' ')               
+    .replace(/\\quad/g, ' ')               // Elimina \quad de LaTeX
     .replace(/\\/g, '')                  
     .replace(/\$/g, '');                 
 }
 
+// Renderiza mensajes con formato visible limpio (negritas, encabezados y saltos)
 function addBotFormattedMsg(text){
   const clean = cleanMathNotation(text);
   
+  // Convierte Markdown básico a HTML
   let html = clean
     .replace(/^## (.*$)/gim, '<strong style="font-size: 1.05em; display:block; margin-top:0.6em;">$1</strong>')
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -1043,6 +1038,7 @@ async function askAi(){
     if(question) addUserMsg(question);
     aiFiles.forEach(f=>addUserMsg('📎 '+f.name));
 
+    // Limpia notaciones y renderiza el formato correctamente
     if (data.answer) {
       addBotFormattedMsg(data.answer);
     } else {
@@ -1173,3 +1169,4 @@ document.getElementById('resetBtn').addEventListener('click', async ()=>{
 </script>
 </body>
 </html>
+
