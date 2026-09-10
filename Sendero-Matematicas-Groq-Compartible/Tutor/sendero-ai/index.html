@@ -545,14 +545,14 @@
 </div>
 
 <script>
-// ANEXO 2: Configuración corregida de la conexión con Supabase
+// ANEXO 2: Configuración de la conexión con Supabase (Uso del CDN global)[cite: 7]
 const SUPABASE_URL = 'https://uuzwdzmviayagnptndm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_eWyDYAnOBJKY2oH-Cfpjzg_8Xr3aImb'; 
 
-// Inicialización limpia y directa del cliente global sin colisiones de nombres
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const { createClient } = window.supabase;
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ANEXO 3: Función de guardado de datos en Supabase
+// ANEXO 3: Función de guardado de datos en Supabase[cite: 7]
 async function guardarUsuario(nombre, estilo, progreso) {
   const { data, error } = await supabase
     .from('Usuarios')
@@ -570,6 +570,7 @@ async function guardarUsuario(nombre, estilo, progreso) {
     console.log('Datos guardados con éxito en Supabase:', data);
   }
 }
+
 const STYLE_LABEL = { V:"Visual", A:"Auditivo", K:"Kinestésico", L:"Lector/escritor" };
 
 let state = {
@@ -678,12 +679,23 @@ function levelFromDiagnostic(score){
   return 7;
 }
 
-document.getElementById('inputName').addEventListener('input', e=>{
-  document.getElementById('btnStep0').disabled = e.target.value.trim().length===0;
-});
-document.getElementById('btnStep0').disabled = true;
-document.getElementById('btnStep0').addEventListener('click', ()=>{
-  state.onboard.name = document.getElementById('inputName').value.trim();
+const inputName = document.getElementById('inputName');
+const btnStep0 = document.getElementById('btnStep0');
+
+function validarNombre() {
+  const hasText = inputName.value.trim().length > 0;
+  btnStep0.disabled = !hasText;
+}
+
+inputName.addEventListener('input', validarNombre);
+inputName.addEventListener('keyup', validarNombre);
+inputName.addEventListener('change', validarNombre);
+
+btnStep0.disabled = true;
+btnStep0.addEventListener('click', ()=>{
+  const nombre = inputName.value.trim();
+  if (nombre.length === 0) return;
+  state.onboard.name = nombre;
   state.diagnostic = { current:1, score:0 };
   showStep(1);
 });
@@ -741,7 +753,6 @@ async function finishOnboarding(styleCode){
 
   await saveProfile();
   
-  // Guardado de usuario en Supabase
   await guardarUsuario(
     state.profile.name, 
     STYLE_LABEL[styleCode] || 'Visual', 
@@ -768,7 +779,6 @@ function enterApp(){
   goView('chat');
 }
 
-// Limpiador mejorado de notaciones
 function cleanMathNotation(text) {
   if (!text) return '';
   return text
@@ -781,7 +791,6 @@ function cleanMathNotation(text) {
     .replace(/\$/g, '');                 
 }
 
-// Renderiza mensajes con formato visible limpio (negritas, encabezados y saltos)
 function addBotFormattedMsg(text){
   const clean = cleanMathNotation(text);
   
@@ -860,7 +869,7 @@ Reglas de formato y lenguaje:
 - Si te dan una respuesta del estudiante a evaluar, decide si es correcta, da retroalimentación breve y amable, una explicación adaptada al estilo de aprendizaje indicado (usa lenguaje simple, ejemplos concretos), ajusta el nivel (+1 si acierta con facilidad, -1 si falla, igual si es ambiguo, sin salir del rango 1-10), y genera el siguiente ejercicio.
 - Nunca reveles la respuesta correcta dentro del enunciado del ejercicio.
 - Responde ÚNICAMENTE con un objeto JSON válido sin bloques de código ni notaciones complejas:
-{"correct": true|false|null, "feedback": "string or null", "explanation": "string or null", "new_level": number, "next_question": "string"}`;
+{"correct": true|false|null, "feedback": "string o null", "explanation": "string o null", "new_level": number, "next_question": "string"}`;
 }
 
 async function callAgent(userAnswer){
