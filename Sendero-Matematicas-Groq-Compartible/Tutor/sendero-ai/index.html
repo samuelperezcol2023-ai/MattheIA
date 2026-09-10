@@ -545,12 +545,15 @@
 </div>
 
 <script>
-// ANEXO 2: Configuración corregida de la conexión con Supabase
+// ANEXO 2: Configuración de la conexión con Supabase
 const SUPABASE_URL = 'https://uuzwdzmviayagnptndm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_eWyDYAnOBJKY2oH-Cfpjzg_8Xr3aImb'; 
-
-// Inicialización limpia y directa del cliente global sin colisiones de nombres
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Si 'supabase' ya fue declarado en otra parte, inicialízalo directamente sin 'const':
+if (typeof supabase === 'undefined') {
+  var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} else {
+  window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
 
 // ANEXO 3: Función de guardado de datos en Supabase
 async function guardarUsuario(nombre, estilo, progreso) {
@@ -776,7 +779,7 @@ function cleanMathNotation(text) {
     .replace(/\\times/g, '×')             
     .replace(/\\div/g, '÷')               
     .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2') 
-    .replace(/\\quad/g, ' ')               
+    .replace(/\\quad/g, ' ')               // Elimina \quad de LaTeX
     .replace(/\\/g, '')                  
     .replace(/\$/g, '');                 
 }
@@ -785,6 +788,7 @@ function cleanMathNotation(text) {
 function addBotFormattedMsg(text){
   const clean = cleanMathNotation(text);
   
+  // Convierte Markdown básico a HTML
   let html = clean
     .replace(/^## (.*$)/gim, '<strong style="font-size: 1.05em; display:block; margin-top:0.6em;">$1</strong>')
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -860,7 +864,7 @@ Reglas de formato y lenguaje:
 - Si te dan una respuesta del estudiante a evaluar, decide si es correcta, da retroalimentación breve y amable, una explicación adaptada al estilo de aprendizaje indicado (usa lenguaje simple, ejemplos concretos), ajusta el nivel (+1 si acierta con facilidad, -1 si falla, igual si es ambiguo, sin salir del rango 1-10), y genera el siguiente ejercicio.
 - Nunca reveles la respuesta correcta dentro del enunciado del ejercicio.
 - Responde ÚNICAMENTE con un objeto JSON válido sin bloques de código ni notaciones complejas:
-{"correct": true|false|null, "feedback": "string or null", "explanation": "string or null", "new_level": number, "next_question": "string"}`;
+{"correct": true|false|null, "feedback": "string o null", "explanation": "string o null", "new_level": number, "next_question": "string"}`;
 }
 
 async function callAgent(userAnswer){
@@ -1034,6 +1038,7 @@ async function askAi(){
     if(question) addUserMsg(question);
     aiFiles.forEach(f=>addUserMsg('📎 '+f.name));
 
+    // Limpia notaciones y renderiza el formato correctamente
     if (data.answer) {
       addBotFormattedMsg(data.answer);
     } else {
