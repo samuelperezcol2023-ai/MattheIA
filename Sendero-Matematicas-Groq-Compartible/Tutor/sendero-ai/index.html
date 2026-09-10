@@ -547,7 +547,7 @@
 <script>
 // ANEXO 2: Configuración de la conexión con Supabase
 const SUPABASE_URL = 'https://uuzwdzmviayagnptndm.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_eWyDYAnOBJKY2oH-Cfpjzg_8Xr3aImb'; // Clave en formato de cadena corregida
+const SUPABASE_KEY = 'sb_publishable_eWyDYAnOBJKY2oH-Cfpjzg_8Xr3aImb'; 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ANEXO 3: Función de guardado de datos en Supabase
@@ -568,7 +568,6 @@ async function guardarUsuario(nombre, estilo, progreso) {
     console.log('Datos guardados con éxito en Supabase:', data);
   }
 }
-
 const STYLE_LABEL = { V:"Visual", A:"Auditivo", K:"Kinestésico", L:"Lector/escritor" };
 
 let state = {
