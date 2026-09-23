@@ -81,23 +81,51 @@
     padding: 0.3rem 0.65rem; border-radius: 20px; font-weight: 500;
   }
 
-
-  /* ---------------- AUTH / MAGIC LINK ---------------- */
-  #view-auth.active { display:flex; align-items:center; justify-content:center; padding:2rem 1.4rem; }
-  .auth-card { max-width:420px; width:100%; background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:1.6rem; box-shadow:0 8px 30px rgba(30,38,53,.06); }
-  .auth-card .ob-eyebrow { margin-bottom:.5rem; }
-  .auth-card h2 { font-family:var(--display); font-size:1.55rem; margin:0 0 .5rem; }
-  .auth-card p { color:var(--ink-soft); font-size:.92rem; line-height:1.5; }
-  .auth-card .ob-input { margin-bottom:.8rem; }
-  .auth-status { min-height:1.3em; margin:.75rem 0 0; font-size:.82rem; color:var(--ink-soft); }
-  .auth-status.error { color:var(--danger); }
-  .auth-status.success { color:var(--success); }
-  .auth-email { font-family:var(--mono); font-size:.78rem; }
-  .btn-secondary { width:100%; margin-top:.7rem; padding:.75rem; border:1px solid var(--border); border-radius:12px; background:var(--surface-alt); color:var(--ink); font-weight:600; }
-
   /* ---------------- VIEWS ---------------- */
   .view { flex: 1; overflow-y: auto; display: none; }
   .view.active { display: block; }
+
+  /* ---------------- AUTH / LOGIN ---------------- */
+  #app.auth-login .rail,
+  #app.auth-login .topbar,
+  #app.auth-login .tabbar { display: none; }
+  #app.auth-login .main-col { width: 100%; height: 100vh; }
+  #view-login.active {
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1.4rem; background: var(--bg);
+  }
+  .login-card {
+    width: 100%; max-width: 430px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 22px; padding: 2rem;
+    box-shadow: 0 12px 40px rgba(30, 38, 53, 0.08);
+  }
+  .login-brand { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 2rem; }
+  .brand-mark {
+    width: 44px; height: 44px; border-radius: 13px; background: var(--primary);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 700; font-size: 1.2rem;
+  }
+  .login-title { font-family: var(--display); font-size: 1.25rem; font-weight: 700; }
+  .login-title span { color: var(--primary); }
+  .login-subtitle { color: var(--ink-soft); font-size: 0.75rem; margin-top: 0.1rem; }
+  .login-content h2 { font-family: var(--display); font-size: 1.65rem; line-height: 1.25; margin: 0 0 0.5rem; }
+  .login-description { color: var(--ink-soft); font-size: 0.92rem; line-height: 1.5; margin: 0 0 1.5rem; }
+  .login-google {
+    width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center;
+    gap: 0.7rem; border: 1px solid var(--border); border-radius: 12px; background: #fff;
+    color: var(--ink); font-size: 0.94rem; font-weight: 600; transition: 0.2s;
+  }
+  .login-google:hover { border-color: var(--primary); background: var(--surface-alt); }
+  .login-google:disabled { opacity: 0.55; cursor: not-allowed; }
+  .google-icon { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.05rem; }
+  .login-divider {
+    display: flex; align-items: center; gap: 0.8rem; margin: 1.4rem 0;
+    color: var(--ink-soft); font-size: 0.78rem;
+  }
+  .login-divider::before, .login-divider::after { content: ""; height: 1px; flex: 1; background: var(--border); }
+  .login-label { display: block; margin-bottom: 0.45rem; font-size: 0.85rem; font-weight: 600; }
+  .login-message { min-height: 1.3rem; margin: 0.8rem 0 0; text-align: center; font-size: 0.82rem; line-height: 1.4; }
+  .login-legal { margin: 1.2rem 0 0; color: var(--ink-soft); font-size: 0.72rem; line-height: 1.45; text-align: center; }
 
   /* ONBOARDING */
   #view-onboard.active { display: flex; align-items: center; justify-content: center; padding: 2rem 1.4rem; }
@@ -220,6 +248,12 @@
   .field-row { display: flex; justify-content: space-between; padding: 0.9rem 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
   .field-row span:first-child { color: var(--ink-soft); }
   .reset-btn { margin-top: 1.6rem; width: 100%; padding: 0.85rem; border-radius: 12px; border: 1px solid var(--danger); background: none; color: var(--danger); font-weight: 600; font-size: 0.9rem; }
+  .logout-btn {
+    width: 100%; margin-top: 0.7rem; padding: 0.85rem; border: 1px solid var(--danger);
+    border-radius: 12px; background: var(--danger-soft); color: var(--danger);
+    font-size: 0.9rem; font-weight: 600;
+  }
+  .logout-btn:hover { background: #f2d8d2; }
   #supabaseStatus { color: var(--success); font-weight: 600; }
 
   /* TABBAR (mobile) */
@@ -252,7 +286,7 @@
 </head>
 <body>
 
-<div id="app">
+<div id="app" class="auth-login">
 
   <!-- SIDEBAR (web) -->
   <div class="rail">
@@ -287,22 +321,55 @@
       <div class="level-chip" id="topLevel">Nivel 1</div>
     </div>
 
+    <!-- LOGIN -->
+    <div class="view active" id="view-login">
+      <div class="login-card">
+        <div class="login-brand">
+          <div class="brand-mark">M</div>
+          <div>
+            <div class="login-title">Mathe<span>IA</span></div>
+            <div class="login-subtitle">Tu tutor adaptativo</div>
+          </div>
+        </div>
 
-    <!-- AUTH / MAGIC LINK -->
-    <div class="view active" id="view-auth">
-      <div class="auth-card">
-        <p class="ob-eyebrow">Acceso seguro</p>
-        <h2>Entra a MatheIA</h2>
-        <p>Escribe tu correo y te enviaremos un enlace mágico. No necesitas contraseña.</p>
-        <input class="ob-input" id="authEmail" type="email" autocomplete="email" placeholder="tu@email.com">
-        <button class="btn-primary" id="btnMagicLink">Enviar enlace de acceso</button>
-        <button class="btn-secondary" id="btnAuthReset" style="display:none;">Usar otro correo</button>
-        <p class="auth-status" id="authStatus" role="status"></p>
+        <div class="login-content">
+          <p class="ob-eyebrow">Bienvenido</p>
+          <h2>Continúa tu sendero</h2>
+          <p class="login-description">
+            Inicia sesión para guardar tu progreso, diagnóstico e historial.
+          </p>
+
+          <button class="login-google" id="btnGoogleLogin" type="button">
+            <span class="google-icon">G</span>
+            <span>Continuar con Google</span>
+          </button>
+
+          <div class="login-divider"><span>o</span></div>
+
+          <label class="login-label" for="loginEmail">Correo electrónico</label>
+          <input
+            class="ob-input"
+            id="loginEmail"
+            type="email"
+            placeholder="tu@email.com"
+            autocomplete="email"
+          >
+
+          <button class="btn-primary" id="btnMagicLink" type="button">
+            Enviarme enlace de acceso
+          </button>
+
+          <p class="login-message" id="loginMessage" aria-live="polite"></p>
+
+          <p class="login-legal">
+            Al continuar, tu cuenta y progreso quedarán asociados a este inicio de sesión.
+          </p>
+        </div>
       </div>
     </div>
 
     <!-- ONBOARDING / DIAGNÓSTICO -->
-    <div class="view active" id="view-onboard">
+    <div class="view" id="view-onboard">
       <div class="ob-card">
         <div class="ob-step active" data-step="0">
           <p class="ob-eyebrow">Bienvenido</p>
@@ -542,13 +609,15 @@
       <div class="inner">
         <h2>Tu perfil</h2>
         <div class="field-row"><span>Nombre</span><span id="pfName">—</span></div>
+        <div class="field-row"><span>Correo</span><span id="pfEmail">—</span></div>
+        <div class="field-row"><span>ID de usuario</span><span id="pfUserId" style="font-size:0.7rem; max-width:60%; text-align:right; word-break:break-all;">—</span></div>
         <div class="field-row"><span>Materia</span><span id="pfSubject">—</span></div>
         <div class="field-row"><span>Estilo de aprendizaje</span><span id="pfStyle">—</span></div>
         <div class="field-row"><span>Resultado diagnóstico</span><span id="pfDiagnostic">—</span></div>
         <div class="field-row"><span>Nivel actual</span><span id="pfLevel">—</span></div>
         <div class="field-row"><span>Base de datos</span><span id="supabaseStatus">Pendiente</span></div>
         <button class="reset-btn" id="resetBtn">Reiniciar sendero</button>
-        <button class="btn-secondary" id="signOutBtn">Cerrar sesión</button>
+        <button class="logout-btn" id="logoutBtn" type="button">Cerrar sesión</button>
       </div>
     </div>
 
@@ -584,24 +653,169 @@ const SUPABASE_KEY = 'sb_publishable_eWyDYAnOBJKY2oH-Cfpjzg_8Xr3aImb';
 
 const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Identificador local del estudiante. Permite actualizar siempre la misma fila.
-const STUDENT_ID_KEY = 'sendero-student-id-v1';
+// ========================= AUTH =========================
+// La identidad principal del estudiante ahora viene de Supabase Auth.
+// No usamos crypto.randomUUID() ni localStorage como identidad.
 
-function getStudentId() {
-  let id = localStorage.getItem(STUDENT_ID_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(STUDENT_ID_KEY, id);
+async function getAuthenticatedUser() {
+  const { data, error } = await dbClient.auth.getUser();
+
+  if (error) {
+    console.error('Error obteniendo usuario autenticado:', error);
+    return null;
   }
-  return id;
+
+  return data?.user || null;
+}
+
+function showLoginMessage(message = '', isError = false) {
+  const element = document.getElementById('loginMessage');
+  if (!element) return;
+
+  element.textContent = message;
+  element.style.color = isError ? 'var(--danger)' : 'var(--success)';
+}
+
+function showLogin() {
+  const app = document.getElementById('app');
+  if (app) app.classList.add('auth-login');
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+
+  const loginView = document.getElementById('view-login');
+  if (loginView) loginView.classList.add('active');
+
+  document.querySelectorAll('.nav-btn, .tab-btn').forEach(b => b.classList.remove('active'));
+
+  const emailInput = document.getElementById('loginEmail');
+  if (emailInput) emailInput.value = '';
+
+  showLoginMessage('');
+}
+
+function showOnboarding() {
+  const app = document.getElementById('app');
+  if (app) app.classList.remove('auth-login');
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+
+  const onboarding = document.getElementById('view-onboard');
+  if (onboarding) onboarding.classList.add('active');
+}
+
+async function loginWithGoogle() {
+  const button = document.getElementById('btnGoogleLogin');
+  if (button) {
+    button.disabled = true;
+    button.querySelector('span:last-child').textContent = 'Conectando...';
+  }
+
+  const { error } = await dbClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin
+    }
+  });
+
+  if (error) {
+    console.error('Error iniciando sesión con Google:', error);
+    showLoginMessage('No se pudo iniciar sesión con Google.', true);
+
+    if (button) {
+      button.disabled = false;
+      button.querySelector('span:last-child').textContent = 'Continuar con Google';
+    }
+  }
+}
+
+async function loginWithMagicLink() {
+  const emailInput = document.getElementById('loginEmail');
+  const email = emailInput ? emailInput.value.trim() : '';
+
+  if (!email) {
+    showLoginMessage('Escribe tu correo electrónico.', true);
+    if (emailInput) emailInput.focus();
+    return;
+  }
+
+  if (!emailInput.checkValidity()) {
+    showLoginMessage('Introduce un correo electrónico válido.', true);
+    emailInput.focus();
+    return;
+  }
+
+  const button = document.getElementById('btnMagicLink');
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Enviando enlace...';
+  }
+
+  const { error } = await dbClient.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: window.location.origin
+    }
+  });
+
+  if (button) {
+    button.disabled = false;
+    button.textContent = 'Enviarme enlace de acceso';
+  }
+
+  if (error) {
+    console.error('Error enviando Magic Link:', error);
+    showLoginMessage('No se pudo enviar el enlace. Inténtalo nuevamente.', true);
+    return;
+  }
+
+  showLoginMessage('✓ Revisa tu correo. Te hemos enviado un enlace para entrar a Sendero.');
+}
+
+async function logout() {
+  const confirmed = confirm('¿Quieres cerrar sesión de Sendero?');
+  if (!confirmed) return;
+
+  const { error } = await dbClient.auth.signOut();
+
+  if (error) {
+    console.error('Error cerrando sesión:', error);
+    alert('No se pudo cerrar la sesión. Inténtalo nuevamente.');
+    return;
+  }
+
+  // Limpiamos las copias locales para que otro usuario del mismo navegador
+  // no vea el perfil anterior. La identidad real sigue siendo Supabase Auth.
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+
+  try {
+    if (window.storage && typeof window.storage.delete === 'function') {
+      await window.storage.delete('student-profile');
+    }
+  } catch (e) {
+    console.warn('No se pudo limpiar el storage del entorno.', e);
+  }
+
+  state.profile = null;
+  state.historyLog = [];
+  state.history = [];
+  state.currentQuestion = null;
+  state.onboard = { name: '' };
+  state.diagnostic = { current: 1, score: 0 };
+  state.quizTally = { V: 0, A: 0, K: 0, L: 0 };
+
+  showLogin();
 }
 
 // Convierte el estado de la aplicación al formato de la tabla usuarios.
-function buildSupabaseStudent() {
+// El id debe coincidir con auth.users.id.
+async function buildSupabaseStudent() {
   if (!state.profile) return null;
 
+  const user = await getAuthenticatedUser();
+  if (!user) return null;
+
   return {
-    id: getStudentId(),
+    id: user.id,
     nombre: String(state.profile.name || '').trim(),
     estilo_aprendizaje: STYLE_LABEL[state.profile.learningStyle] || 'Visual',
     materia: state.profile.subject || 'Matemáticas',
@@ -617,7 +831,7 @@ function buildSupabaseStudent() {
 
 // Guarda o actualiza el estudiante en Supabase.
 async function sincronizarUsuario() {
-  const student = buildSupabaseStudent();
+  const student = await buildSupabaseStudent();
   if (!student || !student.nombre) return false;
 
   try {
@@ -631,7 +845,7 @@ async function sincronizarUsuario() {
       return false;
     }
 
-    console.log('Datos sincronizados con Supabase.');
+    console.log('Datos sincronizados con Supabase para:', student.id);
     setSupabaseStatus('Sincronizado con Supabase ✓');
     return true;
   } catch (error) {
@@ -641,16 +855,16 @@ async function sincronizarUsuario() {
   }
 }
 
-// Recupera el estudiante desde Supabase usando el ID guardado en este navegador.
+// Recupera el estudiante desde Supabase usando auth.users.id.
 async function cargarUsuarioDesdeSupabase() {
-  const id = localStorage.getItem(STUDENT_ID_KEY);
-  if (!id) return null;
+  const user = await getAuthenticatedUser();
+  if (!user) return null;
 
   try {
     const { data, error } = await dbClient
       .from('usuarios')
       .select('*')
-      .eq('id', id)
+      .eq('id', user.id)
       .maybeSingle();
 
     if (error) {
@@ -708,7 +922,10 @@ async function loadProfileLocal() {
 }
 
 async function loadProfile() {
-  // 1. Intentamos primero Supabase.
+  const user = await getAuthenticatedUser();
+  if (!user) return null;
+
+  // 1. Intentamos primero Supabase usando el ID autenticado.
   const remote = await cargarUsuarioDesdeSupabase();
 
   if (remote) {
@@ -729,12 +946,25 @@ async function loadProfile() {
     };
   }
 
-  // 2. Si Supabase no está disponible, usamos la copia local.
-  return await loadProfileLocal();
+  // 2. Solo usamos la copia local si pertenece al MISMO usuario autenticado.
+  // Esto evita que una cuenta nueva vea el perfil de otra persona en el mismo navegador.
+  const local = await loadProfileLocal();
+  if (local && local.authUserId === user.id) {
+    return local;
+  }
+
+  return null;
 }
 
 async function saveProfile() {
+  const user = await getAuthenticatedUser();
+  if (!user) {
+    console.warn('No hay sesión de Supabase; no se guardará el perfil.');
+    return false;
+  }
+
   const payload = {
+    authUserId: user.id,
     profile: state.profile,
     historyLog: state.historyLog || []
   };
@@ -759,79 +989,10 @@ async function saveProfile() {
   return await sincronizarUsuario();
 }
 
-// ---------- auth / magic link ----------
-function setAuthStatus(message, type=''){
-  const el = document.getElementById('authStatus');
-  if(!el) return;
-  el.textContent = message;
-  el.className = 'auth-status' + (type ? ' '+type : '');
-}
-
-function showAuth(){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-auth').classList.add('active');
-}
-
-async function sendMagicLink(){
-  const input = document.getElementById('authEmail');
-  const btn = document.getElementById('btnMagicLink');
-  const email = input.value.trim();
-  if(!email || !input.checkValidity()){
-    setAuthStatus('Escribe un correo electrónico válido.', 'error');
-    input.focus();
-    return;
-  }
-
-  btn.disabled = true;
-  setAuthStatus('Enviando enlace…');
-  try{
-    const { error } = await dbClient.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin
-      }
-    });
-    if(error) throw error;
-    setAuthStatus('Enlace enviado. Revisa tu correo y abre el enlace para continuar.', 'success');
-    input.disabled = true;
-    document.getElementById('btnAuthReset').style.display = 'block';
-  }catch(error){
-    console.error('Error enviando Magic Link:', error);
-    setAuthStatus(error.message || 'No se pudo enviar el enlace de acceso.', 'error');
-  }finally{
-    btn.disabled = false;
-  }
-}
-
-document.getElementById('btnMagicLink').addEventListener('click', sendMagicLink);
-document.getElementById('authEmail').addEventListener('keydown', e=>{
-  if(e.key==='Enter') sendMagicLink();
-});
-document.getElementById('btnAuthReset').addEventListener('click', ()=>{
-  const input=document.getElementById('authEmail');
-  input.disabled=false;
-  input.value='';
-  input.focus();
-  document.getElementById('btnAuthReset').style.display='none';
-  setAuthStatus('');
-});
-
-document.getElementById('signOutBtn').addEventListener('click', async ()=>{
-  const { error } = await dbClient.auth.signOut();
-  if(error){
-    console.error('Error cerrando sesión:', error);
-    alert('No se pudo cerrar sesión.');
-  } else {
-    location.reload();
-  }
-});
-
 // ---------- navigation ----------
 function goView(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const target = document.getElementById('view-'+name);
-  if (!target) return;
-  target.classList.add('active');
+  document.getElementById('view-'+name).classList.add('active');
   document.querySelectorAll('.nav-btn, .tab-btn').forEach(b=>{
     b.classList.toggle('active', b.dataset.view===name);
   });
@@ -963,6 +1124,8 @@ function refreshHeader(){
 }
 
 function enterApp(){
+  const app = document.getElementById('app');
+  if (app) app.classList.remove('auth-login');
   refreshHeader();
   goView('chat');
 }
@@ -1313,55 +1476,96 @@ function renderProgress(){
 }
 
 // ---------- profile view ----------
-function renderProfile(){
-  document.getElementById('pfName').textContent = state.profile.name;
-  document.getElementById('pfSubject').textContent = 'Matemáticas';
+async function renderProfile(){
+  if (!state.profile) return;
+
+  document.getElementById('pfName').textContent = state.profile.name || '—';
+  document.getElementById('pfSubject').textContent = state.profile.subject || 'Matemáticas';
   document.getElementById('pfStyle').textContent = STYLE_LABEL[state.profile.learningStyle] || 'Visual';
   document.getElementById('pfDiagnostic').textContent =
     Number.isFinite(Number(state.profile.diagnosticScore))
       ? `${state.profile.diagnosticScore}/10`
       : 'No disponible';
-  document.getElementById('pfLevel').textContent = state.profile.level;
+  document.getElementById('pfLevel').textContent = state.profile.level || '—';
+
+  const user = await getAuthenticatedUser();
+
+  document.getElementById('pfEmail').textContent = user?.email || '—';
+  document.getElementById('pfUserId').textContent = user?.id || '—';
 }
 
+// ---------- botones de autenticación ----------
+document.getElementById('btnGoogleLogin').addEventListener('click', loginWithGoogle);
+document.getElementById('btnMagicLink').addEventListener('click', loginWithMagicLink);
+document.getElementById('loginEmail').addEventListener('keydown', event => {
+  if (event.key === 'Enter') loginWithMagicLink();
+});
+document.getElementById('logoutBtn').addEventListener('click', logout);
+
 document.getElementById('resetBtn').addEventListener('click', async ()=>{
-  const confirmed = confirm('¿Quieres reiniciar tu sendero? También se eliminará el progreso guardado en Supabase para este dispositivo.');
+  const confirmed = confirm('¿Quieres reiniciar tu sendero? También se eliminará el progreso guardado en Supabase para esta cuenta.');
   if(!confirmed) return;
 
   try{
     if(window.storage && typeof window.storage.delete === 'function'){
       await window.storage.delete('student-profile');
     }
-  }catch(e){ console.warn('No se pudo borrar el storage del entorno.', e); }
+  }catch(e){
+    console.warn('No se pudo borrar el storage del entorno.', e);
+  }
 
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
 
-  const id = localStorage.getItem(STUDENT_ID_KEY);
-  if(id){
+  const user = await getAuthenticatedUser();
+
+  if(user){
     try{
-      const { error } = await dbClient.from('usuarios').delete().eq('id', id);
+      const { error } = await dbClient
+        .from('usuarios')
+        .delete()
+        .eq('id', user.id);
+
       if(error) console.error('No se pudo eliminar el usuario de Supabase:', error);
     }catch(e){
       console.error('Error eliminando usuario de Supabase:', e);
     }
   }
 
-  try{ localStorage.removeItem(STUDENT_ID_KEY); }catch(e){}
   location.reload();
+});
+
+// ---------- AUTH STATE ----------
+dbClient.auth.onAuthStateChange(async (event, session) => {
+  console.log('Auth event:', event, session?.user?.id || null);
+
+  if (event === 'SIGNED_OUT') {
+    state.profile = null;
+    state.historyLog = [];
+    state.history = [];
+    state.currentQuestion = null;
+    showLogin();
+  }
 });
 
 // ---------- boot ----------
 (async function boot(){
-  const { data: { session } } = await dbClient.auth.getSession();
+  const { data: { session }, error } = await dbClient.auth.getSession();
 
-  if(!session){
-    showAuth();
+  if (error) {
+    console.error('Error obteniendo sesión:', error);
+    showLogin();
     return;
   }
 
-  // El ID de la fila de usuarios queda ligado al usuario autenticado.
-  try{ localStorage.setItem(STUDENT_ID_KEY, session.user.id); }catch(e){}
+  // No hay usuario autenticado: mostrar login.
+  if (!session) {
+    showLogin();
+    return;
+  }
 
+  console.log('Usuario autenticado:', session.user.id);
+
+  // Usuario autenticado: buscamos su perfil.
   const saved = await loadProfile();
 
   if(saved && saved.profile){
@@ -1387,17 +1591,11 @@ document.getElementById('resetBtn').addEventListener('click', async ()=>{
     setSupabaseStatus('Datos cargados');
     requestNextTurn(null);
   } else {
-    // Usuario autenticado pero todavía sin perfil académico.
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-    document.getElementById('view-onboard').classList.add('active');
-    setSupabaseStatus('Esperando registro');
+    // Usuario autenticado pero todavía sin perfil de Sendero.
+    state.profile = null;
+    showOnboarding();
+    setSupabaseStatus('Listo para crear tu perfil');
   }
-
-  dbClient.auth.onAuthStateChange((event, newSession)=>{
-    if(event === 'SIGNED_OUT' || !newSession){
-      showAuth();
-    }
-  });
 })();
 </script>
 </body>
