@@ -44,6 +44,51 @@
   button { font-family: inherit; cursor: pointer; }
   ::selection { background: var(--primary-soft); }
 
+  /* ---------------- PERSONALIZACIÓN / MODO OSCURO ---------------- */
+  body.dark-mode {
+    --bg: #11131A;
+    --surface: #191C25;
+    --surface-alt: #222632;
+    --ink: #F3F4F8;
+    --ink-soft: #A9B0C0;
+    --border: rgba(255,255,255,0.10);
+    --primary-soft: #292650;
+    --primary-deep: #8D88FF;
+    --success-soft: #183A2C;
+    --amber-soft: #3A301D;
+    --danger-soft: #3B2420;
+  }
+  body.dark-mode .login-google { background: var(--surface); color: var(--ink); }
+  body.dark-mode .ai-question, body.dark-mode textarea, body.dark-mode input { color: var(--ink); }
+  body.dark-mode .topbar, body.dark-mode .rail { background: var(--surface); }
+  body.dark-mode .chat-scroll, body.dark-mode .ai-chat-scroll { background: var(--bg); }
+  body.dark-mode .msg.bot, body.dark-mode .explain-card { background: var(--surface); }
+
+  .settings-wrap { padding: 1.6rem 1.4rem 2rem; max-width: 820px; }
+  .settings-wrap h2 { font-family: var(--display); font-size: 1.35rem; margin: 0 0 .35rem; }
+  .settings-subtitle { color: var(--ink-soft); margin: 0 0 1.4rem; font-size: .9rem; }
+  .settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1rem; margin-bottom: .9rem; }
+  .settings-title { font-family: var(--display); font-weight: 700; margin-bottom: .2rem; }
+  .settings-description { color: var(--ink-soft); font-size: .82rem; margin-bottom: .85rem; line-height: 1.45; }
+  .setting-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.75rem 0; border-bottom:1px solid var(--border); }
+  .setting-row:last-child { border-bottom:0; }
+  .setting-label strong { display:block; font-size:.9rem; }
+  .setting-label span { display:block; color:var(--ink-soft); font-size:.76rem; margin-top:.15rem; }
+  .switch { position:relative; width:48px; height:26px; flex-shrink:0; }
+  .switch input { opacity:0; width:0; height:0; }
+  .slider { position:absolute; inset:0; background:#AAB1BF; border-radius:30px; transition:.2s; cursor:pointer; }
+  .slider:before { content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; }
+  .switch input:checked + .slider { background:var(--primary); }
+  .switch input:checked + .slider:before { transform:translateX(22px); }
+  .theme-options { display:flex; gap:.55rem; flex-wrap:wrap; }
+  .theme-option { border:1px solid var(--border); background:var(--surface-alt); color:var(--ink); border-radius:10px; padding:.55rem .8rem; font-size:.8rem; }
+  .theme-option.active { border-color:var(--primary); color:var(--primary); box-shadow:0 0 0 2px var(--primary-soft); }
+  .accent-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:.35rem; background:var(--accent,#564FE0); vertical-align:-1px; }
+  .settings-danger { border:1px solid var(--danger); color:var(--danger); background:transparent; border-radius:10px; padding:.65rem .9rem; font-weight:600; }
+  body.compact-mode .msg { padding:.55rem .75rem; margin-bottom:.45rem; }
+  body.compact-mode .chat-scroll, body.compact-mode .ai-chat-scroll { gap:.35rem; }
+  body.no-animations *, body.no-animations *::before, body.no-animations *::after { transition:none !important; animation:none !important; scroll-behavior:auto !important; }
+
   #app { width: 100%; max-width: 1180px; min-height: 100vh; display: flex; }
 
   /* ---------------- SIDEBAR (web) / hidden on mobile ---------------- */
@@ -475,6 +520,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
         Perfil
       </button>
+      <button data-view="settings" class="nav-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.7 1.7-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V22h-2.4v-.2a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.7-1.7.06-.06A1.7 1.7 0 0 0 8.46 15a1.7 1.7 0 0 0-1.56-1.03H6.7v-2.4h.2A1.7 1.7 0 0 0 8.46 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.7-1.7.06.06a1.7 1.7 0 0 0 1.88.34 1.7 1.7 0 0 0 1.03-1.56V5h2.4v.2a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.7 1.7-.06.06A1.7 1.7 0 0 0 19.4 10c.16.59.69 1 1.3 1h.2v2.4h-.2A1.7 1.7 0 0 0 19.4 15z"/></svg>
+        Configuración
+      </button>
     </div>
   </div>
 
@@ -819,6 +868,50 @@
       </div>
     </div>
 
+    <!-- SETTINGS VIEW -->
+    <div class="view" id="view-settings">
+      <div class="settings-wrap">
+        <h2>Configuración</h2>
+        <p class="settings-subtitle">Personaliza la apariencia y el comportamiento de MatheIA.</p>
+
+        <div class="settings-card">
+          <div class="settings-title">Apariencia</div>
+          <div class="settings-description">Elige cómo quieres ver la aplicación.</div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Modo oscuro</strong><span>Reduce el brillo y cambia la interfaz a tonos oscuros.</span></div>
+            <label class="switch"><input type="checkbox" id="settingDarkMode"><span class="slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Estilo de tema</strong><span>Selecciona automáticamente el tema o fija uno.</span></div>
+            <div class="theme-options">
+              <button type="button" class="theme-option active" data-theme="auto">Automático</button>
+              <button type="button" class="theme-option" data-theme="light">Claro</button>
+              <button type="button" class="theme-option" data-theme="dark">Oscuro</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-title">Experiencia</div>
+          <div class="settings-description">Ajusta la forma en que se muestran los chats.</div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Vista compacta</strong><span>Reduce el espacio entre los mensajes para mostrar más contenido.</span></div>
+            <label class="switch"><input type="checkbox" id="settingCompact"><span class="slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Animaciones</strong><span>Activa o desactiva transiciones y animaciones de la interfaz.</span></div>
+            <label class="switch"><input type="checkbox" id="settingAnimations" checked><span class="slider"></span></label>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-title">Restablecer</div>
+          <div class="settings-description">Devuelve las preferencias visuales a sus valores predeterminados. Tus conversaciones y progreso no se borran.</div>
+          <button type="button" class="settings-danger" id="resetSettingsBtn">Restablecer configuración</button>
+        </div>
+      </div>
+    </div>
+
     <!-- TABBAR (mobile) -->
     <div class="tabbar">
       <button data-view="chat" class="tab-btn active">
@@ -840,6 +933,10 @@
       <button data-view="profile" class="tab-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
         Perfil
+      </button>
+      <button data-view="settings" class="tab-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.7 1.7-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V22h-2.4v-.2a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.7-1.7.06-.06A1.7 1.7 0 0 0 8.46 15a1.7 1.7 0 0 0-1.56-1.03H6.7v-2.4h.2A1.7 1.7 0 0 0 8.46 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.7-1.7.06.06A1.7 1.7 0 0 0 12.1 6.34 1.7 1.7 0 0 0 13.13 4.78V4.6h2.4v.18a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.7 1.7-.06.06A1.7 1.7 0 0 0 19.4 10c.16.59.69 1 1.3 1h.2v2.4h-.2A1.7 1.7 0 0 0 19.4 15z"/></svg>
+        Configuración
       </button>
     </div>
 
@@ -1215,6 +1312,50 @@ async function saveProfile() {
   // Y sincronizamos con Supabase.
   return await sincronizarUsuario();
 }
+
+// ---------- configuración / personalización ----------
+const SETTINGS_KEY = 'matheia-settings-v1';
+let appSettings = { theme:'auto', dark:false, compact:false, animations:true };
+
+function getSystemDark(){ return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
+function applySettings(){
+  const dark = appSettings.theme === 'dark' || (appSettings.theme === 'auto' && getSystemDark()) || appSettings.dark;
+  document.body.classList.toggle('dark-mode', dark);
+  document.body.classList.toggle('compact-mode', !!appSettings.compact);
+  document.body.classList.toggle('no-animations', appSettings.animations === false);
+  const darkEl=document.getElementById('settingDarkMode');
+  const compactEl=document.getElementById('settingCompact');
+  const animEl=document.getElementById('settingAnimations');
+  if(darkEl) darkEl.checked=dark;
+  if(compactEl) compactEl.checked=!!appSettings.compact;
+  if(animEl) animEl.checked=appSettings.animations !== false;
+  document.querySelectorAll('.theme-option').forEach(b=>b.classList.toggle('active', b.dataset.theme===appSettings.theme));
+}
+function saveSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(appSettings)); }catch(e){} applySettings(); }
+function loadSettings(){
+  try{ const raw=localStorage.getItem(SETTINGS_KEY); if(raw) appSettings={...appSettings,...JSON.parse(raw)}; }catch(e){}
+  applySettings();
+}
+
+loadSettings();
+document.getElementById('settingDarkMode')?.addEventListener('change', e=>{
+  appSettings.dark=e.target.checked;
+  appSettings.theme=e.target.checked?'dark':'light';
+  saveSettings();
+});
+document.getElementById('settingCompact')?.addEventListener('change', e=>{ appSettings.compact=e.target.checked; saveSettings(); });
+document.getElementById('settingAnimations')?.addEventListener('change', e=>{ appSettings.animations=e.target.checked; saveSettings(); });
+document.querySelectorAll('.theme-option').forEach(btn=>btn.addEventListener('click', ()=>{
+  appSettings.theme=btn.dataset.theme;
+  appSettings.dark=btn.dataset.theme==='dark';
+  saveSettings();
+}));
+window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', ()=>{ if(appSettings.theme==='auto') applySettings(); });
+document.getElementById('resetSettingsBtn')?.addEventListener('click', ()=>{
+  appSettings={theme:'auto',dark:false,compact:false,animations:true};
+  try{ localStorage.removeItem(SETTINGS_KEY); }catch(e){}
+  applySettings();
+});
 
 // ---------- navigation ----------
 function goView(name){
