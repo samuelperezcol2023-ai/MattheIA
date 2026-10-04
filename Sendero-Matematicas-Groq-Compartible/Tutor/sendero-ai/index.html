@@ -154,6 +154,17 @@
   }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-primary:not(:disabled):hover { background: var(--primary-deep); }
+  .btn-secondary {
+    width: 100%; padding: 0.9rem; border: 1px solid var(--border); border-radius: 12px;
+    background: var(--surface); color: var(--ink); font-size: 0.95rem; font-weight: 600;
+    transition: background 0.2s, border-color 0.2s; margin-top: 0.65rem;
+  }
+  .btn-secondary:hover { border-color: var(--primary); background: var(--primary-soft); }
+  .btn-secondary:disabled { opacity: 0.55; cursor: not-allowed; }
+  .login-help {
+    margin: 0.8rem 0 0; color: var(--ink-soft); font-size: 0.78rem;
+    line-height: 1.45; text-align: center;
+  }
 
   /* CHAT / CONVERSACIÓN */
   #view-chat.active { display: flex; flex-direction: column; }
@@ -339,13 +350,6 @@
             Inicia sesión para guardar tu progreso, diagnóstico e historial.
           </p>
 
-          <button class="login-google" id="btnGoogleLogin" type="button">
-            <span class="google-icon">G</span>
-            <span>Continuar con Google</span>
-          </button>
-
-          <div class="login-divider"><span>o</span></div>
-
           <label class="login-label" for="loginEmail">Correo electrónico</label>
           <input
             class="ob-input"
@@ -353,16 +357,36 @@
             type="email"
             placeholder="tu@email.com"
             autocomplete="email"
+            required
           >
 
-          <button class="btn-primary" id="btnMagicLink" type="button">
-            Enviarme enlace de acceso
+          <label class="login-label" for="loginPassword">Contraseña</label>
+          <input
+            class="ob-input"
+            id="loginPassword"
+            type="password"
+            placeholder="Mínimo 6 caracteres"
+            autocomplete="current-password"
+            minlength="6"
+            required
+          >
+
+          <button class="btn-primary" id="btnPasswordLogin" type="button">
+            Iniciar sesión
           </button>
+
+          <button class="btn-secondary" id="btnCreateAccount" type="button">
+            Crear cuenta
+          </button>
+
+          <p class="login-help">
+            Si aún no tienes una cuenta, selecciona <strong>Crear cuenta</strong>.
+          </p>
 
           <p class="login-message" id="loginMessage" aria-live="polite"></p>
 
           <p class="login-legal">
-            Al continuar, tu cuenta y progreso quedarán asociados a este inicio de sesión.
+            Tu cuenta y progreso quedarán asociados a este correo electrónico.
           </p>
         </div>
       </div>
@@ -688,7 +712,9 @@ function showLogin() {
   document.querySelectorAll('.nav-btn, .tab-btn').forEach(b => b.classList.remove('active'));
 
   const emailInput = document.getElementById('loginEmail');
+  const passwordInput = document.getElementById('loginPassword');
   if (emailInput) emailInput.value = '';
+  if (passwordInput) passwordInput.value = '';
 
   showLoginMessage('');
 }
@@ -703,72 +729,93 @@ function showOnboarding() {
   if (onboarding) onboarding.classList.add('active');
 }
 
-async function loginWithGoogle() {
-  const button = document.getElementById('btnGoogleLogin');
-  if (button) {
-    button.disabled = true;
-    button.querySelector('span:last-child').textContent = 'Conectando...';
-  }
-
-  const { error } = await dbClient.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: window.location.origin
-    }
-  });
-
-  if (error) {
-    console.error('Error iniciando sesión con Google:', error);
-    showLoginMessage('No se pudo iniciar sesión con Google.', true);
-
-    if (button) {
-      button.disabled = false;
-      button.querySelector('span:last-child').textContent = 'Continuar con Google';
-    }
-  }
-}
-
-async function loginWithMagicLink() {
+async function loginWithPassword() {
   const emailInput = document.getElementById('loginEmail');
+  const passwordInput = document.getElementById('loginPassword');
   const email = emailInput ? emailInput.value.trim() : '';
+  const password = passwordInput ? passwordInput.value : '';
+  const button = document.getElementById('btnPasswordLogin');
 
-  if (!email) {
-    showLoginMessage('Escribe tu correo electrónico.', true);
+  if (!email || !emailInput.checkValidity()) {
+    showLoginMessage('Introduce un correo electrónico válido.', true);
     if (emailInput) emailInput.focus();
     return;
   }
 
-  if (!emailInput.checkValidity()) {
-    showLoginMessage('Introduce un correo electrónico válido.', true);
-    emailInput.focus();
+  if (!password || password.length < 6) {
+    showLoginMessage('La contraseña debe tener al menos 6 caracteres.', true);
+    if (passwordInput) passwordInput.focus();
     return;
   }
 
-  const button = document.getElementById('btnMagicLink');
   if (button) {
     button.disabled = true;
-    button.textContent = 'Enviando enlace...';
+    button.textContent = 'Iniciando sesión...';
   }
 
-  const { error } = await dbClient.auth.signInWithOtp({
+  const { error } = await dbClient.auth.signInWithPassword({
     email,
-    options: {
-      emailRedirectTo: window.location.origin
-    }
+    password
   });
+
+  if (error) {
+    console.error('Error iniciando sesión:', error);
+    showLoginMessage('Correo o contraseña incorrectos. Si aún no tienes cuenta, créala primero.', true);
+  } else {
+    showLoginMessage('✓ Sesión iniciada. Cargando tu sendero...');
+  }
 
   if (button) {
     button.disabled = false;
-    button.textContent = 'Enviarme enlace de acceso';
+    button.textContent = 'Iniciar sesión';
   }
+}
 
-  if (error) {
-    console.error('Error enviando Magic Link:', error);
-    showLoginMessage('No se pudo enviar el enlace. Inténtalo nuevamente.', true);
+async function createAccount() {
+  const emailInput = document.getElementById('loginEmail');
+  const passwordInput = document.getElementById('loginPassword');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const password = passwordInput ? passwordInput.value : '';
+  const button = document.getElementById('btnCreateAccount');
+
+  if (!email || !emailInput.checkValidity()) {
+    showLoginMessage('Introduce un correo electrónico válido.', true);
+    if (emailInput) emailInput.focus();
     return;
   }
 
-  showLoginMessage('✓ Revisa tu correo. Te hemos enviado un enlace para entrar a Sendero.');
+  if (!password || password.length < 6) {
+    showLoginMessage('La contraseña debe tener al menos 6 caracteres.', true);
+    if (passwordInput) passwordInput.focus();
+    return;
+  }
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Creando cuenta...';
+  }
+
+  const { data, error } = await dbClient.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: 'https://matheia.onrender.com'
+    }
+  });
+
+  if (error) {
+    console.error('Error creando cuenta:', error);
+    showLoginMessage(error.message || 'No se pudo crear la cuenta. Inténtalo nuevamente.', true);
+  } else if (data?.session) {
+    showLoginMessage('✓ Cuenta creada. Cargando tu sendero...');
+  } else {
+    showLoginMessage('✓ Cuenta creada. Revisa tu correo para confirmar la cuenta antes de iniciar sesión.');
+  }
+
+  if (button) {
+    button.disabled = false;
+    button.textContent = 'Crear cuenta';
+  }
 }
 
 async function logout() {
@@ -1495,10 +1542,13 @@ async function renderProfile(){
 }
 
 // ---------- botones de autenticación ----------
-document.getElementById('btnGoogleLogin').addEventListener('click', loginWithGoogle);
-document.getElementById('btnMagicLink').addEventListener('click', loginWithMagicLink);
+document.getElementById('btnPasswordLogin').addEventListener('click', loginWithPassword);
+document.getElementById('btnCreateAccount').addEventListener('click', createAccount);
 document.getElementById('loginEmail').addEventListener('keydown', event => {
-  if (event.key === 'Enter') loginWithMagicLink();
+  if (event.key === 'Enter') loginWithPassword();
+});
+document.getElementById('loginPassword').addEventListener('keydown', event => {
+  if (event.key === 'Enter') loginWithPassword();
 });
 document.getElementById('logoutBtn').addEventListener('click', logout);
 
