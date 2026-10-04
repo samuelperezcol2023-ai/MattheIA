@@ -455,6 +455,13 @@
   #view-profile h2 { font-family: var(--display); font-size: 1.3rem; margin: 0 0 1.2rem; }
   .field-row { display: flex; justify-content: space-between; padding: 0.9rem 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
   .field-row span:first-child { color: var(--ink-soft); }
+  .profile-section-title { font-family: var(--display); font-size: 1rem; margin: 1.4rem 0 0.45rem; }
+  .profile-section-subtitle { color: var(--ink-soft); font-size: 0.84rem; line-height: 1.45; margin: 0 0 0.9rem; }
+  .diagnostic-access-card { margin-top: 1.2rem; padding: 1rem; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-soft); }
+  .diagnostic-access-card h3 { margin: 0 0 0.35rem; font-size: 0.98rem; }
+  .diagnostic-access-card p { margin: 0 0 0.9rem; color: var(--ink-soft); font-size: 0.84rem; line-height: 1.45; }
+  .diagnostic-btn { width: 100%; padding: 0.8rem 1rem; border: 0; border-radius: 11px; background: var(--primary); color: white; font-weight: 700; cursor: pointer; }
+  .diagnostic-btn:hover { filter: brightness(0.96); }
   .reset-btn { margin-top: 1.6rem; width: 100%; padding: 0.85rem; border-radius: 12px; border: 1px solid var(--danger); background: none; color: var(--danger); font-weight: 600; font-size: 0.9rem; }
   .logout-btn {
     width: 100%; margin-top: 0.7rem; padding: 0.85rem; border: 1px solid var(--danger);
@@ -863,6 +870,13 @@
         <div class="field-row"><span>Resultado diagnóstico</span><span id="pfDiagnostic">—</span></div>
         <div class="field-row"><span>Nivel actual</span><span id="pfLevel">—</span></div>
         <div class="field-row"><span>Base de datos</span><span id="supabaseStatus">Pendiente</span></div>
+
+        <div class="diagnostic-access-card">
+          <h3>Tus datos y diagnóstico</h3>
+          <p id="diagnosticAccessText">Completa tu nombre y el diagnóstico de 10 preguntas para que MatheIA pueda calcular tu nivel inicial.</p>
+          <button class="diagnostic-btn" id="openDiagnosticBtn" type="button">Completar datos y diagnóstico</button>
+        </div>
+
         <button class="reset-btn" id="resetBtn">Reiniciar sendero</button>
         <button class="logout-btn" id="logoutBtn" type="button">Cerrar sesión</button>
       </div>
@@ -2147,22 +2161,63 @@ function renderProgress(){
 
 // ---------- profile view ----------
 async function renderProfile(){
-  if (!state.profile) return;
+  const profile = state.profile || {};
+  const hasDiagnostic = Number.isFinite(Number(profile.diagnosticScore));
 
-  document.getElementById('pfName').textContent = state.profile.name || '—';
-  document.getElementById('pfSubject').textContent = state.profile.subject || 'Matemáticas';
-  document.getElementById('pfStyle').textContent = STYLE_LABEL[state.profile.learningStyle] || 'Visual';
+  document.getElementById('pfName').textContent = profile.name || 'No ingresado';
+  document.getElementById('pfSubject').textContent = profile.subject || 'Matemáticas';
+  document.getElementById('pfStyle').textContent = STYLE_LABEL[profile.learningStyle] || 'No definido';
   document.getElementById('pfDiagnostic').textContent =
-    Number.isFinite(Number(state.profile.diagnosticScore))
-      ? `${state.profile.diagnosticScore}/10`
-      : 'No disponible';
-  document.getElementById('pfLevel').textContent = state.profile.level || '—';
+    hasDiagnostic ? `${profile.diagnosticScore}/10` : 'Pendiente';
+  document.getElementById('pfLevel').textContent = profile.level || 'Pendiente';
 
   const user = await getAuthenticatedUser();
 
   document.getElementById('pfEmail').textContent = user?.email || '—';
   document.getElementById('pfUserId').textContent = user?.id || '—';
+
+  const accessText = document.getElementById('diagnosticAccessText');
+  const accessBtn = document.getElementById('openDiagnosticBtn');
+  if(accessText && accessBtn){
+    if(hasDiagnostic && profile.name){
+      accessText.textContent = 'Ya realizaste el diagnóstico. Puedes volver a ingresar a esta parte para actualizar tu nombre y repetir las 10 preguntas cuando quieras.';
+      accessBtn.textContent = 'Volver a realizar datos y diagnóstico';
+    }else{
+      accessText.textContent = 'Aún faltan tus datos o el diagnóstico. Entra aquí para ingresar tu nombre y responder las 10 preguntas que determinarán tu nivel inicial.';
+      accessBtn.textContent = 'Completar datos y diagnóstico';
+    }
+  }
 }
+
+// ---------- acceso al diagnóstico desde Perfil ----------
+function openDiagnosticFromProfile(){
+  if(state.profile?.name){
+    state.onboard.name = state.profile.name;
+    const inputName = document.getElementById('inputName');
+    if(inputName) inputName.value = state.profile.name;
+  }else{
+    state.onboard.name = '';
+    const inputName = document.getElementById('inputName');
+    if(inputName) inputName.value = '';
+  }
+
+  state.diagnostic = { current:1, score:0 };
+  document.querySelectorAll('.choice').forEach(choice=>choice.classList.remove('selected'));
+  for(let i=1;i<=10;i++){
+    const btn = document.getElementById('btnDiag'+i);
+    if(btn) btn.disabled = true;
+  }
+  const step0Btn = document.getElementById('btnStep0');
+  if(step0Btn) step0Btn.disabled = !(document.getElementById('inputName')?.value.trim());
+
+  showStep(0);
+  showOnboarding();
+}
+
+document.getElementById('openDiagnosticBtn')?.addEventListener('click', openDiagnosticFromProfile);
+document.getElementById('inputName')?.addEventListener('input', e=>{
+  state.onboard.name = e.target.value.trim();
+});
 
 // ---------- botones de autenticación ----------
 document.getElementById('btnPasswordLogin').addEventListener('click', loginWithPassword);
