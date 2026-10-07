@@ -497,6 +497,27 @@
     #view-chat .composer { padding: 1rem 3rem; }
     .msg, .explain-card, .fb-card { max-width: 60%; }
   }
+
+  /* ---------- ASISTENTE DE VOZ ---------- */
+  .voice-controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-top:.65rem}
+  .voice-btn,.voice-secondary-btn{border:1px solid var(--border);background:var(--surface-alt);color:var(--ink);border-radius:12px;padding:.65rem .8rem;font:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem}
+  .voice-btn{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:700}
+  .voice-btn.listening{background:#c62828;border-color:#c62828;animation:voicePulse 1.2s infinite}
+  .voice-btn:disabled,.voice-secondary-btn:disabled{opacity:.55;cursor:not-allowed}
+  .voice-indicator{font-size:.82rem;color:var(--ink-soft);min-height:1.2rem}
+  .voice-wave{display:inline-flex;gap:3px;align-items:flex-end;height:18px}
+  .voice-wave span{width:3px;background:currentColor;border-radius:4px;height:6px;animation:voiceBars .8s ease-in-out infinite}
+  .voice-wave span:nth-child(2){animation-delay:.12s}.voice-wave span:nth-child(3){animation-delay:.24s}.voice-wave span:nth-child(4){animation-delay:.36s}
+  .voice-options{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+  .voice-options select,.voice-options input[type=range]{max-width:180px}
+  .voice-reading{margin-left:auto;font-size:.8rem;color:var(--ink-soft)}
+  @keyframes voicePulse{50%{box-shadow:0 0 0 5px rgba(198,40,40,.12)}}
+  @keyframes voiceBars{50%{height:18px}}
+  .voice-message-tools{display:flex;gap:.35rem;margin-top:.35rem}
+  .speak-msg-btn{border:0;background:transparent;color:var(--primary);cursor:pointer;font-size:.78rem;padding:.2rem .3rem}
+  .voice-permission-note{font-size:.78rem;color:var(--ink-soft);margin-top:.35rem}
+  .settings-card .voice-options{margin-top:.35rem}
+
 </style>
 </head>
 <body>
@@ -812,9 +833,16 @@
           <div class="ai-actions">
             <label class="file-label" for="aiFileInput">📎 Adjuntar</label>
             <input id="aiFileInput" type="file" multiple accept=".txt,.md,.csv,.json,.png,.jpg,.jpeg,.webp">
-            <button class="ai-ask-btn" id="aiAskBtn">Preguntar</button>
+            <button class="ai-ask-btn" id="aiAskBtn" type="button">Preguntar</button>
           </div>
         </div>
+        <div class="voice-controls" aria-label="Controles de voz">
+          <button class="voice-btn" id="voiceInputBtn" type="button" title="Hablar con MatheIA">🎙️ Hablar</button>
+          <button class="voice-secondary-btn" id="voiceStopBtn" type="button" title="Detener la voz" disabled>⏹ Detener voz</button>
+          <span class="voice-wave" id="voiceWave" hidden aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+          <span class="voice-indicator" id="voiceStatus" role="status">Listo para escuchar.</span>
+        </div>
+        <div class="voice-permission-note">Puedes hablar en lugar de escribir. La respuesta también puede leerse automáticamente.</div>
         <div class="file-list" id="aiFileList"></div>
         <div class="ai-status" id="aiStatus" role="status"></div>
       </section>
@@ -915,6 +943,27 @@
           <div class="setting-row">
             <div class="setting-label"><strong>Animaciones</strong><span>Activa o desactiva transiciones y animaciones de la interfaz.</span></div>
             <label class="switch"><input type="checkbox" id="settingAnimations" checked><span class="slider"></span></label>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-title">🎙️ Asistente de voz</div>
+          <div class="settings-description">Controla cómo MatheIA escucha tus preguntas y lee sus respuestas.</div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Asistente de voz</strong><span>Permite usar el micrófono desde Ayuda de IA.</span></div>
+            <label class="switch"><input type="checkbox" id="settingVoiceEnabled" checked><span class="slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Leer respuestas automáticamente</strong><span>MatheIA leerá en voz alta cada respuesta de Ayuda de IA.</span></div>
+            <label class="switch"><input type="checkbox" id="settingAutoSpeak" checked><span class="slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Velocidad de voz</strong><span>Controla qué tan rápido se reproduce la explicación.</span></div>
+            <div class="voice-options"><input id="settingVoiceRate" type="range" min="0.6" max="1.4" step="0.05" value="0.95"><output id="voiceRateValue">0.95×</output></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Voz</strong><span>Selecciona una voz en español disponible en tu dispositivo.</span></div>
+            <div class="voice-options"><select id="settingVoiceSelect" aria-label="Voz del asistente"><option value="">Predeterminada</option></select></div>
           </div>
         </div>
 
@@ -1586,6 +1635,15 @@ function addAiBotFormattedMsg(text, scroll=true){
   const d = document.createElement('div');
   d.className = 'msg bot';
   d.innerHTML = html;
+  const tools=document.createElement('div');
+  tools.className='voice-message-tools';
+  const speakBtn=document.createElement('button');
+  speakBtn.type='button';
+  speakBtn.className='speak-msg-btn';
+  speakBtn.textContent='🔊 Escuchar';
+  speakBtn.addEventListener('click',()=>speakText(text));
+  tools.appendChild(speakBtn);
+  d.appendChild(tools);
   aiScrollEl.appendChild(d);
   if(scroll) scrollAiBottom();
 }
@@ -1990,6 +2048,141 @@ function addImageResults(images){
   scrollAiBottom();
 }
 
+
+// ---------- ASISTENTE DE VOZ ----------
+const voiceInputBtn = document.getElementById('voiceInputBtn');
+const voiceStopBtn = document.getElementById('voiceStopBtn');
+const voiceStatusEl = document.getElementById('voiceStatus');
+const voiceWaveEl = document.getElementById('voiceWave');
+const settingVoiceEnabled = document.getElementById('settingVoiceEnabled');
+const settingAutoSpeak = document.getElementById('settingAutoSpeak');
+const settingVoiceRate = document.getElementById('settingVoiceRate');
+const voiceRateValue = document.getElementById('voiceRateValue');
+const settingVoiceSelect = document.getElementById('settingVoiceSelect');
+
+let recognition = null;
+let isListening = false;
+let voiceFinalTranscript = '';
+let availableVoices = [];
+
+function getVoiceSettings(){
+  try{
+    return JSON.parse(localStorage.getItem('matheia-voice-settings') || '{}');
+  }catch(e){ return {}; }
+}
+function saveVoiceSettings(){
+  localStorage.setItem('matheia-voice-settings', JSON.stringify({
+    enabled: settingVoiceEnabled?.checked !== false,
+    autoSpeak: settingAutoSpeak?.checked !== false,
+    rate: Number(settingVoiceRate?.value || 0.95),
+    voiceName: settingVoiceSelect?.value || ''
+  }));
+}
+function applyVoiceSettings(){
+  const cfg=getVoiceSettings();
+  if(settingVoiceEnabled) settingVoiceEnabled.checked = cfg.enabled !== false;
+  if(settingAutoSpeak) settingAutoSpeak.checked = cfg.autoSpeak !== false;
+  if(settingVoiceRate) settingVoiceRate.value = String(cfg.rate || 0.95);
+  if(voiceRateValue) voiceRateValue.textContent = `${Number(settingVoiceRate?.value || .95).toFixed(2)}×`;
+  if(settingVoiceSelect && cfg.voiceName) settingVoiceSelect.value=cfg.voiceName;
+  updateVoiceAvailability();
+}
+function updateVoiceAvailability(){
+  const supported=!!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  const enabled=settingVoiceEnabled?.checked !== false;
+  if(voiceInputBtn){
+    voiceInputBtn.disabled=!supported || !enabled;
+    voiceInputBtn.title=supported ? 'Hablar con MatheIA' : 'Tu navegador no admite reconocimiento de voz';
+  }
+  if(!supported && voiceStatusEl) voiceStatusEl.textContent='El reconocimiento de voz no está disponible en este navegador.';
+}
+function populateVoiceList(){
+  if(!('speechSynthesis' in window) || !settingVoiceSelect) return;
+  availableVoices=window.speechSynthesis.getVoices().filter(v=>/^(es)(-|_)/i.test(v.lang) || /español|spanish|colombia|mexico|españa/i.test(v.name));
+  if(!availableVoices.length) availableVoices=window.speechSynthesis.getVoices();
+  const current=settingVoiceSelect.value;
+  settingVoiceSelect.innerHTML='<option value="">Predeterminada</option>';
+  availableVoices.forEach(v=>{
+    const opt=document.createElement('option'); opt.value=v.name; opt.textContent=`${v.name} (${v.lang})`; settingVoiceSelect.appendChild(opt);
+  });
+  const cfg=getVoiceSettings();
+  settingVoiceSelect.value=cfg.voiceName || current || '';
+}
+function setListeningUI(on){
+  isListening=on;
+  if(voiceInputBtn){voiceInputBtn.classList.toggle('listening',on);voiceInputBtn.textContent=on?'🔴 Escuchando...':'🎙️ Hablar';}
+  if(voiceWaveEl) voiceWaveEl.hidden=!on;
+  if(voiceStopBtn) voiceStopBtn.disabled=!on && !speechSynthesis.speaking;
+  if(voiceStatusEl) voiceStatusEl.textContent=on?'Te escucho. Habla con normalidad...':'Listo para escuchar.';
+}
+function startVoiceRecognition(){
+  if(settingVoiceEnabled?.checked===false) return;
+  const SR=window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){voiceStatusEl.textContent='Tu navegador no permite reconocimiento de voz.';return;}
+  if(isListening){recognition?.stop();return;}
+  recognition=new SR();
+  recognition.lang='es-CO';
+  recognition.continuous=false;
+  recognition.interimResults=true;
+  voiceFinalTranscript='';
+  recognition.onstart=()=>setListeningUI(true);
+  recognition.onresult=(event)=>{
+    let interim='';
+    for(let i=event.resultIndex;i<event.results.length;i++){
+      const t=event.results[i][0].transcript;
+      if(event.results[i].isFinal) voiceFinalTranscript += t + ' '; else interim += t;
+    }
+    if(aiQuestionEl) aiQuestionEl.value=(voiceFinalTranscript+interim).trim();
+  };
+  recognition.onerror=(event)=>{
+    setListeningUI(false);
+    const msg=event.error==='not-allowed'?'Permiso de micrófono denegado. Actívalo en el navegador.':`No pude escuchar: ${event.error}.`;
+    if(voiceStatusEl) voiceStatusEl.textContent=msg;
+  };
+  recognition.onend=()=>{
+    setListeningUI(false);
+    const text=(voiceFinalTranscript || aiQuestionEl?.value || '').trim();
+    if(text){
+      aiQuestionEl.value=text;
+      if(voiceStatusEl) voiceStatusEl.textContent='Pregunta recibida. Procesando...';
+      askAi();
+    }
+  };
+  try{ recognition.start(); }catch(e){ setListeningUI(false); voiceStatusEl.textContent='No se pudo iniciar el micrófono.'; }
+}
+function stopVoice(){
+  if(recognition && isListening) recognition.stop();
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  setListeningUI(false);
+  if(voiceStatusEl) voiceStatusEl.textContent='Voz detenida.';
+}
+function speakText(text){
+  if(settingVoiceEnabled?.checked===false || !('speechSynthesis' in window)) return;
+  const clean=String(text||'').replace(/```[\s\S]*?```/g,' ').replace(/[#*_`]/g,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+  if(!clean) return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(clean);
+  u.lang='es-CO';
+  u.rate=Number(settingVoiceRate?.value || .95);
+  u.pitch=1;
+  const name=settingVoiceSelect?.value;
+  const v=availableVoices.find(x=>x.name===name);
+  if(v) u.voice=v;
+  u.onstart=()=>{if(voiceStatusEl)voiceStatusEl.textContent='🔊 Leyendo respuesta...'; if(voiceStopBtn)voiceStopBtn.disabled=false;};
+  u.onend=()=>{if(voiceStatusEl)voiceStatusEl.textContent='Respuesta terminada.'; if(voiceStopBtn)voiceStopBtn.disabled=true;};
+  u.onerror=()=>{if(voiceStatusEl)voiceStatusEl.textContent='No se pudo reproducir la respuesta.';};
+  window.speechSynthesis.speak(u);
+}
+voiceInputBtn?.addEventListener('click',startVoiceRecognition);
+voiceStopBtn?.addEventListener('click',stopVoice);
+settingVoiceEnabled?.addEventListener('change',()=>{saveVoiceSettings();updateVoiceAvailability();if(settingVoiceEnabled.checked===false)stopVoice();});
+settingAutoSpeak?.addEventListener('change',saveVoiceSettings);
+settingVoiceRate?.addEventListener('input',()=>{voiceRateValue.textContent=`${Number(settingVoiceRate.value).toFixed(2)}×`;saveVoiceSettings();});
+settingVoiceSelect?.addEventListener('change',saveVoiceSettings);
+if('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged=populateVoiceList;
+populateVoiceList();
+applyVoiceSettings();
+
 async function askAi(){
   const question=aiQuestionEl.value.trim();
   if(!question && aiFiles.length===0) return;
@@ -2048,6 +2241,7 @@ async function askAi(){
     const answer = data.answer || 'No recibí una respuesta de la IA.';
 
     addAiBotFormattedMsg(answer);
+    if(settingAutoSpeak?.checked !== false) speakText(answer);
     aiConversation.push({role:'assistant', content:answer});
     saveAiConversation();
 
