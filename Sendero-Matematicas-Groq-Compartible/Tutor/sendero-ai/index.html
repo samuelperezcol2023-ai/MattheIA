@@ -943,8 +943,16 @@
   body.dark-mode .msg.bot { background:rgba(35,34,62,.92) !important; color:var(--ink) !important; }
   body.dark-mode .chat-scroll, body.dark-mode .ai-chat-scroll { background:transparent !important; }
   @media (max-width: 779px) {
-    .theme-toggle { top:auto; bottom:16px; right:14px; padding:11px 14px; }
+    /* En móvil el control se coloca en una fila propia, sin cubrir la navegación inferior. */
+    .theme-toggle {
+      position: static; top:auto; bottom:auto; right:auto;
+      padding:9px 13px; margin:10px 12px 0 auto;
+      display:flex; width:max-content; max-width:calc(100% - 24px);
+      font-size:12px; box-shadow:0 5px 16px rgba(66,48,137,.14);
+    }
+    .theme-toggle.mobile-theme-toggle { position:relative; }
     .topbar { margin:8px 8px 0; }
+    body { padding-bottom: max(18px, env(safe-area-inset-bottom)); }
   }
   @media (prefers-reduced-motion: reduce) { body::before, body::after, .view.active, .login-card::before { animation:none !important; } }
 
@@ -2977,7 +2985,14 @@ dbClient.auth.onAuthStateChange(async (event, session) => {
     const button = document.createElement('button');
     button.type = 'button'; button.id = 'themeToggle'; button.className = 'theme-toggle';
     button.addEventListener('click', () => applyTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark'));
-    document.body.appendChild(button);
+    if (window.matchMedia('(max-width: 779px)').matches) {
+      button.classList.add('mobile-theme-toggle');
+      const topbar = document.querySelector('.topbar');
+      if (topbar && topbar.parentNode) topbar.parentNode.insertBefore(button, topbar);
+      else document.body.appendChild(button);
+    } else {
+      document.body.appendChild(button);
+    }
     let saved = 'light';
     try { saved = localStorage.getItem(KEY) || 'light'; } catch (_) {}
     applyTheme(saved);
