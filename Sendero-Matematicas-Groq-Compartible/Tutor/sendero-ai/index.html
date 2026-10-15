@@ -600,7 +600,8 @@ body.compact-mode .home-card,body.compact-mode .topic-card{padding:1rem}
 
 
 
-/* ===== Fondo visual tomado de MatheIA_opcion2_textos_mas_grandes.html ===== */
+
+/* ===== Fondo visual inspirado en MatheIA_opcion2_color_y_temas.html ===== */
 html {
   background: #f9f7ff;
 }
@@ -609,9 +610,9 @@ body {
   isolation: isolate;
   overflow-x: hidden;
   background:
-    radial-gradient(ellipse at 10% 12%, rgba(255,132,179,.25), transparent 34%),
-    radial-gradient(ellipse at 88% 18%, rgba(117,104,255,.24), transparent 31%),
-    radial-gradient(ellipse at 65% 95%, rgba(58,216,201,.18), transparent 32%),
+    radial-gradient(ellipse at 10% 12%, rgba(255,132,179,.32), transparent 34%),
+    radial-gradient(ellipse at 88% 18%, rgba(117,104,255,.30), transparent 31%),
+    radial-gradient(ellipse at 65% 95%, rgba(58,216,201,.24), transparent 32%),
     linear-gradient(135deg,#f9f7ff 0%,#eef1ff 46%,#fff3f7 100%);
   background-attachment: fixed;
   transition: background .35s ease, color .3s ease;
@@ -622,9 +623,9 @@ body::after {
   position: fixed;
   width: min(42rem, 75vw);
   height: min(42rem, 75vw);
-  border-radius: 50%;
-  filter: blur(65px);
-  opacity: .72;
+  border-radius: 43% 57% 61% 39% / 42% 42% 58% 58%;
+  filter: blur(42px);
+  opacity: .82;
   pointer-events: none;
   z-index: -1;
   transform: translate3d(0,0,0);
@@ -632,36 +633,36 @@ body::after {
 body::before {
   top: -12rem;
   left: -11rem;
-  background: linear-gradient(135deg,rgba(255,105,160,.28),rgba(255,200,118,.14));
+  background: linear-gradient(135deg,rgba(255,105,160,.38),rgba(255,200,118,.22));
   animation: ambientDriftA 19s ease-in-out infinite alternate;
 }
 body::after {
   right: -12rem;
   bottom: -13rem;
-  background: linear-gradient(135deg,rgba(107,78,255,.28),rgba(51,218,201,.20));
+  background: linear-gradient(135deg,rgba(107,78,255,.36),rgba(51,218,201,.28));
   animation: ambientDriftB 23s ease-in-out infinite alternate;
   animation-delay: -7s;
 }
 @keyframes ambientDriftA {
-  from { transform: translate3d(0,0,0) scale(1); }
-  to { transform: translate3d(4rem,3rem,0) scale(1.08); }
+  from { transform: translate3d(0,0,0) rotate(0deg) scale(1); }
+  to { transform: translate3d(4rem,3rem,0) rotate(18deg) scale(1.12); }
 }
 @keyframes ambientDriftB {
-  from { transform: translate3d(0,0,0) scale(1); }
-  to { transform: translate3d(-4rem,-3rem,0) scale(1.1); }
+  from { transform: translate3d(0,0,0) rotate(0deg) scale(1); }
+  to { transform: translate3d(-4rem,-3rem,0) rotate(-18deg) scale(1.1); }
 }
 .main-col { background: transparent !important; }
 #view-login.active { background: transparent !important; }
 #view-chat .chat-scroll,
 #view-ai .ai-chat-scroll { background: transparent; }
 
-/* El mismo fondo conserva una variante armonizada para modo oscuro. */
+/* Fondo adaptado al modo oscuro, sin alterar los componentes de la interfaz. */
 body.dark-mode {
   color-scheme: dark;
   background:
-    radial-gradient(ellipse at 12% 10%,rgba(143,78,255,.22),transparent 34%),
-    radial-gradient(ellipse at 88% 20%,rgba(35,202,200,.14),transparent 31%),
-    radial-gradient(ellipse at 65% 95%,rgba(255,89,151,.13),transparent 32%),
+    radial-gradient(ellipse at 12% 10%,rgba(143,78,255,.28),transparent 34%),
+    radial-gradient(ellipse at 88% 20%,rgba(35,202,200,.19),transparent 31%),
+    radial-gradient(ellipse at 65% 95%,rgba(255,89,151,.18),transparent 32%),
     linear-gradient(135deg,#101121 0%,#17162d 50%,#1c1529 100%) !important;
   background-attachment: fixed;
 }
@@ -674,6 +675,7 @@ body.dark-mode #view-ai .ai-chat-scroll {
 @media (prefers-reduced-motion: reduce) {
   body::before, body::after { animation: none !important; }
 }
+
 
 </style>
 </head>
