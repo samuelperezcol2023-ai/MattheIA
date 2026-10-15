@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#564FE0">
+<meta name="theme-color" content="#7048E8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>MatheIA — Tutor Adaptativo</title>
+<meta name="description" content="MatheIA: aprende matemáticas a tu ritmo con un tutor adaptativo, práctica guiada y seguimiento de tu progreso.">
+<title>MatheIA — Tu tutor personal de matemáticas</title>
 
 <!-- ANEXO 1: SDK de Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -498,463 +499,104 @@
     .msg, .explain-card, .fb-card { max-width: 60%; }
   }
 
-  /* ---------- ASISTENTE DE VOZ ---------- */
-  .voice-controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-top:.65rem}
-  .voice-btn,.voice-secondary-btn{border:1px solid var(--border);background:var(--surface-alt);color:var(--ink);border-radius:12px;padding:.65rem .8rem;font:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem}
-  .voice-btn{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:700}
-  .voice-btn.listening{background:#c62828;border-color:#c62828;animation:voicePulse 1.2s infinite}
-  .voice-btn:disabled,.voice-secondary-btn:disabled{opacity:.55;cursor:not-allowed}
-  .voice-indicator{font-size:.82rem;color:var(--ink-soft);min-height:1.2rem}
-  .voice-wave{display:inline-flex;gap:3px;align-items:flex-end;height:18px}
-  .voice-wave span{width:3px;background:currentColor;border-radius:4px;height:6px;animation:voiceBars .8s ease-in-out infinite}
-  .voice-wave span:nth-child(2){animation-delay:.12s}.voice-wave span:nth-child(3){animation-delay:.24s}.voice-wave span:nth-child(4){animation-delay:.36s}
-  .voice-options{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
-  .voice-options select,.voice-options input[type=range]{max-width:180px}
-  .voice-reading{margin-left:auto;font-size:.8rem;color:var(--ink-soft)}
-  @keyframes voicePulse{50%{box-shadow:0 0 0 5px rgba(198,40,40,.12)}}
-  @keyframes voiceBars{50%{height:18px}}
-  .voice-message-tools{display:flex;gap:.35rem;margin-top:.35rem}
-  .speak-msg-btn{border:0;background:transparent;color:var(--primary);cursor:pointer;font-size:.78rem;padding:.2rem .3rem}
-  .voice-permission-note{font-size:.78rem;color:var(--ink-soft);margin-top:.35rem}
-  .settings-card .voice-options{margin-top:.35rem}
 
-
-  /* ==========================================================
-     REDISEÑO VISUAL MATHEIA — contraste alto + fondo animado
-     Se mantienen los componentes y la lógica JavaScript original.
-     ========================================================== */
-  :root {
-    color-scheme: dark;
-    --bg: #080d1c;
-    --surface: rgba(17, 25, 48, .92);
-    --surface-alt: #121d38;
-    --ink: #f4f7ff;
-    --ink-soft: #c0cbe0;
-    --border: rgba(164, 185, 255, .19);
-    --primary: #8b7cff;
-    --primary-soft: rgba(139, 124, 255, .16);
-    --primary-deep: #b4aaff;
-    --success: #49d7a0;
-    --success-soft: rgba(40, 190, 137, .15);
-    --amber: #ffc66e;
-    --amber-soft: rgba(255, 198, 110, .14);
-    --danger: #ff887f;
-    --danger-soft: rgba(255, 110, 110, .14);
-  }
-
-  html { background: #080d1c; }
-  body {
-    position: relative;
-    isolation: isolate;
-    overflow-x: hidden;
-    background:
-      radial-gradient(ellipse at 50% -20%, rgba(69, 85, 190, .22), transparent 55%),
-      #080d1c;
-    color: var(--ink);
-  }
-  /* Luces ambientales animadas detrás de la interfaz */
-  body::before,
-  body::after {
-    content: "";
-    position: fixed;
-    z-index: -1;
-    pointer-events: none;
-    width: 48vw;
-    height: 48vw;
-    min-width: 300px;
-    min-height: 300px;
-    border-radius: 50%;
-    filter: blur(85px);
-    opacity: .26;
-    transform: translate3d(0,0,0);
-  }
-  body::before {
-    top: -18%;
-    left: -14%;
-    background: radial-gradient(circle, #6657ff 0%, #3b62d9 35%, transparent 72%);
-    animation: ambientDriftA 19s ease-in-out infinite alternate;
-  }
-  body::after {
-    right: -17%;
-    bottom: -22%;
-    background: radial-gradient(circle, #00d7c2 0%, #4167d8 34%, transparent 72%);
-    animation: ambientDriftB 23s ease-in-out infinite alternate;
-  }
-  @keyframes ambientDriftA {
-    0% { transform: translate(0, 0) scale(.9); }
-    100% { transform: translate(24vw, 18vh) scale(1.18); }
-  }
-  @keyframes ambientDriftB {
-    0% { transform: translate(0, 0) scale(1.05); }
-    100% { transform: translate(-22vw, -16vh) scale(.86); }
-  }
-  #app { position: relative; z-index: 0; max-width: 1440px; }
-  .main-col { background: transparent; }
-  .view { scrollbar-color: #59638d transparent; }
-  ::selection { background: rgba(139,124,255,.42); color: #fff; }
-
-  /* Navegación y cabecera */
-  .rail {
-    background: rgba(10, 15, 33, .84);
-    border-right: 1px solid var(--border);
-    backdrop-filter: blur(22px);
-  }
-  .brand { color: #fff; letter-spacing: -.04em; font-size: 1.55rem; }
-  .brand span, .login-title span { color: #a99cff; }
-  .rail-nav button {
-    color: #c0cbe0;
-    border: 1px solid transparent;
-    transition: background .25s ease, color .25s ease, transform .25s ease, border-color .25s ease;
-  }
-  .rail-nav button:hover { transform: translateX(3px); }
-  .rail-nav button:hover, .rail-nav button.active {
-    color: #fff;
-    background: linear-gradient(100deg, rgba(125,108,255,.24), rgba(31,211,203,.08));
-    border-color: rgba(158,145,255,.25);
-    box-shadow: inset 3px 0 #9b8cff;
-  }
-  .topbar {
-    background: rgba(10, 15, 33, .84);
-    border-bottom-color: var(--border);
-    backdrop-filter: blur(20px);
-  }
-  .avatar, .brand-mark {
-    background: linear-gradient(135deg, #8a72ff, #4f7dff 58%, #20cfc3);
-    box-shadow: 0 8px 24px rgba(91, 92, 255, .28);
-  }
-  .level-chip { color: #ffe0a3; background: rgba(255,198,110,.13); border: 1px solid rgba(255,198,110,.25); }
-
-  /* Acceso: panel destacado y tipografía legible */
-  #view-login.active {
-    position: relative;
-    overflow: hidden;
-    background: transparent;
-  }
-  .login-card {
-    position: relative;
-    overflow: hidden;
-    max-width: 470px;
-    padding: clamp(1.5rem, 4vw, 2.5rem);
-    color: #f4f7ff;
-    background: linear-gradient(145deg, rgba(23,32,61,.96), rgba(12,19,39,.96));
-    border: 1px solid rgba(173,164,255,.32);
-    border-radius: 28px;
-    box-shadow: 0 30px 90px rgba(0,0,0,.42), 0 0 50px rgba(105,91,255,.12);
-    backdrop-filter: blur(22px);
-    animation: cardAppear .7s cubic-bezier(.2,.8,.2,1) both;
-  }
-  .login-card::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 12%; right: 12%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #a89aff, #31ddd0, transparent);
-  }
-  @keyframes cardAppear {
-    from { opacity: 0; transform: translateY(16px) scale(.985); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .login-brand { margin-bottom: 2.25rem; }
-  .login-title { color: #fff; font-size: 1.45rem; letter-spacing: -.04em; }
-  .login-subtitle { color: #c5cee3; font-size: .82rem; }
-  .ob-eyebrow { color: #a99cff; letter-spacing: .12em; text-transform: uppercase; font-size: .7rem; }
-  .login-content h2 { color: #fff; font-size: clamp(1.8rem, 5vw, 2.2rem); letter-spacing: -.045em; }
-  .login-description { color: #d0d8e9; font-size: .94rem; }
-  .login-label { color: #f0f3ff; }
-  .login-legal, .login-help { color: #c0cbe0; }
-  .login-input, .ob-input,
-  input.ob-input, .login-card input {
-    color: #fff;
-    background: rgba(5, 11, 27, .72);
-    border: 1px solid rgba(170,184,230,.27);
-    border-radius: 13px;
-  }
-  .ob-input::placeholder, input::placeholder, textarea::placeholder { color: #929fbd; opacity: 1; }
-  .ob-input:focus, .login-card input:focus {
-    outline: none;
-    border-color: #a99cff;
-    box-shadow: 0 0 0 3px rgba(139,124,255,.2);
-  }
-  .btn-primary, .ai-ask-btn, .diagnostic-btn {
-    color: #fff;
-    background: linear-gradient(110deg, #7664ff, #655cf2 55%, #4779ff);
-    border: 1px solid rgba(255,255,255,.14);
-    box-shadow: 0 9px 24px rgba(93,83,255,.25);
-    transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
-  }
-  .btn-primary:not(:disabled):hover, .ai-ask-btn:not(:disabled):hover,
-  .diagnostic-btn:hover {
-    filter: brightness(1.12);
-    transform: translateY(-1px);
-    box-shadow: 0 13px 30px rgba(93,83,255,.34);
-  }
-  .btn-secondary {
-    color: #f0efff;
-    background: rgba(139,124,255,.09);
-    border-color: rgba(169,156,255,.36);
-  }
-  .btn-secondary:hover { color: #fff; background: rgba(139,124,255,.18); }
-  .login-message { color: #ffe0a3; }
-
-  /* Tarjetas, chats y campos */
-  .settings-card, .stat-card, .quiz-card, .ai-help, .exercise-chat,
-  .login-google, .diagnostic-access-card {
-    background: rgba(17,25,48,.91);
-    border-color: var(--border);
-    box-shadow: 0 12px 32px rgba(0,0,0,.14);
-  }
-  .ai-help, .exercise-chat, .settings-card, .stat-card, .quiz-card {
-    border-radius: 18px;
-  }
-  .ai-help, .exercise-chat { backdrop-filter: blur(12px); }
-  .exercise-chat-head, .composer {
-    background: rgba(15,23,45,.96);
-    border-color: var(--border);
-  }
-  .chat-scroll, .ai-chat-scroll { background: transparent; }
-  .msg.bot, .explain-card, .ai-image-card {
-    color: #f4f7ff;
-    background: rgba(24,34,62,.94);
-    border-color: rgba(164,185,255,.2);
-  }
-  .msg.user { background: linear-gradient(135deg, #7867ff, #566cff); color: #fff; }
-  .msg.system-note { color: #d3dcf1; background: rgba(120,135,180,.15); }
-  .explain-tag { color: #ffd28b; }
-  .fb-card.ok { background: rgba(40,190,137,.16); color: #8ff0c7; }
-  .fb-card.no { background: rgba(255,110,110,.15); color: #ffb2aa; }
-  .ai-help-title, .exercise-chat-head strong, .settings-title,
-  #view-progress h2, #view-practica h2, #view-profile h2,
-  .settings-wrap h2 { color: #f5f7ff; }
-  .ai-help-sub, .exercise-chat-head span, .settings-description,
-  .settings-subtitle, .setting-label span, .ai-status,
-  .profile-section-subtitle, .diagnostic-access-card p,
-  .stat-card .lbl, .who p { color: #c0cbe0; }
-  .ai-help-grid textarea, .composer input, .voice-options select,
-  .settings-card input, .settings-card select, .settings-card textarea {
-    color: #f5f7ff;
-    background: #0b1329;
-    border-color: rgba(164,185,255,.25);
-  }
-  .ai-help-grid textarea:focus, .composer input:focus {
-    outline: none;
-    border-color: #a99cff;
-    box-shadow: 0 0 0 3px rgba(139,124,255,.16);
-  }
-  .ai-clear-btn, .file-label, .voice-secondary-btn {
-    color: #e4eaff;
-    background: #172342;
-    border-color: rgba(164,185,255,.22);
-  }
-  .choice {
-    color: #edf1ff;
-    background: rgba(19,29,55,.9);
-    border-color: rgba(164,185,255,.22);
-  }
-  .choice:hover, .choice.selected {
-    color: #fff;
-    background: rgba(139,124,255,.2);
-    border-color: #a99cff;
-  }
-  .path-node { color: #c0cbe0; background: #121d38; border-color: rgba(164,185,255,.22); }
-  .path-node.current { color: #c6bdff; }
-  .path-node.filled { background: linear-gradient(135deg,#7867ff,#4f79ff); border-color: transparent; }
-  .stat-card .num { color: #b6adff; }
-  .field-row, .hist-item { border-color: var(--border); }
-  .field-row span:first-child { color: #c0cbe0; }
-  .tabbar {
-    background: rgba(10,15,33,.96);
-    border-color: var(--border);
-    backdrop-filter: blur(18px);
-  }
-  .tabbar button { color: #c0cbe0; }
-  .tabbar button.active { color: #b5aaff; }
-  .send-btn { background: linear-gradient(135deg,#7867ff,#4f79ff); box-shadow: 0 6px 18px rgba(93,83,255,.28); }
-  .voice-btn { background: linear-gradient(110deg,#7664ff,#4779ff); border-color: transparent; }
-
-  /* Evita que el fondo afecte la legibilidad en modo oscuro existente */
-  body.dark-mode {
-    --bg: #080d1c;
-    --surface: rgba(17,25,48,.92);
-    --surface-alt: #121d38;
-    --ink: #f4f7ff;
-    --ink-soft: #c0cbe0;
-    --border: rgba(164,185,255,.19);
-    --primary: #8b7cff;
-    --primary-soft: rgba(139,124,255,.16);
-    --primary-deep: #b4aaff;
-    --success-soft: rgba(40,190,137,.15);
-    --amber-soft: rgba(255,198,110,.14);
-    --danger-soft: rgba(255,110,110,.14);
-  }
-  body.dark-mode .topbar, body.dark-mode .rail,
-  body.dark-mode .chat-scroll, body.dark-mode .ai-chat-scroll,
-  body.dark-mode .msg.bot, body.dark-mode .explain-card {
-    background-color: transparent;
-  }
-
-  @media (max-width: 779px) {
-    #app { min-height: 100dvh; }
-    .main-col { height: 100dvh; }
-    #view-login.active { padding: 1.25rem; }
-    .login-card { border-radius: 24px; }
-    .rail { display: none; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    body::before, body::after, .login-card, .rail-nav button {
-      animation: none !important;
-      transition: none !important;
-    }
-  }
-
-
-
-  /* OPCIÓN 2 · identidad vibrante, capas y tema adaptable */
-  :root {
-    color-scheme: light;
-    --bg: #f4f2ff;
-    --surface: rgba(255,255,255,.88);
-    --surface-alt: #f0edff;
-    --ink: #202044;
-    --ink-soft: #626583;
-    --border: rgba(102,82,210,.18);
-    --primary: #6c45f5;
-    --primary-soft: #eee8ff;
-    --primary-deep: #4b2bd4;
-    --success: #0caa83;
-    --success-soft: #dcfff4;
-    --amber: #e49a21;
-    --amber-soft: #fff3d9;
-    --danger: #db526e;
-    --danger-soft: #ffe7ed;
-  }
-  body {
-    position: relative;
-    overflow-x: hidden;
-    background:
-      radial-gradient(ellipse at 10% 12%, rgba(255,132,179,.25), transparent 34%),
-      radial-gradient(ellipse at 88% 18%, rgba(117,104,255,.24), transparent 31%),
-      radial-gradient(ellipse at 65% 95%, rgba(58,216,201,.18), transparent 32%),
-      linear-gradient(135deg,#f9f7ff 0%,#eef1ff 46%,#fff3f7 100%);
-    background-attachment: fixed;
-    transition: background .35s ease, color .3s ease;
-  }
-  body::before, body::after {
-    content: ''; position: fixed; z-index: -1; pointer-events: none;
-    width: 32rem; height: 32rem; border-radius: 43% 57% 61% 39% / 42% 42% 58% 58%;
-    filter: blur(2px); opacity: .55; animation: colorOrb 17s ease-in-out infinite alternate;
-  }
-  body::before { top: -12rem; left: -11rem; background: linear-gradient(135deg,rgba(255,105,160,.28),rgba(255,200,118,.14)); }
-  body::after { right: -12rem; bottom: -13rem; background: linear-gradient(135deg,rgba(107,78,255,.28),rgba(51,218,201,.20)); animation-delay: -7s; }
-  @keyframes colorOrb { from { transform: translate3d(-1rem,0,0) rotate(0deg) scale(.95); } to { transform: translate3d(3rem,2rem,0) rotate(24deg) scale(1.12); } }
-  #app { isolation: isolate; }
-  .rail {
-    background: linear-gradient(165deg,rgba(255,255,255,.93),rgba(243,239,255,.86)) !important;
-    border-right: 1px solid rgba(111,85,228,.15) !important;
-    box-shadow: 10px 0 40px rgba(76,57,160,.07);
-    backdrop-filter: blur(22px);
-  }
-  .brand, .login-title { letter-spacing: -.055em; }
-  .brand span, .login-title span { color: #ff669b !important; }
-  .rail-nav button, .nav-btn {
-    border: 1px solid transparent !important; border-radius: 14px !important;
-    transition: transform .22s ease, background .22s ease, box-shadow .22s ease !important;
-  }
-  .rail-nav button:hover, .nav-btn:hover { transform: translateX(3px); background: rgba(117,91,244,.09) !important; }
-  .rail-nav button.active, .nav-btn.active {
-    color: #fff !important; background: linear-gradient(115deg,#7048f5,#9c54ed 58%,#ef6ba5) !important;
-    box-shadow: 0 9px 22px rgba(116,72,225,.28) !important;
-  }
-  .main-col { background: transparent !important; }
-  .topbar {
-    margin: 14px 18px 0; border-radius: 20px !important;
-    background: rgba(255,255,255,.7) !important; border: 1px solid rgba(255,255,255,.9);
-    box-shadow: 0 8px 28px rgba(65,55,130,.08); backdrop-filter: blur(20px);
-  }
-  .view.active { animation: viewRise .42s cubic-bezier(.2,.75,.25,1) both; }
-  @keyframes viewRise { from { opacity:0; transform:translateY(9px) scale(.995); } to { opacity:1; transform:translateY(0) scale(1); } }
-  .login-card {
-    border: 1px solid rgba(255,255,255,.95) !important;
-    background: linear-gradient(145deg,rgba(255,255,255,.96),rgba(250,247,255,.91)) !important;
-    box-shadow: 0 30px 90px rgba(84,62,170,.18), 0 7px 22px rgba(84,62,170,.08) !important;
-    backdrop-filter: blur(22px); transform-style: preserve-3d;
-  }
-  .login-card::before {
-    height: 6px !important; background: linear-gradient(90deg,#ff7ca8,#9870ff,#5cdacb,#ffca75) !important;
-    background-size: 220% 100% !important; animation: gradientSlide 7s linear infinite !important;
-  }
-  @keyframes gradientSlide { to { background-position: 220% 0; } }
-  .brand-mark { background: linear-gradient(140deg,#7048f5,#a35bed 60%,#ff79a7) !important; box-shadow: 0 10px 24px rgba(126,75,232,.32) !important; }
-  .btn-primary, .diagnostic-btn {
-    background: linear-gradient(105deg,#6845f5,#9652ec 57%,#ec6da4) !important;
-    box-shadow: 0 10px 24px rgba(113,70,225,.27) !important;
-    border: 0 !important; transition: transform .2s ease, box-shadow .2s ease, filter .2s ease !important;
-  }
-  .btn-primary:hover, .diagnostic-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(113,70,225,.34) !important; filter: saturate(1.12); }
-  .btn-secondary, .login-google { border: 1px solid rgba(111,83,224,.2) !important; box-shadow: 0 5px 16px rgba(70,60,130,.05); }
-  .inner, .settings-wrap, .chat-panel, .ai-panel { position: relative; }
-  .settings-card, .quiz-card, .explain-card, .diagnostic-access-card, .progress-card, .stat-card,
-  .field-row, .chat-panel, .ai-panel, .practice-card {
-    border: 1px solid rgba(116,91,220,.16) !important;
-    background: linear-gradient(145deg,rgba(255,255,255,.92),rgba(248,246,255,.82)) !important;
-    box-shadow: 0 12px 30px rgba(71,58,142,.07), inset 0 1px 0 rgba(255,255,255,.8);
-    border-radius: 18px;
-  }
-  input, textarea, select, .ob-input {
-    border: 1px solid rgba(111,83,224,.22) !important; background: rgba(255,255,255,.86) !important;
-    color: #202044 !important; border-radius: 13px !important;
-  }
-  input:focus, textarea:focus, select:focus, .ob-input:focus { outline: 3px solid rgba(126,93,245,.14) !important; border-color: #8a68f7 !important; }
-  .level-chip { background: linear-gradient(110deg,#e9e2ff,#ffe5ef) !important; color:#5838bf !important; border:1px solid rgba(112,72,245,.12); }
-  .avatar { background: linear-gradient(145deg,#7250f5,#f071ab) !important; box-shadow: 0 5px 14px rgba(116,72,225,.22); }
-  .logout-btn, .reset-btn { border-radius: 12px !important; }
-  .theme-toggle {
-    position: fixed; z-index: 1000; top: 16px; right: 18px; display: inline-flex; align-items: center; gap: 9px;
-    padding: 10px 14px; border-radius: 999px; border: 1px solid rgba(115,88,226,.22);
-    background: rgba(255,255,255,.86); color: #34265f; font: 700 12px var(--sans);
-    box-shadow: 0 8px 25px rgba(66,48,137,.16); backdrop-filter: blur(16px); cursor: pointer;
-    transition: transform .2s ease, box-shadow .2s ease, background .25s ease;
-  }
-  .theme-toggle:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(66,48,137,.22); }
-  .theme-toggle .theme-icon { font-size: 16px; line-height: 1; }
-  body.dark-mode {
-    color-scheme: dark;
-    --bg: #111225; --surface: rgba(26,27,51,.94); --surface-alt: #242541;
-    --ink: #f4f1ff; --ink-soft: #b7b6d1; --border: rgba(183,163,255,.18);
-    --primary: #a18aff; --primary-soft: #30294e; --primary-deep: #c2b5ff;
-    --success: #51dfb4; --success-soft: #163d37; --amber: #ffc86e; --amber-soft: #40321f;
-    --danger: #ff8da6; --danger-soft: #452433;
-    background: radial-gradient(ellipse at 12% 10%,rgba(143,78,255,.22),transparent 34%),
-      radial-gradient(ellipse at 88% 20%,rgba(35,202,200,.14),transparent 31%),
-      radial-gradient(ellipse at 65% 95%,rgba(255,89,151,.13),transparent 32%),
-      linear-gradient(135deg,#101121 0%,#17162d 50%,#1c1529 100%);
-    background-attachment: fixed;
-  }
-  body.dark-mode .rail { background: linear-gradient(165deg,rgba(25,26,48,.96),rgba(31,27,54,.94)) !important; border-color:rgba(177,157,255,.15) !important; }
-  body.dark-mode .topbar { background:rgba(27,27,49,.78) !important; border-color:rgba(190,174,255,.13) !important; }
-  body.dark-mode .login-card, body.dark-mode .settings-card, body.dark-mode .quiz-card,
-  body.dark-mode .explain-card, body.dark-mode .diagnostic-access-card, body.dark-mode .progress-card,
-  body.dark-mode .stat-card, body.dark-mode .field-row, body.dark-mode .chat-panel, body.dark-mode .ai-panel,
-  body.dark-mode .practice-card { background:linear-gradient(145deg,rgba(32,31,58,.96),rgba(24,25,46,.94)) !important; border-color:rgba(183,163,255,.16) !important; box-shadow:0 14px 34px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.035); }
-  body.dark-mode input, body.dark-mode textarea, body.dark-mode select, body.dark-mode .ob-input { background:rgba(17,18,37,.82) !important; color:#f5f1ff !important; border-color:rgba(180,159,255,.22) !important; }
-  body.dark-mode .theme-toggle { background:rgba(32,30,58,.9); color:#f6f0ff; border-color:rgba(185,164,255,.25); }
-  body.dark-mode .level-chip { background:linear-gradient(110deg,#332a57,#48273f) !important; color:#e3d8ff !important; }
-  body.dark-mode .login-description, body.dark-mode .settings-description, body.dark-mode .settings-subtitle { color:var(--ink-soft) !important; }
-  body.dark-mode .btn-secondary, body.dark-mode .login-google { background:rgba(38,36,65,.85) !important; color:var(--ink) !important; }
-  body.dark-mode .msg.bot { background:rgba(35,34,62,.92) !important; color:var(--ink) !important; }
-  body.dark-mode .chat-scroll, body.dark-mode .ai-chat-scroll { background:transparent !important; }
-  @media (max-width: 779px) {
-    /* En móvil el control se coloca en una fila propia, sin cubrir la navegación inferior. */
-    .theme-toggle {
-      position: static; top:auto; bottom:auto; right:auto;
-      padding:9px 13px; margin:10px 12px 0 auto;
-      display:flex; width:max-content; max-width:calc(100% - 24px);
-      font-size:12px; box-shadow:0 5px 16px rgba(66,48,137,.14);
-    }
-    .theme-toggle.mobile-theme-toggle { position:relative; }
-    .topbar { margin:8px 8px 0; }
-    body { padding-bottom: max(18px, env(safe-area-inset-bottom)); }
-  }
-  @media (prefers-reduced-motion: reduce) { body::before, body::after, .view.active, .login-card::before { animation:none !important; } }
+/* ================= MATHEIA D · SISTEMA VISUAL ================= */
+:root{
+  --bg:#f6f7fc;--surface:#fff;--surface-alt:#f0efff;--ink:#20223a;--ink-soft:#6f7289;
+  --border:rgba(60,55,120,.12);--primary:#7048e8;--primary-soft:#eee9ff;--primary-deep:#5531c5;
+  --success:#159a72;--success-soft:#e3f8ef;--amber:#d99420;--amber-soft:#fff4dc;
+  --danger:#d65368;--danger-soft:#ffedf0;--display:'Space Grotesk',sans-serif;--sans:'Inter',sans-serif;
+  --shadow-sm:0 4px 14px rgba(44,38,100,.045);--shadow-md:0 14px 36px rgba(44,38,100,.09);
+}
+body{background:radial-gradient(ellipse at 80% 0%,rgba(112,72,232,.07),transparent 38%),var(--bg);color:var(--ink);}
+body.dark-mode{--bg:#10111b;--surface:#191b2a;--surface-alt:#23233a;--ink:#f3f2ff;--ink-soft:#b1b2cc;--border:rgba(210,205,255,.13);--primary:#a18bff;--primary-soft:#302852;--primary-deep:#c2b5ff;--success-soft:#16392f;--amber-soft:#3d301b;--danger-soft:#3e222b;--shadow-sm:0 4px 14px rgba(0,0,0,.12);--shadow-md:0 14px 36px rgba(0,0,0,.22);background:radial-gradient(ellipse at 80% 0%,rgba(112,72,232,.13),transparent 38%),var(--bg)}
+#app{max-width:1500px;min-height:100dvh;}
+.rail{width:252px;padding:1.5rem 1.05rem;background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border-right:1px solid var(--border);}
+body.dark-mode .rail{background:rgba(25,27,42,.9)}
+.brand{font-size:1.5rem;letter-spacing:-.06em;margin:0 0 2rem .5rem;}
+.brand span,.login-title span{color:var(--primary)}
+.rail-nav button{padding:.82rem .9rem;border-radius:13px;margin-bottom:.35rem;font-weight:600;font-size:.88rem;transition:transform .18s,background .18s,color .18s;}
+.rail-nav button:hover{transform:translateX(2px)}
+.rail-nav button.active{background:linear-gradient(100deg,var(--primary-soft),rgba(112,72,232,.07));color:var(--primary-deep);box-shadow:inset 3px 0 var(--primary);}
+.rail-nav svg{width:19px;height:19px}
+.main-col{background:transparent;height:100dvh;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 1.2rem;}
+.view{animation:matheiaIn .28s ease both;}
+@keyframes matheiaIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+button,.nav-btn,.tab-btn,.btn-primary,.btn-secondary,.ai-ask-btn{transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease;}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid rgba(112,72,232,.32);outline-offset:2px}
+.btn-primary,.ai-ask-btn{border-radius:12px;box-shadow:0 8px 18px rgba(112,72,232,.18);}
+.btn-primary:hover,.ai-ask-btn:hover{transform:translateY(-1px);box-shadow:0 12px 24px rgba(112,72,232,.24)}
+.login-card,.quiz-card,.settings-card,.stat-card,.diagnostic-access-card{border-radius:20px;box-shadow:var(--shadow-sm);}
+.login-card{border:1px solid var(--border);box-shadow:var(--shadow-md);}
+.inner{width:min(100%,1080px);padding:clamp(1.1rem,3vw,2.4rem);margin:0 auto;}
+.inner>h2,.settings-wrap h2{font-size:clamp(1.45rem,2.4vw,2rem);letter-spacing:-.045em;}
+.stat-grid{gap:.9rem}
+.stat-card{padding:1.15rem;border:1px solid var(--border);background:var(--surface);}
+.stat-card .num{font-family:var(--display);font-size:1.8rem;letter-spacing:-.05em;}
+#view-chat .exercise-chat,#view-ai .ai-help{border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow-sm);}
+#view-chat .chat-scroll,#view-ai .ai-chat-scroll{background:transparent;}
+.exercise-chat-head,.ai-help-head{padding:1.15rem 1.35rem;border-bottom:1px solid var(--border);background:linear-gradient(120deg,var(--surface),var(--surface-alt));}
+.composer,.ai-help-grid{background:var(--surface);border-top:1px solid var(--border);}
+.composer input,.ai-help-grid textarea{border:1px solid var(--border);border-radius:14px;background:var(--surface-alt);}
+.msg{border-radius:16px!important;line-height:1.65!important;box-shadow:var(--shadow-sm)}
+.ai-image-card{border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.quiz-card{padding:1.35rem;border:1px solid var(--border);background:var(--surface);}
+.quiz-option{border:1px solid var(--border);border-radius:12px;padding:.85rem 1rem;transition:background .18s,border-color .18s;}
+.quiz-option:hover{border-color:var(--primary);background:var(--primary-soft)}
+.settings-wrap{width:min(100%,900px);max-width:900px;margin:0 auto;padding:clamp(1.1rem,3vw,2.4rem)}
+.settings-card{padding:1.25rem;border:1px solid var(--border)}
+.field-row{border-radius:12px;padding:.9rem 1rem;background:var(--surface);margin:.45rem 0;border:1px solid var(--border)}
+.tabbar{background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:.45rem .35rem max(.45rem,env(safe-area-inset-bottom));overflow-x:auto;justify-content:flex-start;gap:.15rem;scrollbar-width:none}
+.tabbar::-webkit-scrollbar{display:none}
+.tabbar .tab-btn{min-width:64px;flex:1 0 64px;padding:.55rem .35rem;border-radius:12px;font-size:.68rem;}
+.tabbar .tab-btn.active{background:var(--primary-soft);color:var(--primary-deep)}
+body.dark-mode .tabbar{background:rgba(25,27,42,.94)}
+body.compact-mode .home-card,body.compact-mode .topic-card{padding:1rem}
+@media(min-width:780px){.rail{width:252px}.main-col{padding:0 1.1rem 1.1rem}.topbar{display:flex;margin:1rem 0;border:1px solid var(--border);border-radius:16px}.view{min-height:0}.view.active:not(#view-login):not(#view-onboard){overflow-y:auto;flex:1}.inner{padding:1.7rem 1.2rem}.rail-nav{display:flex;flex-direction:column}.rail-nav button[data-view="settings"]{margin-top:auto}}
+@media(max-width:779px){#app{display:flex;flex-direction:column}.main-col{height:100dvh;min-height:0}.topbar{flex:0 0 auto}.view.active:not(#view-login):not(#view-onboard){min-height:0;flex:1;overflow-y:auto;padding-bottom:1rem}.view#view-chat.active,.view#view-ai.active{display:flex;flex-direction:column}.view#view-chat .exercise-chat,.view#view-ai .ai-help{height:100%;min-height:0;border-radius:0;border-left:0;border-right:0}.inner{padding:1.1rem}.home-hero{padding:1.35rem!important}.home-hero h1{font-size:1.8rem!important}.home-grid{grid-template-columns:1fr 1fr!important}.home-stats{grid-template-columns:1fr 1fr!important}.topic-grid{grid-template-columns:1fr 1fr!important}.tabbar{flex:0 0 auto}}
+@media(max-width:430px){.home-grid,.topic-grid{grid-template-columns:1fr!important}.home-stats{gap:.55rem}.home-stat{padding:.8rem!important}.home-stat strong{font-size:1.35rem!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+/* Inicio / dashboard */
+#view-home .home-wrap{width:min(100%,1120px);margin:0 auto;padding:clamp(1rem,3vw,2.3rem)}
+.home-hero{position:relative;overflow:hidden;padding:2rem;border-radius:24px;color:#fff;background:linear-gradient(118deg,#5834cb 0%,#7048e8 52%,#3984ee 100%);box-shadow:0 18px 38px rgba(91,62,201,.22);}
+.home-hero:after{content:'∑  π  √';position:absolute;right:1.4rem;bottom:-1.5rem;font:700 5rem 'Space Grotesk',sans-serif;letter-spacing:.15rem;opacity:.12;transform:rotate(-8deg);pointer-events:none}
+.home-hero .eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.82;margin:0 0 .6rem}
+.home-hero h1{font:700 clamp(1.8rem,3.5vw,2.55rem)/1.15 'Space Grotesk',sans-serif;letter-spacing:-.055em;margin:.1rem 0 .75rem;max-width:660px}
+.home-hero p{max-width:620px;color:rgba(255,255,255,.85);line-height:1.65;margin:0 0 1.2rem}
+.home-hero .hero-actions{display:flex;gap:.65rem;flex-wrap:wrap;position:relative;z-index:1}
+.home-hero .hero-btn{border:0;border-radius:11px;padding:.78rem 1rem;font-weight:700;background:#fff;color:#5531c5}
+.home-hero .hero-btn.secondary{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35)}
+.home-section-head{display:flex;justify-content:space-between;align-items:end;gap:1rem;margin:1.8rem 0 .85rem}
+.home-section-head h2{font:700 1.18rem 'Space Grotesk',sans-serif;margin:0;letter-spacing:-.03em}
+.home-section-head p{font-size:.82rem;color:var(--ink-soft);margin:.25rem 0 0}
+.home-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.85rem;margin-top:1rem}
+.home-stat{background:var(--surface);border:1px solid var(--border);border-radius:17px;padding:1rem 1.1rem;box-shadow:var(--shadow-sm)}
+.home-stat .stat-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--primary-soft);margin-bottom:.8rem;font-size:1.1rem}
+.home-stat strong{display:block;font:700 1.65rem 'Space Grotesk',sans-serif;letter-spacing:-.04em}
+.home-stat span{display:block;color:var(--ink-soft);font-size:.76rem;margin-top:.25rem}
+.home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.85rem}
+.home-card{display:flex;align-items:flex-start;gap:1rem;padding:1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm);text-align:left;color:var(--ink);width:100%;min-width:0}
+.home-card:hover,.topic-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:rgba(112,72,232,.35)}
+.home-card .home-icon{flex:0 0 46px;height:46px;display:grid;place-items:center;border-radius:14px;background:var(--primary-soft);font-size:1.35rem}
+.home-card strong{display:block;font:700 1rem 'Space Grotesk',sans-serif;margin:.1rem 0 .35rem}
+.home-card p{font-size:.81rem;line-height:1.5;color:var(--ink-soft);margin:0}
+.home-card .card-arrow{margin-left:auto;color:var(--primary);font-size:1.2rem;padding-left:.25rem}
+.home-bottom-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:.85rem;margin-top:.85rem}
+.home-panel{padding:1.15rem 1.25rem;border:1px solid var(--border);border-radius:18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.home-panel h3{font:700 1rem 'Space Grotesk',sans-serif;margin:0 0 .6rem}
+.home-panel p{font-size:.83rem;line-height:1.55;color:var(--ink-soft);margin:.25rem 0 .85rem}
+.home-progress-track{height:9px;border-radius:99px;background:var(--surface-alt);overflow:hidden}
+.home-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#7048e8,#3984ee);border-radius:inherit;transition:width .35s ease}
+.home-panel .small-action{border:0;background:var(--primary-soft);color:var(--primary-deep);font-weight:700;border-radius:10px;padding:.65rem .85rem}
+.home-tip{display:flex;gap:.75rem;align-items:flex-start}.home-tip .tip-icon{font-size:1.35rem}
+.topic-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.85rem;margin:1rem 0 1.3rem}
+.topic-card{padding:1.15rem;border:1px solid var(--border);border-radius:17px;background:var(--surface);text-align:left;color:var(--ink);box-shadow:var(--shadow-sm);min-width:0}
+.topic-card .topic-emoji{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:var(--primary-soft);font-size:1.25rem;margin-bottom:.8rem}
+.topic-card strong{display:block;font:700 1rem 'Space Grotesk',sans-serif;margin-bottom:.35rem}
+.topic-card p{color:var(--ink-soft);font-size:.79rem;line-height:1.5;margin:0 0 .85rem}
+.topic-card span{color:var(--primary);font-size:.78rem;font-weight:700}
+.home-empty{font-size:.8rem;color:var(--ink-soft)}
 
 </style>
 </head>
@@ -966,6 +608,10 @@
   <div class="rail">
     <div class="brand">Mathe<span>IA</span></div>
     <div class="rail-nav">
+      <button data-view="home" class="nav-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9M9 21v-7h6v7"/></svg>
+        Inicio
+      </button>
       <button data-view="chat" class="nav-btn active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
         Conversación
@@ -1232,6 +878,38 @@
       </div>
     </div>
 
+    <!-- INICIO / DASHBOARD PERSONALIZADO -->
+    <div class="view" id="view-home">
+      <div class="home-wrap">
+        <section class="home-hero">
+          <p class="eyebrow">TU ESPACIO DE APRENDIZAJE</p>
+          <h1 id="homeGreeting">¡Hola! ¿Qué vamos a aprender hoy?</h1>
+          <p>Avanza a tu ritmo, resuelve dudas con tu tutor de IA y convierte cada ejercicio en una oportunidad para mejorar.</p>
+          <div class="hero-actions">
+            <button type="button" class="hero-btn" data-go="chat">Continuar aprendiendo →</button>
+            <button type="button" class="hero-btn secondary" data-go="practica">Hacer ejercicios</button>
+          </div>
+        </section>
+        <div class="home-stats" aria-label="Resumen de aprendizaje">
+          <div class="home-stat"><div class="stat-icon">🎯</div><strong id="homeLevel">1</strong><span>Nivel actual</span></div>
+          <div class="home-stat"><div class="stat-icon">⚡</div><strong id="homeStreak">0</strong><span>Racha de aciertos</span></div>
+          <div class="home-stat"><div class="stat-icon">✏️</div><strong id="homeExercises">0</strong><span>Ejercicios resueltos</span></div>
+          <div class="home-stat"><div class="stat-icon">📈</div><strong id="homeAccuracy">—</strong><span>Precisión</span></div>
+        </div>
+        <div class="home-section-head"><div><h2>Tu espacio de estudio</h2><p>Accede rápidamente a lo que necesitas.</p></div></div>
+        <div class="home-grid">
+          <button class="home-card" type="button" data-go="chat"><span class="home-icon">💬</span><span><strong>Conversación</strong><p>Practica con tu tutor adaptativo y recibe orientación paso a paso.</p></span><span class="card-arrow">↗</span></button>
+          <button class="home-card" type="button" data-go="ai"><span class="home-icon">✨</span><span><strong>Ayuda con IA</strong><p>Pregunta, adjunta archivos y consulta explicaciones visuales.</p></span><span class="card-arrow">↗</span></button>
+          <button class="home-card" type="button" data-go="practica"><span class="home-icon">🧩</span><span><strong>Práctica</strong><p>Refuerza conceptos y comprueba cómo vas avanzando.</p></span><span class="card-arrow">↗</span></button>
+          <button class="home-card" type="button" data-go="progress"><span class="home-icon">📊</span><span><strong>Mi progreso</strong><p>Consulta tus resultados, nivel y ejercicios anteriores.</p></span><span class="card-arrow">↗</span></button>
+        </div>
+        <div class="home-bottom-grid">
+          <section class="home-panel"><h3>Tu camino en matemáticas</h3><p id="homeProgressText">Completa ejercicios para ver aquí cómo avanzas.</p><div class="home-progress-track" role="progressbar" aria-label="Progreso de nivel" aria-valuemin="0" aria-valuemax="10" aria-valuenow="1"><div class="home-progress-fill" id="homeProgressFill"></div></div><p id="homeProgressMeta" class="home-empty">Tu nivel se actualiza según los resultados disponibles.</p><button class="small-action" type="button" data-go="progress">Ver progreso</button></section>
+          <section class="home-panel"><h3>Un consejo para hoy</h3><div class="home-tip"><span class="tip-icon">💡</span><div><p>Intenta explicar cada paso con tus propias palabras. Entender el procedimiento es más importante que memorizar el resultado.</p><button class="small-action" type="button" data-go="ai">Preguntar a MatheIA</button></div></div></section>
+        </div>
+      </div>
+    </div>
+
     <!-- CHAT / CONVERSACIÓN -->
     <div class="view" id="view-chat">
       <!-- CHAT INDIVIDUAL: EJERCICIOS / TUTOR ADAPTATIVO -->
@@ -1271,16 +949,9 @@
           <div class="ai-actions">
             <label class="file-label" for="aiFileInput">📎 Adjuntar</label>
             <input id="aiFileInput" type="file" multiple accept=".txt,.md,.csv,.json,.png,.jpg,.jpeg,.webp">
-            <button class="ai-ask-btn" id="aiAskBtn" type="button">Preguntar</button>
+            <button class="ai-ask-btn" id="aiAskBtn">Preguntar</button>
           </div>
         </div>
-        <div class="voice-controls" aria-label="Controles de voz">
-          <button class="voice-btn" id="voiceInputBtn" type="button" title="Hablar con MatheIA">🎙️ Hablar</button>
-          <button class="voice-secondary-btn" id="voiceStopBtn" type="button" title="Detener la voz" disabled>⏹ Detener voz</button>
-          <span class="voice-wave" id="voiceWave" hidden aria-hidden="true"><span></span><span></span><span></span><span></span></span>
-          <span class="voice-indicator" id="voiceStatus" role="status">Listo para escuchar.</span>
-        </div>
-        <div class="voice-permission-note">Puedes hablar en lugar de escribir. La respuesta también puede leerse automáticamente.</div>
         <div class="file-list" id="aiFileList"></div>
         <div class="ai-status" id="aiStatus" role="status"></div>
       </section>
@@ -1306,9 +977,17 @@
     <!-- PRACTICA VIEW -->
     <div class="view" id="view-practica">
       <div class="inner">
-        <h2>Examen Simulado de Práctica</h2>
-        <p style="color:var(--ink-soft); font-size:0.9rem;">Resuelve ejercicios independientes para evaluar tus conocimientos generales.</p>
-        
+        <h2>Practica matemáticas</h2>
+        <p style="color:var(--ink-soft); font-size:0.9rem;">Elige un tema para estudiar con tu tutor o realiza el ejercicio de práctica disponible.</p>
+        <div class="topic-grid" aria-label="Temas de matemáticas">
+          <button type="button" class="topic-card" data-topic="aritmética"><span class="topic-emoji">🔢</span><strong>Aritmética</strong><p>Operaciones, propiedades y cálculo mental.</p><span>Practicar con el tutor →</span></button>
+          <button type="button" class="topic-card" data-topic="fracciones"><span class="topic-emoji">🍕</span><strong>Fracciones</strong><p>Suma, resta, equivalencias y simplificación.</p><span>Practicar con el tutor →</span></button>
+          <button type="button" class="topic-card" data-topic="álgebra"><span class="topic-emoji">✖️</span><strong>Álgebra</strong><p>Expresiones y ecuaciones paso a paso.</p><span>Practicar con el tutor →</span></button>
+          <button type="button" class="topic-card" data-topic="geometría"><span class="topic-emoji">📐</span><strong>Geometría</strong><p>Figuras, perímetros, áreas y ángulos.</p><span>Practicar con el tutor →</span></button>
+          <button type="button" class="topic-card" data-topic="porcentajes y proporciones"><span class="topic-emoji">📊</span><strong>Porcentajes</strong><p>Razones, proporciones y descuentos.</p><span>Practicar con el tutor →</span></button>
+          <button type="button" class="topic-card" data-topic="potencias y raíces"><span class="topic-emoji">√</span><strong>Potencias y raíces</strong><p>Exponentes, raíces y sus propiedades.</p><span>Practicar con el tutor →</span></button>
+        </div>
+        <div class="home-section-head"><div><h2>Ejercicio rápido</h2><p>Resuelve este problema y revisa la explicación.</p></div></div>
         <div class="quiz-card">
           <h3 style="margin-bottom:0.6rem; font-size:1rem;">Pregunta 1:</h3>
           <p style="margin-bottom: 1rem;">Si un auto viaja a una velocidad constante de 60 km/h, ¿cuántos kilómetros recorrerá en 3.5 horas?</p>
@@ -1385,27 +1064,6 @@
         </div>
 
         <div class="settings-card">
-          <div class="settings-title">🎙️ Asistente de voz</div>
-          <div class="settings-description">Controla cómo MatheIA escucha tus preguntas y lee sus respuestas.</div>
-          <div class="setting-row">
-            <div class="setting-label"><strong>Asistente de voz</strong><span>Permite usar el micrófono desde Ayuda de IA.</span></div>
-            <label class="switch"><input type="checkbox" id="settingVoiceEnabled" checked><span class="slider"></span></label>
-          </div>
-          <div class="setting-row">
-            <div class="setting-label"><strong>Leer respuestas automáticamente</strong><span>MatheIA leerá en voz alta cada respuesta de Ayuda de IA.</span></div>
-            <label class="switch"><input type="checkbox" id="settingAutoSpeak" checked><span class="slider"></span></label>
-          </div>
-          <div class="setting-row">
-            <div class="setting-label"><strong>Velocidad de voz</strong><span>Controla qué tan rápido se reproduce la explicación.</span></div>
-            <div class="voice-options"><input id="settingVoiceRate" type="range" min="0.6" max="1.4" step="0.05" value="0.95"><output id="voiceRateValue">0.95×</output></div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-label"><strong>Voz</strong><span>Selecciona una voz en español disponible en tu dispositivo.</span></div>
-            <div class="voice-options"><select id="settingVoiceSelect" aria-label="Voz del asistente"><option value="">Predeterminada</option></select></div>
-          </div>
-        </div>
-
-        <div class="settings-card">
           <div class="settings-title">Restablecer</div>
           <div class="settings-description">Devuelve las preferencias visuales a sus valores predeterminados. Tus conversaciones y progreso no se borran.</div>
           <button type="button" class="settings-danger" id="resetSettingsBtn">Restablecer configuración</button>
@@ -1415,6 +1073,11 @@
 
     <!-- TABBAR (mobile) -->
     <div class="tabbar">
+      <button data-view="home" class="tab-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9M9 21v-7h6v7"/></svg>
+        Inicio
+      </button>
+
       <button data-view="chat" class="tab-btn active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
         Chat
@@ -1858,15 +1521,54 @@ document.getElementById('resetSettingsBtn')?.addEventListener('click', ()=>{
   applySettings();
 });
 
+// ---------- dashboard personalizado ----------
+function renderHomeDashboard(){
+  const profile = state.profile || {};
+  const log = Array.isArray(state.historyLog) ? state.historyLog : [];
+  const correct = log.filter(item => item && item.correct).length;
+  const accuracy = log.length ? Math.round(correct * 100 / log.length) : null;
+  const level = Math.max(1, Math.min(10, Number(profile.level) || 1));
+  const name = (profile.name || '').trim().split(/\s+/)[0];
+  const greeting = document.getElementById('homeGreeting');
+  if(greeting) greeting.textContent = name ? `¡Hola, ${name}! ¿Qué vamos a aprender hoy?` : '¡Hola! ¿Qué vamos a aprender hoy?';
+  const put = (id, value) => { const el = document.getElementById(id); if(el) el.textContent = value; };
+  put('homeLevel', level);
+  put('homeStreak', Number(profile.streak) || 0);
+  put('homeExercises', log.length);
+  put('homeAccuracy', accuracy === null ? '—' : accuracy + '%');
+  put('homeProgressText', `Has alcanzado el nivel ${level} de 10.`);
+  put('homeProgressMeta', accuracy === null ? 'Resuelve tu primer ejercicio para comenzar a construir tu historial.' : `${correct} respuestas correctas de ${log.length} ejercicios registrados.`);
+  const fill = document.getElementById('homeProgressFill');
+  if(fill) fill.style.width = `${level * 10}%`;
+  const track = document.querySelector('.home-progress-track');
+  if(track) track.setAttribute('aria-valuenow', String(level));
+}
+
+document.querySelectorAll('[data-go]').forEach(button=>{
+  button.addEventListener('click',()=>goView(button.dataset.go));
+});
+document.querySelectorAll('[data-topic]').forEach(button=>{
+  button.addEventListener('click',()=>{
+    const topic = button.dataset.topic;
+    const input = document.getElementById('chatInput');
+    if(input) input.value = `Quiero practicar ${topic}. Prepárame un ejercicio adaptado a mi nivel, espera mi respuesta y explícame el procedimiento paso a paso.`;
+    goView('chat');
+    if(input) input.focus();
+  });
+});
+
 // ---------- navigation ----------
 function goView(name){
+  const target = document.getElementById('view-'+name);
+  if(!target) return;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+name).classList.add('active');
+  target.classList.add('active');
   document.querySelectorAll('.nav-btn, .tab-btn').forEach(b=>{
     b.classList.toggle('active', b.dataset.view===name);
   });
   if(name==='progress') renderProgress();
   if(name==='profile') renderProfile();
+  if(name==='home') renderHomeDashboard();
 }
 document.querySelectorAll('.nav-btn, .tab-btn').forEach(b=>{
   b.addEventListener('click', ()=>goView(b.dataset.view));
@@ -1998,7 +1700,7 @@ function enterApp(){
   const app = document.getElementById('app');
   if (app) app.classList.remove('auth-login');
   refreshHeader();
-  goView('chat');
+  goView('home');
 }
 
 // Limpiador mejorado de notaciones
@@ -2073,15 +1775,6 @@ function addAiBotFormattedMsg(text, scroll=true){
   const d = document.createElement('div');
   d.className = 'msg bot';
   d.innerHTML = html;
-  const tools=document.createElement('div');
-  tools.className='voice-message-tools';
-  const speakBtn=document.createElement('button');
-  speakBtn.type='button';
-  speakBtn.className='speak-msg-btn';
-  speakBtn.textContent='🔊 Escuchar';
-  speakBtn.addEventListener('click',()=>speakText(text));
-  tools.appendChild(speakBtn);
-  d.appendChild(tools);
   aiScrollEl.appendChild(d);
   if(scroll) scrollAiBottom();
 }
@@ -2486,141 +2179,6 @@ function addImageResults(images){
   scrollAiBottom();
 }
 
-
-// ---------- ASISTENTE DE VOZ ----------
-const voiceInputBtn = document.getElementById('voiceInputBtn');
-const voiceStopBtn = document.getElementById('voiceStopBtn');
-const voiceStatusEl = document.getElementById('voiceStatus');
-const voiceWaveEl = document.getElementById('voiceWave');
-const settingVoiceEnabled = document.getElementById('settingVoiceEnabled');
-const settingAutoSpeak = document.getElementById('settingAutoSpeak');
-const settingVoiceRate = document.getElementById('settingVoiceRate');
-const voiceRateValue = document.getElementById('voiceRateValue');
-const settingVoiceSelect = document.getElementById('settingVoiceSelect');
-
-let recognition = null;
-let isListening = false;
-let voiceFinalTranscript = '';
-let availableVoices = [];
-
-function getVoiceSettings(){
-  try{
-    return JSON.parse(localStorage.getItem('matheia-voice-settings') || '{}');
-  }catch(e){ return {}; }
-}
-function saveVoiceSettings(){
-  localStorage.setItem('matheia-voice-settings', JSON.stringify({
-    enabled: settingVoiceEnabled?.checked !== false,
-    autoSpeak: settingAutoSpeak?.checked !== false,
-    rate: Number(settingVoiceRate?.value || 0.95),
-    voiceName: settingVoiceSelect?.value || ''
-  }));
-}
-function applyVoiceSettings(){
-  const cfg=getVoiceSettings();
-  if(settingVoiceEnabled) settingVoiceEnabled.checked = cfg.enabled !== false;
-  if(settingAutoSpeak) settingAutoSpeak.checked = cfg.autoSpeak !== false;
-  if(settingVoiceRate) settingVoiceRate.value = String(cfg.rate || 0.95);
-  if(voiceRateValue) voiceRateValue.textContent = `${Number(settingVoiceRate?.value || .95).toFixed(2)}×`;
-  if(settingVoiceSelect && cfg.voiceName) settingVoiceSelect.value=cfg.voiceName;
-  updateVoiceAvailability();
-}
-function updateVoiceAvailability(){
-  const supported=!!(window.SpeechRecognition || window.webkitSpeechRecognition);
-  const enabled=settingVoiceEnabled?.checked !== false;
-  if(voiceInputBtn){
-    voiceInputBtn.disabled=!supported || !enabled;
-    voiceInputBtn.title=supported ? 'Hablar con MatheIA' : 'Tu navegador no admite reconocimiento de voz';
-  }
-  if(!supported && voiceStatusEl) voiceStatusEl.textContent='El reconocimiento de voz no está disponible en este navegador.';
-}
-function populateVoiceList(){
-  if(!('speechSynthesis' in window) || !settingVoiceSelect) return;
-  availableVoices=window.speechSynthesis.getVoices().filter(v=>/^(es)(-|_)/i.test(v.lang) || /español|spanish|colombia|mexico|españa/i.test(v.name));
-  if(!availableVoices.length) availableVoices=window.speechSynthesis.getVoices();
-  const current=settingVoiceSelect.value;
-  settingVoiceSelect.innerHTML='<option value="">Predeterminada</option>';
-  availableVoices.forEach(v=>{
-    const opt=document.createElement('option'); opt.value=v.name; opt.textContent=`${v.name} (${v.lang})`; settingVoiceSelect.appendChild(opt);
-  });
-  const cfg=getVoiceSettings();
-  settingVoiceSelect.value=cfg.voiceName || current || '';
-}
-function setListeningUI(on){
-  isListening=on;
-  if(voiceInputBtn){voiceInputBtn.classList.toggle('listening',on);voiceInputBtn.textContent=on?'🔴 Escuchando...':'🎙️ Hablar';}
-  if(voiceWaveEl) voiceWaveEl.hidden=!on;
-  if(voiceStopBtn) voiceStopBtn.disabled=!on && !speechSynthesis.speaking;
-  if(voiceStatusEl) voiceStatusEl.textContent=on?'Te escucho. Habla con normalidad...':'Listo para escuchar.';
-}
-function startVoiceRecognition(){
-  if(settingVoiceEnabled?.checked===false) return;
-  const SR=window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){voiceStatusEl.textContent='Tu navegador no permite reconocimiento de voz.';return;}
-  if(isListening){recognition?.stop();return;}
-  recognition=new SR();
-  recognition.lang='es-CO';
-  recognition.continuous=false;
-  recognition.interimResults=true;
-  voiceFinalTranscript='';
-  recognition.onstart=()=>setListeningUI(true);
-  recognition.onresult=(event)=>{
-    let interim='';
-    for(let i=event.resultIndex;i<event.results.length;i++){
-      const t=event.results[i][0].transcript;
-      if(event.results[i].isFinal) voiceFinalTranscript += t + ' '; else interim += t;
-    }
-    if(aiQuestionEl) aiQuestionEl.value=(voiceFinalTranscript+interim).trim();
-  };
-  recognition.onerror=(event)=>{
-    setListeningUI(false);
-    const msg=event.error==='not-allowed'?'Permiso de micrófono denegado. Actívalo en el navegador.':`No pude escuchar: ${event.error}.`;
-    if(voiceStatusEl) voiceStatusEl.textContent=msg;
-  };
-  recognition.onend=()=>{
-    setListeningUI(false);
-    const text=(voiceFinalTranscript || aiQuestionEl?.value || '').trim();
-    if(text){
-      aiQuestionEl.value=text;
-      if(voiceStatusEl) voiceStatusEl.textContent='Pregunta recibida. Procesando...';
-      askAi();
-    }
-  };
-  try{ recognition.start(); }catch(e){ setListeningUI(false); voiceStatusEl.textContent='No se pudo iniciar el micrófono.'; }
-}
-function stopVoice(){
-  if(recognition && isListening) recognition.stop();
-  if('speechSynthesis' in window) window.speechSynthesis.cancel();
-  setListeningUI(false);
-  if(voiceStatusEl) voiceStatusEl.textContent='Voz detenida.';
-}
-function speakText(text){
-  if(settingVoiceEnabled?.checked===false || !('speechSynthesis' in window)) return;
-  const clean=String(text||'').replace(/```[\s\S]*?```/g,' ').replace(/[#*_`]/g,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
-  if(!clean) return;
-  window.speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(clean);
-  u.lang='es-CO';
-  u.rate=Number(settingVoiceRate?.value || .95);
-  u.pitch=1;
-  const name=settingVoiceSelect?.value;
-  const v=availableVoices.find(x=>x.name===name);
-  if(v) u.voice=v;
-  u.onstart=()=>{if(voiceStatusEl)voiceStatusEl.textContent='🔊 Leyendo respuesta...'; if(voiceStopBtn)voiceStopBtn.disabled=false;};
-  u.onend=()=>{if(voiceStatusEl)voiceStatusEl.textContent='Respuesta terminada.'; if(voiceStopBtn)voiceStopBtn.disabled=true;};
-  u.onerror=()=>{if(voiceStatusEl)voiceStatusEl.textContent='No se pudo reproducir la respuesta.';};
-  window.speechSynthesis.speak(u);
-}
-voiceInputBtn?.addEventListener('click',startVoiceRecognition);
-voiceStopBtn?.addEventListener('click',stopVoice);
-settingVoiceEnabled?.addEventListener('change',()=>{saveVoiceSettings();updateVoiceAvailability();if(settingVoiceEnabled.checked===false)stopVoice();});
-settingAutoSpeak?.addEventListener('change',saveVoiceSettings);
-settingVoiceRate?.addEventListener('input',()=>{voiceRateValue.textContent=`${Number(settingVoiceRate.value).toFixed(2)}×`;saveVoiceSettings();});
-settingVoiceSelect?.addEventListener('change',saveVoiceSettings);
-if('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged=populateVoiceList;
-populateVoiceList();
-applyVoiceSettings();
-
 async function askAi(){
   const question=aiQuestionEl.value.trim();
   if(!question && aiFiles.length===0) return;
@@ -2679,7 +2237,6 @@ async function askAi(){
     const answer = data.answer || 'No recibí una respuesta de la IA.';
 
     addAiBotFormattedMsg(answer);
-    if(settingAutoSpeak?.checked !== false) speakText(answer);
     aiConversation.push({role:'assistant', content:answer});
     saveAiConversation();
 
@@ -2961,100 +2518,6 @@ dbClient.auth.onAuthStateChange(async (event, session) => {
   }
 })();
 </script>
-
-<script>
-(() => {
-  const KEY = 'matheia-color-theme-v2';
-  const applyTheme = (theme) => {
-    const dark = theme === 'dark';
-    document.body.classList.toggle('dark-mode', dark);
-    const button = document.getElementById('themeToggle');
-    if (button) {
-      button.setAttribute('aria-pressed', String(dark));
-      button.setAttribute('aria-label', dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
-      button.innerHTML = dark
-        ? '<span class="theme-icon" aria-hidden="true">☀️</span><span>Modo claro</span>'
-        : '<span class="theme-icon" aria-hidden="true">🌙</span><span>Modo oscuro</span>';
-    }
-    try { localStorage.setItem(KEY, theme); } catch (_) {}
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', dark ? '#17162d' : '#f4f2ff');
-  };
-  const addToggle = () => {
-    if (document.getElementById('themeToggle')) return;
-    const button = document.createElement('button');
-    button.type = 'button'; button.id = 'themeToggle'; button.className = 'theme-toggle';
-    button.addEventListener('click', () => applyTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark'));
-    if (window.matchMedia('(max-width: 779px)').matches) {
-      button.classList.add('mobile-theme-toggle');
-      const topbar = document.querySelector('.topbar');
-      if (topbar && topbar.parentNode) topbar.parentNode.insertBefore(button, topbar);
-      else document.body.appendChild(button);
-    } else {
-      document.body.appendChild(button);
-    }
-    let saved = 'light';
-    try { saved = localStorage.getItem(KEY) || 'light'; } catch (_) {}
-    applyTheme(saved);
-  };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addToggle);
-  else addToggle();
-})();
-</script>
-
-
-<style id="matheia-larger-diagnostic-text">
-  /* Tipografía ampliada para bienvenida, diagnóstico y pasos de personalización */
-  .ob-card .ob-eyebrow {
-    font-size: .9rem !important;
-    line-height: 1.5;
-    letter-spacing: .1em;
-    margin-bottom: .8rem;
-  }
-  .ob-card h2 {
-    font-size: clamp(1.75rem, 3vw, 2rem) !important;
-    line-height: 1.3;
-    margin-bottom: .8rem;
-  }
-  .ob-card p,
-  .ob-card .sub,
-  .ob-card label,
-  .ob-card .question,
-  .ob-card .diag-question,
-  .ob-card .choice,
-  .ob-card .hint,
-  .ob-card .step-description {
-    font-size: 1.08rem !important;
-    line-height: 1.65;
-  }
-  .ob-card .sub { margin-bottom: 1.7rem; }
-  .ob-card input,
-  .ob-card select,
-  .ob-card textarea {
-    font-size: 1.05rem !important;
-    min-height: 48px;
-  }
-  .ob-card .btn-primary,
-  .ob-card button {
-    font-size: 1.02rem;
-  }
-  .ob-card .choice { padding: .85rem 1rem; }
-  /* También mejora la legibilidad de la pantalla de configuración */
-  .settings-wrap h2 { font-size: 1.65rem; }
-  .settings-subtitle { font-size: 1rem; line-height: 1.6; }
-  .settings-title { font-size: 1.08rem; }
-  .settings-description,
-  .setting-label span { font-size: .95rem; line-height: 1.6; }
-  .setting-label strong { font-size: 1.02rem; }
-  @media (max-width: 600px) {
-    .ob-card h2 { font-size: 1.65rem !important; }
-    .ob-card p, .ob-card .sub, .ob-card label,
-    .ob-card .question, .ob-card .diag-question,
-    .ob-card .choice, .ob-card .hint, .ob-card .step-description {
-      font-size: 1rem !important;
-    }
-  }
-</style>
-
 </body>
 </html>
+
