@@ -1173,6 +1173,33 @@ body.dark-mode #view-ai .ai-chat-scroll {
           </div>
         </div>
 
+
+        <div class="settings-card" id="voiceSettingsCard">
+          <div class="settings-title">Asistente de voz e IA</div>
+          <div class="settings-description">Configura cómo escucha MatheIA y cómo quieres oír sus explicaciones. Los cambios se guardan en este dispositivo.</div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Activar asistente de voz</strong><span>Permite dictar preguntas y escuchar respuestas en ambos chats.</span></div>
+            <label class="switch"><input type="checkbox" id="settingVoiceEnabled" checked><span class="slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Leer respuestas automáticamente</strong><span>Lee en voz alta las nuevas respuestas de Conversación y Ayuda de IA.</span></div>
+            <label class="switch"><input type="checkbox" id="settingAutoSpeak" checked><span class="slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Velocidad de voz</strong><span>Ajusta la rapidez de lectura de las explicaciones.</span></div>
+            <div class="voice-options"><input id="settingVoiceRate" type="range" min="0.6" max="1.4" step="0.05" value="0.95"><output id="voiceRateValue">0.95×</output></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Voz para las respuestas</strong><span>Selecciona una voz en español disponible en tu equipo.</span></div>
+            <div class="voice-options"><select id="settingVoiceSelect" aria-label="Voz de MatheIA"><option value="">Voz predeterminada</option></select></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label"><strong>Probar voz</strong><span>Escucha una muestra con la configuración actual.</span></div>
+            <button type="button" class="theme-option" id="testVoiceBtn">▶ Probar voz</button>
+          </div>
+          <p class="settings-description" id="voiceSettingsStatus" role="status" aria-live="polite">Las voces disponibles dependen del navegador y del sistema operativo.</p>
+        </div>
+
         <div class="settings-card">
           <div class="settings-title">Restablecer</div>
           <div class="settings-description">Devuelve las preferencias visuales a sus valores predeterminados. Tus conversaciones y progreso no se borran.</div>
@@ -2063,7 +2090,7 @@ async function requestNextTurn(userAnswer){
     refreshHeader();
     state.currentQuestion = parsed.next_question;
     addBotMsg(parsed.next_question);
-    speakText(parsed.next_question, 'chat');
+    if(settingVoiceEnabled?.checked !== false && settingAutoSpeak?.checked !== false) speakText(parsed.next_question, 'chat');
     await saveProfile();
   }catch(err){
     hideTyping();
@@ -2170,7 +2197,7 @@ function stopVoiceAssistant(target=voiceTarget){
   setVoiceListening(false);
   setVoiceStatus('Voz detenida.',target);
 }
-function speakText(text,target='ai'){
+function speakText(text,target='ai',force=false){
   if(!('speechSynthesis' in window)){setVoiceStatus('La lectura en voz alta no está disponible en este navegador.',target);return;}
   const clean=String(text||'').replace(/```[\s\S]*?```/g,' ').replace(/[#*_`]/g,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
   if(!clean) return;
@@ -2192,6 +2219,88 @@ if('speechSynthesis' in window){
   const loadSpanishVoices=()=>{spanishVoices=window.speechSynthesis.getVoices().filter(v=>/^es(-|_)/i.test(v.lang)||/spanish|español|colombia/i.test(v.name));};
   loadSpanishVoices(); window.speechSynthesis.onvoiceschanged=loadSpanishVoices;
 }
+
+// Preferencias de voz: compartidas por Conversación y Ayuda de IA.
+const settingVoiceEnabled = document.getElementById('settingVoiceEnabled');
+const settingAutoSpeak = document.getElementById('settingAutoSpeak');
+const settingVoiceRate = document.getElementById('settingVoiceRate');
+const voiceRateValue = document.getElementById('voiceRateValue');
+const settingVoiceSelect = document.getElementById('settingVoiceSelect');
+const voiceSettingsStatus = document.getElementById('voiceSettingsStatus');
+const testVoiceBtn = document.getElementById('testVoiceBtn');
+const VOICE_SETTINGS_KEY = 'matheia-voice-settings';
+
+function getVoiceSettings(){
+  try { return JSON.parse(localStorage.getItem(VOICE_SETTINGS_KEY) || '{}'); }
+  catch(e) { return {}; }
+}
+function saveVoiceSettings(){
+  const settings = {
+    enabled: settingVoiceEnabled?.checked !== false,
+    autoSpeak: settingAutoSpeak?.checked !== false,
+    rate: Number(settingVoiceRate?.value || 0.95),
+    voiceName: settingVoiceSelect?.value || ''
+  };
+  try { localStorage.setItem(VOICE_SETTINGS_KEY, JSON.stringify(settings)); } catch(e) {}
+  updateVoiceControls();
+}
+function updateVoiceControls(){
+  const enabled = settingVoiceEnabled?.checked !== false;
+  Object.values(voiceUIs).forEach(ui => {
+    if(ui.button) ui.button.disabled = !enabled || !(window.SpeechRecognition || window.webkitSpeechRecognition);
+    if(ui.stop && !window.speechSynthesis?.speaking && !voiceListening) ui.stop.disabled = true;
+  });
+  if(voiceSettingsStatus){
+    if(!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
+      voiceSettingsStatus.textContent = 'Este navegador no admite dictado por voz. Prueba Chrome o Edge.';
+    } else if(!('speechSynthesis' in window)) {
+      voiceSettingsStatus.textContent = 'Este navegador no admite lectura en voz alta.';
+    } else {
+      voiceSettingsStatus.textContent = enabled
+        ? 'La configuración se aplica a Conversación y Ayuda de IA.'
+        : 'El asistente de voz está desactivado en ambos chats.';
+    }
+  }
+}
+function populateVoiceSettings(){
+  if(!('speechSynthesis' in window) || !settingVoiceSelect) return;
+  spanishVoices = window.speechSynthesis.getVoices().filter(v =>
+    /^es(-|_)/i.test(v.lang) || /spanish|español|colombia|méxico|mexico|españa/i.test(v.name)
+  );
+  if(!spanishVoices.length) spanishVoices = window.speechSynthesis.getVoices();
+  const previous = settingVoiceSelect.value;
+  settingVoiceSelect.innerHTML = '<option value="">Voz predeterminada</option>';
+  spanishVoices.forEach(v => {
+    const option = document.createElement('option');
+    option.value = v.name;
+    option.textContent = `${v.name} (${v.lang})`;
+    settingVoiceSelect.appendChild(option);
+  });
+  const saved = getVoiceSettings().voiceName || previous || '';
+  settingVoiceSelect.value = saved;
+}
+function applyVoiceSettings(){
+  const cfg = getVoiceSettings();
+  if(settingVoiceEnabled) settingVoiceEnabled.checked = cfg.enabled !== false;
+  if(settingAutoSpeak) settingAutoSpeak.checked = cfg.autoSpeak !== false;
+  if(settingVoiceRate) settingVoiceRate.value = String(cfg.rate || 0.95);
+  if(voiceRateValue) voiceRateValue.textContent = `${Number(settingVoiceRate?.value || 0.95).toFixed(2)}×`;
+  populateVoiceSettings();
+  updateVoiceControls();
+}
+settingVoiceEnabled?.addEventListener('change', () => {
+  saveVoiceSettings();
+  if(!settingVoiceEnabled.checked) stopVoiceAssistant();
+});
+settingAutoSpeak?.addEventListener('change', saveVoiceSettings);
+settingVoiceRate?.addEventListener('input', () => {
+  if(voiceRateValue) voiceRateValue.textContent = `${Number(settingVoiceRate.value).toFixed(2)}×`;
+  saveVoiceSettings();
+});
+settingVoiceSelect?.addEventListener('change', saveVoiceSettings);
+testVoiceBtn?.addEventListener('click', () => speakText('Hola, soy MatheIA. Esta es una prueba de la voz y la velocidad que has seleccionado.', 'ai', true));
+if('speechSynthesis' in window) window.speechSynthesis.addEventListener?.('voiceschanged', populateVoiceSettings);
+applyVoiceSettings();
 
 // ---------- AI help con archivos + conversación continua + imágenes ----------
 const aiQuestionEl = document.getElementById('aiQuestion');
@@ -2466,7 +2575,7 @@ async function askAi(){
     const answer = data.answer || 'No recibí una respuesta de la IA.';
 
     addAiBotFormattedMsg(answer);
-    speakText(answer, 'ai');
+    if(settingVoiceEnabled?.checked !== false && settingAutoSpeak?.checked !== false) speakText(answer, 'ai');
     aiConversation.push({role:'assistant', content:answer});
     saveAiConversation();
 
