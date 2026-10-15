@@ -677,6 +677,23 @@ body.dark-mode #view-ai .ai-chat-scroll {
 }
 
 
+
+  /* Asistente de voz disponible en ambos chats */
+  .voice-controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.55rem 0 .25rem}
+  .voice-btn,.voice-secondary-btn{border:1px solid var(--border);background:var(--surface-alt);color:var(--ink);border-radius:12px;padding:.58rem .78rem;font:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem}
+  .voice-btn{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:700}
+  .voice-btn.listening{background:#c62828;border-color:#c62828;animation:voicePulse 1.2s infinite}
+  .voice-btn:disabled,.voice-secondary-btn:disabled{opacity:.55;cursor:not-allowed}
+  .voice-indicator{font-size:.82rem;color:var(--ink-soft);min-height:1.2rem}
+  .voice-wave{display:inline-flex;gap:3px;align-items:flex-end;height:18px}
+  .voice-wave span{width:3px;background:currentColor;border-radius:4px;height:6px;animation:voiceBars .8s ease-in-out infinite}
+  .voice-wave span:nth-child(2){animation-delay:.12s}.voice-wave span:nth-child(3){animation-delay:.24s}.voice-wave span:nth-child(4){animation-delay:.36s}
+  .voice-permission-note{font-size:.78rem;color:var(--ink-soft);margin:.2rem 0 .45rem}
+  .voice-message-tools{display:flex;gap:.35rem;margin-top:.35rem}
+  .speak-msg-btn{border:1px solid var(--border);border-radius:9px;background:var(--surface-alt);color:var(--ink);padding:.3rem .5rem;font-size:.78rem;cursor:pointer}
+  @keyframes voicePulse{50%{box-shadow:0 0 0 5px rgba(198,40,40,.12)}}
+  @keyframes voiceBars{50%{height:18px}}
+
 </style>
 </head>
 <body>
@@ -1006,6 +1023,13 @@ body.dark-mode #view-ai .ai-chat-scroll {
             <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
           </button>
         </div>
+        <div class="voice-controls" aria-label="Asistente de voz para Conversación">
+          <button class="voice-btn" id="voiceChatInputBtn" type="button">🎙️ Hablar</button>
+          <button class="voice-secondary-btn" id="voiceChatStopBtn" type="button" disabled>⏹ Detener voz</button>
+          <span class="voice-wave" id="voiceChatWave" hidden aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+          <span class="voice-indicator" id="voiceChatStatus" role="status">Puedes dictar tu respuesta.</span>
+        </div>
+        <div class="voice-permission-note">Habla para responder al tutor. Las respuestas también pueden leerse en voz alta.</div>
       </section>
     </div>
 
@@ -1031,6 +1055,13 @@ body.dark-mode #view-ai .ai-chat-scroll {
             <button class="ai-ask-btn" id="aiAskBtn">Preguntar</button>
           </div>
         </div>
+        <div class="voice-controls" aria-label="Asistente de voz para Ayuda de IA">
+          <button class="voice-btn" id="voiceAiInputBtn" type="button">🎙️ Hablar</button>
+          <button class="voice-secondary-btn" id="voiceAiStopBtn" type="button" disabled>⏹ Detener voz</button>
+          <span class="voice-wave" id="voiceAiWave" hidden aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+          <span class="voice-indicator" id="voiceAiStatus" role="status">Puedes dictar tu pregunta.</span>
+        </div>
+        <div class="voice-permission-note">Habla para hacer preguntas y escucha la explicación de la IA.</div>
         <div class="file-list" id="aiFileList"></div>
         <div class="ai-status" id="aiStatus" role="status"></div>
       </section>
@@ -1854,6 +1885,12 @@ function addAiBotFormattedMsg(text, scroll=true){
   const d = document.createElement('div');
   d.className = 'msg bot';
   d.innerHTML = html;
+  const tools = document.createElement('div');
+  tools.className = 'voice-message-tools';
+  const speakBtn = document.createElement('button');
+  speakBtn.type = 'button'; speakBtn.className = 'speak-msg-btn'; speakBtn.textContent = '🔊 Escuchar';
+  speakBtn.addEventListener('click', () => speakText(text, 'ai'));
+  tools.appendChild(speakBtn); d.appendChild(tools);
   aiScrollEl.appendChild(d);
   if(scroll) scrollAiBottom();
 }
@@ -1870,6 +1907,12 @@ function addBotMsg(text){
   const d = document.createElement('div');
   d.className = 'msg bot';
   d.textContent = cleanMathNotation(text);
+  const tools = document.createElement('div');
+  tools.className = 'voice-message-tools';
+  const speakBtn = document.createElement('button');
+  speakBtn.type = 'button'; speakBtn.className = 'speak-msg-btn'; speakBtn.textContent = '🔊 Escuchar';
+  speakBtn.addEventListener('click', () => speakText(text, 'chat'));
+  tools.appendChild(speakBtn); d.appendChild(tools);
   scrollEl.appendChild(d); scrollBottom();
 }
 function addUserMsg(text, scroll=true){
@@ -2020,6 +2063,7 @@ async function requestNextTurn(userAnswer){
     refreshHeader();
     state.currentQuestion = parsed.next_question;
     addBotMsg(parsed.next_question);
+    speakText(parsed.next_question, 'chat');
     await saveProfile();
   }catch(err){
     hideTyping();
@@ -2041,6 +2085,112 @@ function submitAnswer(){
   addUserMsg(val);
   input.value='';
   requestNextTurn(val);
+}
+
+// ---------- ASISTENTE DE VOZ EN LOS DOS CHATS ----------
+const voiceUIs = {
+  chat: {
+    button: document.getElementById('voiceChatInputBtn'),
+    stop: document.getElementById('voiceChatStopBtn'),
+    status: document.getElementById('voiceChatStatus'),
+    wave: document.getElementById('voiceChatWave'),
+    input: document.getElementById('chatInput')
+  },
+  ai: {
+    button: document.getElementById('voiceAiInputBtn'),
+    stop: document.getElementById('voiceAiStopBtn'),
+    status: document.getElementById('voiceAiStatus'),
+    wave: document.getElementById('voiceAiWave'),
+    input: document.getElementById('aiQuestion')
+  }
+};
+let voiceRecognition = null;
+let voiceTarget = 'ai';
+let voiceListening = false;
+let voiceTranscript = '';
+let spanishVoices = [];
+function setVoiceStatus(message, target=voiceTarget){
+  const ui=voiceUIs[target]; if(ui?.status) ui.status.textContent=message;
+}
+function setVoiceListening(on){
+  voiceListening=on;
+  Object.entries(voiceUIs).forEach(([key,ui])=>{
+    if(ui.button){
+      ui.button.classList.toggle('listening',on && key===voiceTarget);
+      ui.button.textContent=(on && key===voiceTarget)?'🔴 Escuchando...':'🎙️ Hablar';
+      ui.button.disabled=on && key!==voiceTarget;
+    }
+    if(ui.wave) ui.wave.hidden=!(on && key===voiceTarget);
+    if(ui.stop) ui.stop.disabled=!(on || ('speechSynthesis' in window && window.speechSynthesis.speaking));
+  });
+}
+function startVoiceRecognition(target){
+  const ui=voiceUIs[target];
+  if(!ui) return;
+  const SpeechRecognitionAPI=window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognitionAPI){setVoiceStatus('Este navegador no admite reconocimiento de voz. Prueba Chrome o Edge.',target);return;}
+  if(voiceListening){
+    if(voiceTarget===target) voiceRecognition?.stop();
+    return;
+  }
+  voiceTarget=target;
+  voiceTranscript='';
+  voiceRecognition=new SpeechRecognitionAPI();
+  voiceRecognition.lang='es-CO';
+  voiceRecognition.continuous=false;
+  voiceRecognition.interimResults=true;
+  voiceRecognition.onstart=()=>{setVoiceListening(true);setVoiceStatus('Te escucho. Habla con normalidad...',target);};
+  voiceRecognition.onresult=(event)=>{
+    let interim='';
+    for(let i=event.resultIndex;i<event.results.length;i++){
+      const value=event.results[i][0].transcript;
+      if(event.results[i].isFinal) voiceTranscript += value+' ';
+      else interim += value;
+    }
+    if(ui.input) ui.input.value=(voiceTranscript+interim).trim();
+  };
+  voiceRecognition.onerror=(event)=>{
+    setVoiceListening(false);
+    const message=event.error==='not-allowed'?'Permiso del micrófono denegado. Actívalo en la configuración del navegador.':`No pude escuchar: ${event.error}.`;
+    setVoiceStatus(message,target);
+  };
+  voiceRecognition.onend=()=>{
+    setVoiceListening(false);
+    const transcript=(voiceTranscript || ui.input?.value || '').trim();
+    if(!transcript){setVoiceStatus('No se detectó ninguna pregunta. Inténtalo de nuevo.',target);return;}
+    if(ui.input) ui.input.value=transcript;
+    setVoiceStatus('Pregunta recibida. Procesando...',target);
+    if(target==='chat') submitAnswer(); else askAi();
+  };
+  try{voiceRecognition.start();}catch(error){setVoiceListening(false);setVoiceStatus('No se pudo iniciar el micrófono. Revisa los permisos del navegador.',target);}
+}
+function stopVoiceAssistant(target=voiceTarget){
+  if(voiceRecognition && voiceListening){try{voiceRecognition.stop();}catch(e){}}
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  setVoiceListening(false);
+  setVoiceStatus('Voz detenida.',target);
+}
+function speakText(text,target='ai'){
+  if(!('speechSynthesis' in window)){setVoiceStatus('La lectura en voz alta no está disponible en este navegador.',target);return;}
+  const clean=String(text||'').replace(/```[\s\S]*?```/g,' ').replace(/[#*_`]/g,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+  if(!clean) return;
+  window.speechSynthesis.cancel();
+  const utterance=new SpeechSynthesisUtterance(clean);
+  utterance.lang='es-CO'; utterance.rate=0.95; utterance.pitch=1;
+  const voice=spanishVoices.find(item=>/^es(-|_)/i.test(item.lang) && /colombia/i.test(item.name)) || spanishVoices.find(item=>/^es(-|_)/i.test(item.lang));
+  if(voice) utterance.voice=voice;
+  utterance.onstart=()=>{setVoiceStatus('🔊 Leyendo respuesta en voz alta...',target);Object.values(voiceUIs).forEach(ui=>{if(ui.stop)ui.stop.disabled=false;});};
+  utterance.onend=()=>{setVoiceStatus('Respuesta terminada.',target);Object.values(voiceUIs).forEach(ui=>{if(ui.stop)ui.stop.disabled=true;});};
+  utterance.onerror=()=>setVoiceStatus('No se pudo reproducir la respuesta.',target);
+  window.speechSynthesis.speak(utterance);
+}
+Object.entries(voiceUIs).forEach(([target,ui])=>{
+  ui.button?.addEventListener('click',()=>startVoiceRecognition(target));
+  ui.stop?.addEventListener('click',()=>stopVoiceAssistant(target));
+});
+if('speechSynthesis' in window){
+  const loadSpanishVoices=()=>{spanishVoices=window.speechSynthesis.getVoices().filter(v=>/^es(-|_)/i.test(v.lang)||/spanish|español|colombia/i.test(v.name));};
+  loadSpanishVoices(); window.speechSynthesis.onvoiceschanged=loadSpanishVoices;
 }
 
 // ---------- AI help con archivos + conversación continua + imágenes ----------
@@ -2316,6 +2466,7 @@ async function askAi(){
     const answer = data.answer || 'No recibí una respuesta de la IA.';
 
     addAiBotFormattedMsg(answer);
+    speakText(answer, 'ai');
     aiConversation.push({role:'assistant', content:answer});
     saveAiConversation();
 
