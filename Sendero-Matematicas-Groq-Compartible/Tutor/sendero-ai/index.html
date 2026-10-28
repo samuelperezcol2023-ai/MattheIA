@@ -694,6 +694,68 @@ body.dark-mode #view-ai .ai-chat-scroll {
   @keyframes voicePulse{50%{box-shadow:0 0 0 5px rgba(198,40,40,.12)}}
   @keyframes voiceBars{50%{height:18px}}
 
+
+
+/* ===== MatheIA · mejoras de experiencia y accesibilidad (sin retirar opciones) ===== */
+:root{--ux-radius:20px;--ux-shadow:0 14px 38px rgba(32,42,90,.10);--ux-ring:0 0 0 3px rgba(100,92,255,.24)}
+html{scroll-behavior:smooth;scroll-padding-top:1rem}
+body{isolation:isolate}
+button,input,textarea,select{font:inherit}
+button{touch-action:manipulation}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid #7c74ff!important;outline-offset:3px!important;box-shadow:var(--ux-ring)}
+button:disabled{cursor:not-allowed;filter:saturate(.65)}
+.rail,.topbar,.tabbar,.home-hero,.home-stat,.home-card,.home-panel,.settings-card,.diagnostic-access-card,.exercise-chat,.ai-help,.progress-card,.practice-card{transition:box-shadow .22s ease,border-color .22s ease,transform .22s ease,background-color .22s ease}
+.home-hero{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(255,255,255,.25);box-shadow:var(--ux-shadow)}
+.home-hero:after{content:"";position:absolute;width:260px;height:260px;right:-100px;top:-140px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.24),transparent 70%);z-index:-1;pointer-events:none;animation:uxFloat 9s ease-in-out infinite alternate}
+.home-stat{border:1px solid color-mix(in srgb,var(--border,#dce1ef) 75%,transparent);box-shadow:0 8px 22px rgba(30,40,90,.055)}
+.home-stat:hover,.home-card:hover,.home-panel:hover,.settings-card:hover{transform:translateY(-3px);box-shadow:var(--ux-shadow)}
+.home-card{min-height:112px;text-align:left}
+.home-card:focus-visible{transform:translateY(-2px)}
+.home-icon,.stat-icon,.tip-icon{flex-shrink:0}
+.home-section-head h2,.home-panel h3{letter-spacing:-.025em}
+#view-chat .chat-scroll,#view-ai .ai-chat-scroll{scrollbar-gutter:stable;overscroll-behavior:contain;scroll-behavior:smooth}
+#chatInput,#aiQuestion{min-width:0;line-height:1.55}
+#aiQuestion{resize:vertical;min-height:88px}
+.voice-btn,.voice-secondary-btn,.ai-ask-btn,.hero-btn,.small-action,.diagnostic-btn{min-height:42px}
+.settings-card,.home-panel,.ux-study-card{border-radius:var(--ux-radius)}
+.ux-study-card{margin-top:1rem;padding:clamp(1rem,2.4vw,1.4rem);border:1px solid var(--border);background:linear-gradient(135deg,rgba(124,116,255,.10),rgba(34,211,198,.07));box-shadow:0 10px 28px rgba(25,35,80,.06)}
+.ux-study-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap}
+.ux-study-card h3{margin:0 0 .35rem;font-size:1.08rem;color:var(--ink)}
+.ux-study-card p{margin:.25rem 0;color:var(--ink-soft);line-height:1.5}
+.ux-goal-track{height:10px;border-radius:99px;background:var(--surface-alt);overflow:hidden;margin:.85rem 0 .55rem}
+.ux-goal-fill{height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#7568f5,#29c6bd);transition:width .35s ease}
+.ux-study-actions{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-top:.8rem}
+.ux-study-actions button{border:1px solid var(--border);border-radius:12px;padding:.65rem .9rem;background:var(--surface);color:var(--ink);font-weight:700;cursor:pointer;min-height:42px}
+.ux-study-actions .ux-primary{background:var(--primary);color:#fff;border-color:transparent}
+.ux-study-meta{font-size:.88rem}
+#uxLiveToast{position:fixed;z-index:10000;left:50%;bottom:calc(1rem + env(safe-area-inset-bottom));transform:translate(-50%,16px);max-width:min(92vw,520px);padding:.8rem 1rem;border:1px solid rgba(255,255,255,.15);border-radius:14px;background:#20223a;color:#fff;box-shadow:0 12px 35px rgba(0,0,0,.25);font-size:.92rem;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+#uxLiveToast.show{opacity:1;transform:translate(-50%,0)}
+#uxNetworkStatus{position:fixed;z-index:9998;right:1rem;bottom:1rem;padding:.48rem .75rem;border-radius:999px;background:#236b4b;color:#fff;font-size:.78rem;font-weight:700;box-shadow:0 5px 18px rgba(0,0,0,.13);opacity:0;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease;pointer-events:none}
+#uxNetworkStatus.visible{opacity:1;transform:translateY(0)}
+#uxNetworkStatus.offline{background:#a33b3b}
+.ux-skip-link{position:fixed;z-index:10001;top:-60px;left:1rem;padding:.7rem 1rem;background:var(--surface);color:var(--ink);border-radius:10px;box-shadow:var(--ux-shadow)}
+.ux-skip-link:focus{top:1rem}
+body.dark-mode .ux-study-card{background:linear-gradient(135deg,rgba(124,116,255,.17),rgba(34,211,198,.10))}
+body.dark-mode .home-stat{box-shadow:0 8px 24px rgba(0,0,0,.15)}
+@keyframes uxFloat{from{transform:translate3d(0,0,0) rotate(0)}to{transform:translate3d(-18px,18px,0) rotate(12deg)}}
+@media(max-width:779px){
+  .ux-study-card{margin-bottom:.5rem}
+  .ux-study-head{gap:.4rem}
+  #uxNetworkStatus{right:.65rem;bottom:calc(.65rem + env(safe-area-inset-bottom))}
+  #uxLiveToast{bottom:calc(4.8rem + env(safe-area-inset-bottom))}
+  .home-card{min-height:96px}
+  .hero-actions{flex-wrap:wrap}
+  .hero-actions button{flex:1 1 150px}
+  .settings-card{padding:1rem!important}
+  .voice-controls{gap:.4rem}
+}
+@media(max-width:430px){
+  .ux-study-actions button{flex:1 1 100%}
+  .home-hero h1{line-height:1.12;overflow-wrap:anywhere}
+  #view-onboard h1,#view-onboard h2,#view-settings h1,#view-settings h2{font-size:clamp(1.45rem,7vw,2rem)}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.home-hero:after{animation:none}.home-stat,.home-card,.home-panel,.settings-card{transition:none}.ux-goal-fill{transition:none}}
+
 </style>
 </head>
 <body>
@@ -1003,6 +1065,12 @@ body.dark-mode #view-ai .ai-chat-scroll {
           <section class="home-panel"><h3>Tu camino en matemáticas</h3><p id="homeProgressText">Completa ejercicios para ver aquí cómo avanzas.</p><div class="home-progress-track" role="progressbar" aria-label="Progreso de nivel" aria-valuemin="0" aria-valuemax="10" aria-valuenow="1"><div class="home-progress-fill" id="homeProgressFill"></div></div><p id="homeProgressMeta" class="home-empty">Tu nivel se actualiza según los resultados disponibles.</p><button class="small-action" type="button" data-go="progress">Ver progreso</button></section>
           <section class="home-panel"><h3>Un consejo para hoy</h3><div class="home-tip"><span class="tip-icon">💡</span><div><p>Intenta explicar cada paso con tus propias palabras. Entender el procedimiento es más importante que memorizar el resultado.</p><button class="small-action" type="button" data-go="ai">Preguntar a MatheIA</button></div></div></section>
         </div>
+        <section class="ux-study-card" aria-labelledby="uxStudyTitle">
+          <div class="ux-study-head"><div><h3 id="uxStudyTitle">🎯 Tu meta de estudio diaria</h3><p>Construye el hábito de estudiar un poco cada día. Registra el tiempo que hayas dedicado realmente.</p></div><strong id="uxStudyCount" aria-live="polite">0 / 30 min</strong></div>
+          <div class="ux-goal-track" role="progressbar" id="uxStudyProgress" aria-label="Meta diaria de estudio" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0"><div class="ux-goal-fill" id="uxStudyFill"></div></div>
+          <p class="ux-study-meta" id="uxStudyMessage">Tu meta se guarda en este dispositivo y se reinicia cada día.</p>
+          <div class="ux-study-actions"><button type="button" class="ux-primary" id="uxAddStudy">+ Registrar 10 minutos</button><button type="button" id="uxUndoStudy">Deshacer último registro</button><button type="button" id="uxResetStudy">Reiniciar meta de hoy</button></div>
+        </section>
       </div>
     </div>
 
@@ -2857,5 +2925,90 @@ dbClient.auth.onAuthStateChange(async (event, session) => {
   }
 })();
 </script>
+
+
+<script>
+/* ===== MatheIA · mejoras funcionales complementarias ===== */
+(function matheiaUxEnhancements(){
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const GOAL_KEY = 'matheia-study-goal-v1';
+  const DAILY_GOAL = 30;
+  let toastTimer;
+
+  // Mensajes accesibles para confirmar acciones sin interrumpir al estudiante.
+  const toast = document.createElement('div');
+  toast.id = 'uxLiveToast'; toast.setAttribute('role','status'); toast.setAttribute('aria-live','polite');
+  document.body.appendChild(toast);
+  function notify(message){
+    toast.textContent = message; toast.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(()=>toast.classList.remove('show'),2600);
+  }
+  window.matheiaNotify = notify;
+
+  // Estado de conexión: informa, no bloquea el uso de la aplicación.
+  const network = document.createElement('div'); network.id='uxNetworkStatus'; network.setAttribute('role','status'); network.setAttribute('aria-live','polite');
+  document.body.appendChild(network);
+  let networkTimer;
+  function updateNetwork(){
+    if(navigator.onLine){
+      network.textContent='● Conexión disponible'; network.classList.remove('offline');
+      network.classList.add('visible'); clearTimeout(networkTimer); networkTimer=setTimeout(()=>network.classList.remove('visible'),2300);
+    }else{
+      network.textContent='● Sin conexión · revisa tu red'; network.classList.add('offline','visible');
+    }
+  }
+  window.addEventListener('online',updateNetwork); window.addEventListener('offline',updateNetwork);
+
+  // Enlace para saltar la navegación y llegar al contenido principal con teclado.
+  const skip=document.createElement('a'); skip.className='ux-skip-link'; skip.href='#view-home'; skip.textContent='Saltar al contenido';
+  document.body.prepend(skip);
+  skip.addEventListener('click',()=>setTimeout(()=>{const target=$('view-home'); if(target){target.setAttribute('tabindex','-1');target.focus({preventScroll:true});}},50));
+
+  // Meta diaria de estudio. Se guarda localmente y nunca sustituye el progreso de Supabase.
+  function todayKey(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+  function readGoal(){
+    try{
+      const data=JSON.parse(localStorage.getItem(GOAL_KEY)||'null');
+      if(!data||data.date!==todayKey()) return {date:todayKey(),minutes:0,lastAdded:0};
+      return {date:todayKey(),minutes:Math.max(0,Math.min(1440,Number(data.minutes)||0)),lastAdded:Math.max(0,Number(data.lastAdded)||0)};
+    }catch(_){return {date:todayKey(),minutes:0,lastAdded:0};}
+  }
+  let goal=readGoal();
+  function saveGoal(){try{localStorage.setItem(GOAL_KEY,JSON.stringify(goal));}catch(_){notify('No se pudo guardar la meta en este dispositivo. Revisa el almacenamiento del navegador.');}}
+  function renderGoal(){
+    const count=$('uxStudyCount'), fill=$('uxStudyFill'), bar=$('uxStudyProgress'), msg=$('uxStudyMessage');
+    if(!count||!fill||!bar||!msg)return;
+    const pct=Math.min(100,Math.round(goal.minutes/DAILY_GOAL*100));
+    count.textContent=`${goal.minutes} / ${DAILY_GOAL} min`;
+    fill.style.width=pct+'%'; bar.setAttribute('aria-valuenow',String(Math.min(DAILY_GOAL,goal.minutes)));
+    msg.textContent=goal.minutes>=DAILY_GOAL?'¡Meta diaria completada! Excelente constancia.':`Llevas ${goal.minutes} minutos. Te faltan ${Math.max(0,DAILY_GOAL-goal.minutes)} para cumplir tu meta.`;
+    const undo=$('uxUndoStudy'); if(undo)undo.disabled=goal.lastAdded<=0;
+  }
+  $('uxAddStudy')?.addEventListener('click',()=>{goal.minutes=Math.min(1440,goal.minutes+10);goal.lastAdded=10;saveGoal();renderGoal();notify('Se registraron 10 minutos de estudio.');});
+  $('uxUndoStudy')?.addEventListener('click',()=>{if(!goal.lastAdded)return;goal.minutes=Math.max(0,goal.minutes-goal.lastAdded);goal.lastAdded=0;saveGoal();renderGoal();notify('Se deshizo el último registro.');});
+  $('uxResetStudy')?.addEventListener('click',()=>{if(!confirm('¿Reiniciar la meta de estudio de hoy? Esto solo afecta al contador local, no a tu progreso de MatheIA.'))return;goal={date:todayKey(),minutes:0,lastAdded:0};saveGoal();renderGoal();notify('Meta diaria reiniciada.');});
+  renderGoal();
+
+  // Atajos de teclado no intrusivos: Ctrl/Cmd+K para buscar un campo de escritura, Esc para quitar foco.
+  document.addEventListener('keydown',(event)=>{
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){
+      const target=$('aiQuestion')||$('chatInput');
+      if(target){event.preventDefault();target.focus();notify('Escribe tu pregunta a MatheIA.');}
+    }
+    if(event.key==='Escape' && document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){
+      document.activeElement.blur();
+    }
+  });
+
+  // Mensajes claros al perder conexión y al recuperar conectividad.
+  window.addEventListener('offline',()=>notify('No hay conexión. Algunas funciones de IA y sincronización pueden no estar disponibles.'));
+  window.addEventListener('online',()=>notify('Conexión restablecida. Puedes continuar.'));
+
+  // Actualiza la meta al volver a la pestaña si cambió la fecha.
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){const fresh=readGoal();if(fresh.date!==goal.date){goal=fresh;renderGoal();}}});
+})();
+</script>
+
 </body>
 </html>
