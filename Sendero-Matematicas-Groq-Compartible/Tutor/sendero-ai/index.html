@@ -770,13 +770,6 @@ body.dark-mode .home-stat{box-shadow:0 8px 24px rgba(0,0,0,.15)}
 .faq-item p{margin:0;padding:.1rem 1rem 1rem;color:var(--ink-soft);font-size:.84rem;line-height:1.65}
 .faq-empty{color:var(--ink-soft);font-size:.84rem;text-align:center;padding:.8rem}
 body.dark-mode .faq-item{background:var(--surface)}
-
-/* Examen competitivo */
-.exam-setup,.exam-panel,.exam-result,.exam-history-panel{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.1rem;margin:1rem 0;box-shadow:var(--shadow,0 8px 24px rgba(30,30,60,.06))}
-.exam-setup{display:flex;align-items:end;gap:1rem;flex-wrap:wrap}.exam-setup label{display:grid;gap:.4rem;font-weight:700;font-size:.9rem}.exam-setup select{min-width:190px;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--surface-alt);color:var(--ink)}
-.exam-meta{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:1rem}.exam-timer{font-weight:800;font-size:1.1rem;padding:.55rem .85rem;border-radius:12px;background:var(--primary-soft);color:var(--primary-deep)}.exam-timer.warning{background:#fff0e8;color:#b54708}
-.exam-question{padding:1rem 0;border-top:1px solid var(--border)}.exam-question h3{font-size:1rem;margin:0 0 .65rem}.exam-question p{margin:.25rem 0 .8rem;line-height:1.55}.exam-option{display:flex;gap:.65rem;align-items:flex-start;padding:.7rem .8rem;border:1px solid var(--border);border-radius:11px;margin:.45rem 0;cursor:pointer}.exam-option:has(input:checked){border-color:var(--primary);background:var(--primary-soft)}.exam-actions{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1rem}.exam-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:.8rem;margin:1rem 0}.exam-stat{padding:1rem;border:1px solid var(--border);background:var(--surface);border-radius:14px}.exam-stat strong{display:block;font-size:1.5rem;margin-bottom:.2rem}.exam-stat span{font-size:.8rem;color:var(--ink-soft)}.exam-history-row{display:grid;grid-template-columns:1.3fr 1fr .8fr .8fr;gap:.6rem;padding:.8rem;border-bottom:1px solid var(--border);font-size:.86rem;align-items:center}.exam-history-row:last-child{border:0}@media(max-width:600px){.exam-history-row{grid-template-columns:1fr 1fr}.exam-history-row>*:nth-child(3),.exam-history-row>*:nth-child(4){font-size:.8rem}}
-
 </style>
 </head>
 <body>
@@ -809,7 +802,7 @@ body.dark-mode .faq-item{background:var(--surface)}
       </button>
       <button data-view="practica" class="nav-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        Examen
+        Práctica
       </button>
       <button data-view="profile" class="nav-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -1083,7 +1076,7 @@ body.dark-mode .faq-item{background:var(--surface)}
         <div class="home-grid">
           <button class="home-card" type="button" data-go="chat"><span class="home-icon">💬</span><span><strong>Conversación</strong><p>Practica con tu tutor adaptativo y recibe orientación paso a paso.</p></span><span class="card-arrow">↗</span></button>
           <button class="home-card" type="button" data-go="ai"><span class="home-icon">✨</span><span><strong>Ayuda con IA</strong><p>Pregunta, adjunta archivos y consulta explicaciones visuales.</p></span><span class="card-arrow">↗</span></button>
-          <button class="home-card" type="button" data-go="practica"><span class="home-icon">🧩</span><span><strong>Examen</strong><p>Evalúa tus conocimientos y consulta tu nota.</p></span><span class="card-arrow">↗</span></button>
+          <button class="home-card" type="button" data-go="practica"><span class="home-icon">🧩</span><span><strong>Práctica</strong><p>Refuerza conceptos y comprueba cómo vas avanzando.</p></span><span class="card-arrow">↗</span></button>
           <button class="home-card" type="button" data-go="progress"><span class="home-icon">📊</span><span><strong>Mi progreso</strong><p>Consulta tus resultados, nivel y ejercicios anteriores.</p></span><span class="card-arrow">↗</span></button>
         </div>
         <div class="home-bottom-grid">
@@ -1169,18 +1162,10 @@ body.dark-mode .faq-item{background:var(--surface)}
         <div class="stat-grid">
           <div class="stat-card"><div class="num" id="statLevel">1</div><div class="lbl">Nivel actual</div></div>
           <div class="stat-card"><div class="num" id="statStreak">0</div><div class="lbl">Racha de aciertos</div></div>
-          <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">Ejercicios y exámenes</div></div>
+          <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">Ejercicios resueltos</div></div>
           <div class="stat-card"><div class="num" id="statAcc">—</div><div class="lbl">Precisión</div></div>
         </div>
-        <h2 style="font-size:1rem;">Resultados de exámenes</h2>
-        <div class="exam-stat-grid">
-          <div class="exam-stat"><strong id="examAverage">—</strong><span>Promedio de notas</span></div>
-          <div class="exam-stat"><strong id="examBest">—</strong><span>Mejor resultado</span></div>
-          <div class="exam-stat"><strong id="examCount">0</strong><span>Exámenes realizados</span></div>
-          <div class="exam-stat"><strong id="examPassed">0</strong><span>Exámenes aprobados</span></div>
-        </div>
-        <div class="exam-history-panel"><h3 style="margin:.1rem 0 .7rem">Historial de intentos</h3><div id="examHistoryList"><p style="color:var(--ink-soft)">Aún no has realizado exámenes.</p></div></div>
-        <h2 style="font-size:1rem;">Historial reciente de actividades</h2>
+        <h2 style="font-size:1rem;">Historial reciente</h2>
         <div id="histList"></div>
       </div>
     </div>
@@ -1188,8 +1173,8 @@ body.dark-mode .faq-item{background:var(--surface)}
     <!-- PRACTICA VIEW -->
     <div class="view" id="view-practica">
       <div class="inner">
-        <h2>Examen competitivo</h2>
-        <p style="color:var(--ink-soft); font-size:0.9rem;">Pon a prueba tus conocimientos. Selecciona una respuesta, envía el examen y consulta tu nota; cada intento quedará registrado en Progreso.</p>
+        <h2>Practica matemáticas</h2>
+        <p style="color:var(--ink-soft); font-size:0.9rem;">Elige un tema para estudiar con tu tutor o realiza el ejercicio de práctica disponible.</p>
         <div class="topic-grid" aria-label="Temas de matemáticas">
           <button type="button" class="topic-card" data-topic="aritmética"><span class="topic-emoji">🔢</span><strong>Aritmética</strong><p>Operaciones, propiedades y cálculo mental.</p><span>Practicar con el tutor →</span></button>
           <button type="button" class="topic-card" data-topic="fracciones"><span class="topic-emoji">🍕</span><strong>Fracciones</strong><p>Suma, resta, equivalencias y simplificación.</p><span>Practicar con el tutor →</span></button>
@@ -1198,16 +1183,19 @@ body.dark-mode .faq-item{background:var(--surface)}
           <button type="button" class="topic-card" data-topic="porcentajes y proporciones"><span class="topic-emoji">📊</span><strong>Porcentajes</strong><p>Razones, proporciones y descuentos.</p><span>Practicar con el tutor →</span></button>
           <button type="button" class="topic-card" data-topic="potencias y raíces"><span class="topic-emoji">√</span><strong>Potencias y raíces</strong><p>Exponentes, raíces y sus propiedades.</p><span>Practicar con el tutor →</span></button>
         </div>
-        <div class="home-section-head"><div><h2>Evaluación competitiva</h2><p>10 preguntas aleatorias · 60 minutos · nota mínima para aprobar: 3.0 / 5.0</p></div></div>
-        <div class="exam-setup" id="examSetup">
-          <label for="examDifficulty">Selecciona la dificultad
-            <select id="examDifficulty"><option value="facil">Fácil</option><option value="intermedio" selected>Intermedio</option><option value="dificil">Difícil</option></select>
-          </label>
-          <button class="btn-primary" id="startExamBtn" type="button" style="width:auto;padding:.75rem 1.2rem">Comenzar examen</button>
-          <span style="color:var(--ink-soft);font-size:.85rem">El tiempo comienza al iniciar y se envía automáticamente al terminar.</span>
+        <div class="home-section-head"><div><h2>Ejercicio rápido</h2><p>Resuelve este problema y revisa la explicación.</p></div></div>
+        <div class="quiz-card">
+          <h3 style="margin-bottom:0.6rem; font-size:1rem;">Pregunta 1:</h3>
+          <p style="margin-bottom: 1rem;">Si un auto viaja a una velocidad constante de 60 km/h, ¿cuántos kilómetros recorrerá en 3.5 horas?</p>
+          
+          <label class="quiz-option"><input type="radio" name="p1" value="a"> 180 km</label>
+          <label class="quiz-option"><input type="radio" name="p1" value="b"> 210 km</label>
+          <label class="quiz-option"><input type="radio" name="p1" value="c"> 240 km</label>
+
+          <button class="btn-primary" style="margin-top:1rem; width:auto; padding:0.7rem 1.4rem;" onclick="evaluarPractica()">Enviar Examen</button>
+
+          <div id="quiz-results" style="display: none;"></div>
         </div>
-        <div id="examWorkspace" class="exam-panel" hidden></div>
-        <div id="quiz-results" class="exam-result" hidden aria-live="polite"></div>
       </div>
     </div>
 
@@ -1351,7 +1339,7 @@ body.dark-mode .faq-item{background:var(--surface)}
       </button>
       <button data-view="practica" class="tab-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        Examen
+        Práctica
       </button>
       <button data-view="profile" class="tab-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -2750,120 +2738,63 @@ document.getElementById('aiClearBtn')?.addEventListener('click', ()=>{
 loadAiConversation();
 showAiEmptyState();
 
-// ---------- módulo Examen competitivo ----------
-const EXAM_DURATION_SECONDS = 60 * 60;
-const EXAM_QUESTION_COUNT = 10;
-const EXAM_PASS_SCORE = 3.0;
-let activeExam = null;
-let examTimerInterval = null;
-const EXAM_BANK = {
- facil: [
-  ['¿Cuánto es 18 + 27?', ['35','45','46','55'],1,'45'],
-  ['¿Cuál es el resultado de 9 × 7?', ['56','63','72','69'],1,'63'],
-  ['¿Cuánto es 84 ÷ 12?', ['6','7','8','9'],1,'7'],
-  ['¿Cuál es el 25% de 80?', ['10','15','20','25'],2,'20'],
-  ['Simplifica la fracción 6/12.', ['1/3','1/2','2/3','3/4'],1,'1/2'],
-  ['¿Cuál es el perímetro de un cuadrado de lado 5 cm?', ['10 cm','15 cm','20 cm','25 cm'],2,'20 cm'],
-  ['¿Cuánto es 3² + 4?', ['10','12','13','14'],2,'13'],
-  ['Si x + 8 = 15, ¿cuánto vale x?', ['6','7','8','9'],1,'7'],
-  ['¿Cuál es el número decimal equivalente a 1/4?', ['0. veinte','0.25','0.4','0.5'],1,'0.25'],
-  ['¿Cuánto es 120 ÷ 2?', ['40','50','60','70'],2,'60'],
-  ['¿Cuántos minutos hay en 2.5 horas?', ['120','130','150','180'],2,'150'],
-  ['¿Cuál es el mayor número?', ['0.7','0.07','0.67','0.17'],0,'0.7'],
-  ['¿Cuánto es 5 × (6 - 2)?', ['10','20','24','30'],1,'20'],
-  ['Un artículo cuesta $50.000 y tiene 10% de descuento. ¿Cuánto se descuenta?', ['$500','$5.000','$10.000','$45.000'],1,'$5.000'],
-  ['¿Cuál es el área de un rectángulo de 6 cm por 4 cm?', ['10 cm²','20 cm²','24 cm²','28 cm²'],2,'24 cm²']
- ],
- intermedio: [
-  ['Resuelve: 3x + 5 = 20.', ['3','5','7','15'],1,'5'],
-  ['¿Cuánto es 2/3 + 1/6?', ['3/9','1/2','5/6','1'],2,'5/6'],
-  ['Un producto de $80.000 aumenta 15%. ¿Cuál es su nuevo precio?', ['$88.000','$90.000','$92.000','$95.000'],2,'$92.000'],
-  ['¿Cuál es la raíz cuadrada de 196?', ['12','13','14','16'],2,'14'],
-  ['Si 5 cuadernos cuestan $30.000, ¿cuánto cuestan 8 al mismo precio unitario?', ['$42.000','$45.000','$48.000','$50.000'],2,'$48.000'],
-  ['¿Cuál es la pendiente entre (1,2) y (3,6)?', ['1','2','3','4'],1,'2'],
-  ['Factoriza x² - 9.', ['(x-9)(x+1)','(x-3)(x+3)','(x-3)²','(x+9)(x-1)'],1,'(x-3)(x+3)'],
-  ['¿Cuál es el promedio de 6, 8, 10 y 12?', ['8','9','10','11'],1,'9'],
-  ['Un triángulo tiene base 10 cm y altura 7 cm. ¿Cuál es su área?', ['17 cm²','35 cm²','70 cm²','140 cm²'],1,'35 cm²'],
-  ['¿Qué valor tiene 2⁵?', ['10','16','25','32'],3,'32'],
-  ['Si y = 2x - 3 y x = 6, ¿cuánto vale y?', ['6','7','9','12'],1,'9'],
-  ['¿Cuál es la probabilidad de obtener un número par al lanzar un dado justo?', ['1/6','1/3','1/2','2/3'],2,'1/2'],
-  ['Resuelve: 4(x - 2) = 20.', ['5','6','7','8'],2,'7'],
-  ['¿Cuál es el MCM de 6 y 8?', ['12','18','24','48'],2,'24'],
-  ['Una distancia de 150 km se recorre en 2.5 h. ¿Velocidad promedio?', ['50 km/h','55 km/h','60 km/h','65 km/h'],2,'60 km/h']
- ],
- dificil: [
-  ['Resuelve el sistema: x + y = 11; x - y = 3.', ['x=6, y=5','x=7, y=4','x=8, y=3','x=5, y=6'],1,'x=7, y=4'],
-  ['¿Cuál es la derivada de f(x)=3x² - 4x + 7?', ['6x - 4','3x - 4','6x + 7','3x² - 4'],0,'6x - 4'],
-  ['Si log₂(x)=5, ¿cuál es x?', ['10','16','25','32'],3,'32'],
-  ['¿Cuáles son las soluciones de x² - 5x + 6 = 0?', ['1 y 6','2 y 3','-2 y -3','-1 y -6'],1,'2 y 3'],
-  ['Una población aumenta 10% y luego disminuye 10%. ¿Cambio neto respecto al inicio?', ['0%','Disminuye 1%','Aumenta 1%','Disminuye 10%'],1,'Disminuye 1%'],
-  ['¿Cuál es el determinante de [[3,2],[5,4]]?', ['-2','2','12','22'],0,'-2'],
-  ['Si f(x)=x³, ¿cuál es f\'(2)?', ['6','8','12','16'],2,'12'],
-  ['¿Cuál es la suma de los ángulos interiores de un decágono?', ['1080°','1260°','1440°','1620°'],2,'1440°'],
-  ['En una progresión aritmética a₁=4 y d=3. ¿Cuál es a₁₂?', ['34','36','37','40'],2,'37'],
-  ['¿Cuál es la integral indefinida de 2x?', ['x² + C','2x² + C','x + C','x³ + C'],0,'x² + C'],
-  ['Si P(A)=0.4 y P(B)=0.5 y son independientes, P(A∩B)=', ['0.1','0.2','0.45','0.9'],1,'0.2'],
-  ['¿Cuál es el límite de (x²-1)/(x-1) cuando x→1?', ['0','1','2','No existe'],2,'2'],
-  ['Un capital de $1.000.000 crece 10% compuesto anual durante 2 años. ¿Valor final?', ['$1.100.000','$1.200.000','$1.210.000','$1.220.000'],2,'$1.210.000'],
-  ['¿Cuál es la solución de |2x-6|=4?', ['x=1 o x=5','x=2 o x=4','x=-1 o x=5','x=1 o x=4'],0,'x=1 o x=5'],
-  ['Si la razón de semejanza de dos figuras es 3, la razón de sus áreas es:', ['3','6','9','12'],2,'9']
- ]
-};
-function shuffleExam(list){ const a=list.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
-function startCompetitiveExam(){
- if(examTimerInterval) clearInterval(examTimerInterval);
- const level=document.getElementById('examDifficulty').value;
- const questions=shuffleExam(EXAM_BANK[level]).slice(0,EXAM_QUESTION_COUNT);
- activeExam={level,questions,answers:{},remaining:EXAM_DURATION_SECONDS,startedAt:new Date().toISOString(),finished:false};
- document.getElementById('examSetup').hidden=true;
- document.getElementById('quiz-results').hidden=true;
- renderExamQuestions(); updateExamTimer();
- examTimerInterval=setInterval(()=>{if(!activeExam||activeExam.finished)return;activeExam.remaining--;updateExamTimer();if(activeExam.remaining<=0)finishCompetitiveExam(true);},1000);
+// ---------- practica view ----------
+function evaluarPractica(){
+  const seleccion = document.querySelector('input[name="p1"]:checked');
+  const resultadosDiv = document.getElementById('quiz-results');
+  
+  if (!seleccion) {
+    alert("Selecciona una opción antes de enviar.");
+    return;
+  }
+  
+  resultadosDiv.style.display = 'block';
+  if (seleccion.value === 'b') {
+    resultadosDiv.innerHTML = `
+      <div class="alert alert-success">
+        <strong>¡Respuesta Correcta! (210 km)</strong><br>
+        <em>Explicación paso a paso:</em> Usamos la fórmula de distancia: Distancia = Velocidad × Tiempo.<br>
+        Multiplicamos 60 km/h × 3.5 horas = 210 km.
+      </div>`;
+  } else {
+    resultadosDiv.innerHTML = `
+      <div class="alert alert-danger">
+        <strong>Respuesta Incorrecta.</strong><br>
+        <em>Explicación detallada:</em> Recuerda multiplicar la velocidad constante por el tiempo total.<br>
+        El cálculo correcto es: 60 km/h × 3.5 h = 210 km. Intenta revisar la multiplicación en decimales.
+      </div>`;
+  }
 }
-function renderExamQuestions(){
- const box=document.getElementById('examWorkspace'); box.hidden=false;
- const levelNames={facil:'Fácil',intermedio:'Intermedio',dificil:'Difícil'};
- box.innerHTML=`<div class="exam-meta"><strong>Examen ${levelNames[activeExam.level]} · 10 preguntas</strong><span class="exam-timer" id="examTimer">60:00</span></div><p style="color:var(--ink-soft);font-size:.86rem">Cada pregunta vale 0.5 puntos. Puedes cambiar tus respuestas antes de finalizar.</p><form id="examForm">${activeExam.questions.map((q,i)=>`<section class="exam-question"><h3>${i+1}. ${q[0]}</h3>${q[1].map((option,j)=>`<label class="exam-option"><input type="radio" name="examQ${i}" value="${j}"> <span>${String.fromCharCode(65+j)}. ${option}</span></label>`).join('')}</section>`).join('')}</form><div class="exam-actions"><button class="btn-primary" type="button" id="submitExamBtn" style="width:auto;padding:.75rem 1.2rem">Finalizar y calificar</button><span id="examAnswered" style="align-self:center;color:var(--ink-soft)">0 de 10 respondidas</span></div>`;
- box.querySelectorAll('input[type=radio]').forEach(input=>input.addEventListener('change',()=>{const idx=Number(input.name.replace('examQ',''));activeExam.answers[idx]=Number(input.value);document.getElementById('examAnswered').textContent=Object.keys(activeExam.answers).length+' de 10 respondidas';}));
- document.getElementById('submitExamBtn').addEventListener('click',()=>finishCompetitiveExam(false));
-}
-function updateExamTimer(){const el=document.getElementById('examTimer');if(!el||!activeExam)return;const m=Math.floor(activeExam.remaining/60),sec=activeExam.remaining%60;el.textContent=String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');el.classList.toggle('warning',activeExam.remaining<=300);}
-function finishCompetitiveExam(timeExpired){
- if(!activeExam||activeExam.finished)return;
- activeExam.finished=true;if(examTimerInterval){clearInterval(examTimerInterval);examTimerInterval=null;}
- const correct=activeExam.questions.reduce((n,q,i)=>n+(activeExam.answers[i]===q[2]?1:0),0);
- const score=Number((correct/EXAM_QUESTION_COUNT*5).toFixed(1));const passed=score>=EXAM_PASS_SCORE;
- const levelNames={facil:'Fácil',intermedio:'Intermedio',dificil:'Difícil'};
- const attempt={q:'Examen competitivo · '+levelNames[activeExam.level],correct,score,maxScore:5,type:'exam',difficulty:activeExam.level,passed,date:new Date().toISOString(),durationSeconds:EXAM_DURATION_SECONDS-activeExam.remaining,timeExpired:!!timeExpired};
- state.historyLog=Array.isArray(state.historyLog)?state.historyLog:[];state.historyLog.unshift(attempt);state.historyLog=state.historyLog.slice(0,200);
- const result=document.getElementById('quiz-results');result.hidden=false;result.innerHTML=`<div class="alert ${passed?'alert-success':'alert-danger'}"><strong>${passed?'¡Examen aprobado!':'Examen no aprobado'}</strong><br>Nota: <strong>${score.toFixed(1)} / 5.0</strong> · ${correct} de 10 respuestas correctas.<br>${passed?'Cumpliste la nota mínima de 3.0.':'La nota mínima para aprobar es 3.0.'}${timeExpired?'<br>El tiempo terminó y el examen se calificó automáticamente.':''}</div><h3>Revisión de respuestas</h3>${activeExam.questions.map((q,i)=>`<div class="exam-question"><strong>${i+1}. ${q[0]}</strong><p>${activeExam.answers[i]===q[2]?'✓ Correcta':'✗ Incorrecta o sin responder'} · Respuesta correcta: ${q[1][q[2]]}</p></div>`).join('')}<button class="btn-primary" id="newExamBtn" type="button" style="width:auto;padding:.75rem 1.2rem">Realizar otro examen</button>`;
- document.getElementById('examWorkspace').hidden=true;
- document.getElementById('newExamBtn').addEventListener('click',resetCompetitiveExam);
- saveProfile().then(()=>{if(typeof renderProgress==='function')renderProgress();});
- if(typeof matheiaNotify==='function')matheiaNotify('Tu nota quedó registrada en Progreso.');
-}
-function resetCompetitiveExam(){activeExam=null;document.getElementById('quiz-results').hidden=true;document.getElementById('quiz-results').innerHTML='';document.getElementById('examSetup').hidden=false;document.getElementById('examWorkspace').hidden=true;}
-document.getElementById('startExamBtn')?.addEventListener('click',startCompetitiveExam);
 
 // ---------- progress view ----------
 function renderProgress(){
-  const track=document.getElementById('pathTrack');track.innerHTML='';
-  for(let i=1;i<=10;i++){const node=document.createElement('div');node.className='path-node'+(i<state.profile.level?' filled':'')+(i===state.profile.level?' current':'');node.textContent=i;track.appendChild(node);if(i<10){const line=document.createElement('div');line.className='path-line';track.appendChild(line);}}
-  document.getElementById('statLevel').textContent=state.profile.level;document.getElementById('statStreak').textContent=state.profile.streak;
-  const log=Array.isArray(state.historyLog)?state.historyLog:[];document.getElementById('statTotal').textContent=log.length;
-  const correctCount=log.filter(l=>l.correct).length;document.getElementById('statAcc').textContent=log.length?Math.round(100*correctCount/log.length)+'%':'—';
-  const exams=log.filter(x=>x.type==='exam'&&Number.isFinite(Number(x.score)));
-  const avg=exams.length?exams.reduce((a,x)=>a+Number(x.score),0)/exams.length:null;
-  const best=exams.length?Math.max(...exams.map(x=>Number(x.score))):null;
-  document.getElementById('examAverage').textContent=avg===null?'—':avg.toFixed(1)+'/5.0';
-  document.getElementById('examBest').textContent=best===null?'—':best.toFixed(1)+'/5.0';
-  document.getElementById('examCount').textContent=exams.length;
-  document.getElementById('examPassed').textContent=exams.filter(x=>x.passed===true||Number(x.score)>=3).length;
-  const examList=document.getElementById('examHistoryList');
-  if(!exams.length)examList.innerHTML='<p style="color:var(--ink-soft)">Aún no has realizado exámenes.</p>';
-  else examList.innerHTML=exams.map(x=>{const d=new Date(x.date);const date=Number.isNaN(d.getTime())?'Fecha no disponible':d.toLocaleString('es-CO',{dateStyle:'medium',timeStyle:'short'});const level={facil:'Fácil',intermedio:'Intermedio',dificil:'Difícil'}[x.difficulty]||'General';return `<div class="exam-history-row"><span>${date}</span><span>${level}</span><strong>${Number(x.score).toFixed(1)} / 5.0</strong><span>${(x.passed===true||Number(x.score)>=3)?'Aprobado':'Reprobado'}</span></div>`;}).join('');
-  const list=document.getElementById('histList');list.innerHTML='';if(!log.length)list.innerHTML='<p style="color:var(--ink-soft);font-size:.9rem">Aún no hay actividades registradas.</p>';
-  log.forEach(item=>{const row=document.createElement('div');row.className='hist-item';const title=item.q||'Actividad';row.innerHTML=`<span>${title.length>46?title.slice(0,46)+'…':title}${item.type==='exam'?` · Nota ${Number(item.score).toFixed(1)}/${Number(item.maxScore||5).toFixed(1)}`:''}</span><span class="hist-tag ${(item.type==='exam'?(Number(item.score)>=3):item.correct)?'ok':'no'}">${item.type==='exam'?(Number(item.score)>=3?'Aprobado':'Reprobado'):(item.correct?'Correcto':'A revisar')}</span>`;list.appendChild(row);});
+  const track = document.getElementById('pathTrack');
+  track.innerHTML='';
+  for(let i=1;i<=10;i++){
+    const node = document.createElement('div');
+    node.className = 'path-node' + (i < state.profile.level ? ' filled' : '') + (i===state.profile.level ? ' current' : '');
+    node.textContent = i;
+    track.appendChild(node);
+    if(i<10){ const line=document.createElement('div'); line.className='path-line'; track.appendChild(line); }
+  }
+  document.getElementById('statLevel').textContent = state.profile.level;
+  document.getElementById('statStreak').textContent = state.profile.streak;
+  const log = state.historyLog || [];
+  document.getElementById('statTotal').textContent = log.length;
+  const correctCount = log.filter(l=>l.correct).length;
+  document.getElementById('statAcc').textContent = log.length ? Math.round(100*correctCount/log.length)+'%' : '—';
+
+  const list = document.getElementById('histList');
+  list.innerHTML='';
+  if(log.length===0){
+    list.innerHTML = '<p style="color:var(--ink-soft); font-size:0.9rem;">Aún no hay ejercicios resueltos.</p>';
+  }
+  log.forEach(item=>{
+    const row = document.createElement('div');
+    row.className='hist-item';
+    row.innerHTML = `<span>${item.q.length>46 ? item.q.slice(0,46)+'…' : item.q}</span><span class="hist-tag ${item.correct?'ok':'no'}">${item.correct?'Correcto':'A revisar'}</span>`;
+    list.appendChild(row);
+  });
 }
 
 // ---------- profile view ----------
