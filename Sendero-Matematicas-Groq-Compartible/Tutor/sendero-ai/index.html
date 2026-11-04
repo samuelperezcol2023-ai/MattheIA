@@ -10,7 +10,27 @@
 <title>MatheIA — Tu tutor personal de matemáticas</title>
 
 <!-- ANEXO 1: SDK de Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+// Buscador de preguntas frecuentes (solo filtra este apartado).
+(function initBeginnerFAQ(){
+  const input=document.getElementById('faqSearch');
+  const list=document.getElementById('faqList');
+  const empty=document.getElementById('faqEmpty');
+  if(!input||!list||!empty)return;
+  const items=[...list.querySelectorAll('.faq-item')];
+  input.addEventListener('input',()=>{
+    const query=input.value.trim().toLocaleLowerCase('es');
+    let visible=0;
+    items.forEach(item=>{
+      const match=item.textContent.toLocaleLowerCase('es').includes(query);
+      item.hidden=!match;
+      if(!match)item.open=false;
+      if(match)visible++;
+    });
+    empty.hidden=visible!==0;
+  });
+})();
+</script>
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
@@ -756,6 +776,20 @@ body.dark-mode .home-stat{box-shadow:0 8px 24px rgba(0,0,0,.15)}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.home-hero:after{animation:none}.home-stat,.home-card,.home-panel,.settings-card{transition:none}.ux-goal-fill{transition:none}}
 
+
+/* Preguntas frecuentes para principiantes dentro de Configuración */
+.faq-search-label{display:block;font-size:.82rem;font-weight:700;margin:.5rem 0}
+.faq-search{width:100%;padding:.75rem .9rem;border:1px solid var(--border);border-radius:12px;background:var(--surface-alt);color:var(--ink);margin-bottom:.8rem}
+.faq-list{display:grid;gap:.55rem}
+.faq-item{border:1px solid var(--border);border-radius:13px;background:var(--surface);overflow:hidden}
+.faq-item summary{cursor:pointer;list-style:none;padding:.9rem 1rem;font-weight:700;font-size:.88rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:'＋';color:var(--primary);font-size:1.1rem;font-weight:700;flex-shrink:0}
+.faq-item[open] summary::after{content:'−'}
+.faq-item[open] summary{color:var(--primary-deep);background:var(--primary-soft)}
+.faq-item p{margin:0;padding:.1rem 1rem 1rem;color:var(--ink-soft);font-size:.84rem;line-height:1.65}
+.faq-empty{color:var(--ink-soft);font-size:.84rem;text-align:center;padding:.8rem}
+body.dark-mode .faq-item{background:var(--surface)}
 </style>
 </head>
 <body>
@@ -1266,6 +1300,26 @@ body.dark-mode .home-stat{box-shadow:0 8px 24px rgba(0,0,0,.15)}
             <button type="button" class="theme-option" id="testVoiceBtn">▶ Probar voz</button>
           </div>
           <p class="settings-description" id="voiceSettingsStatus" role="status" aria-live="polite">Las voces disponibles dependen del navegador y del sistema operativo.</p>
+        </div>
+
+        <div class="settings-card faq-card" id="faqCard">
+          <div class="settings-title">Preguntas frecuentes para principiantes</div>
+          <div class="settings-description">Respuestas sencillas para comenzar a aprender matemáticas y aprovechar MatheIA.</div>
+          <label class="faq-search-label" for="faqSearch">Buscar una pregunta</label>
+          <input type="search" id="faqSearch" class="faq-search" placeholder="Ej. fracciones, diagnóstico, ejercicios..." aria-label="Buscar preguntas frecuentes">
+          <div class="faq-list" id="faqList">
+            <details class="faq-item"><summary>¿Qué es MatheIA y para qué sirve?</summary><p>MatheIA es un tutor de matemáticas que te ayuda a practicar, entender ejercicios, recibir explicaciones y seguir tu progreso a tu propio ritmo.</p></details>
+            <details class="faq-item"><summary>¿Necesito saber matemáticas para empezar?</summary><p>No. Puedes comenzar desde conceptos básicos. El diagnóstico inicial ayuda a identificar tu nivel y orientar la práctica.</p></details>
+            <details class="faq-item"><summary>¿Cómo funciona el diagnóstico?</summary><p>Responde las 10 preguntas iniciales. Al finalizar, MatheIA calcula una referencia de tu nivel para adaptar los ejercicios. Si no lo has hecho, puedes abrirlo desde Perfil.</p></details>
+            <details class="faq-item"><summary>¿Qué hago si no entiendo un ejercicio?</summary><p>Lee la explicación, revisa los pasos y vuelve a intentarlo. También puedes usar Ayuda de IA para preguntar qué parte te resulta difícil.</p></details>
+            <details class="faq-item"><summary>¿Cómo debo escribir una respuesta?</summary><p>Escribe el resultado de forma clara en el campo de respuesta. Para operaciones, usa símbolos comunes como +, −, × o /; para ecuaciones, escribe por ejemplo x = 4.</p></details>
+            <details class="faq-item"><summary>¿Para qué sirve Conversación?</summary><p>Es el espacio de práctica guiada: MatheIA propone ejercicios, evalúa tus respuestas y ofrece retroalimentación para continuar aprendiendo.</p></details>
+            <details class="faq-item"><summary>¿Cuál es la diferencia entre Conversación y Ayuda de IA?</summary><p>Conversación se centra en ejercicios guiados y seguimiento del nivel. Ayuda de IA sirve para hacer preguntas más libres sobre matemáticas y solicitar explicaciones.</p></details>
+            <details class="faq-item"><summary>¿Puedo usar voz o adjuntar archivos?</summary><p>Si tu navegador lo permite, puedes activar el asistente de voz en Configuración. En Ayuda de IA también puedes adjuntar archivos usando la opción disponible en esa sección.</p></details>
+            <details class="faq-item"><summary>¿Cómo se guarda mi progreso?</summary><p>Inicia sesión con tu cuenta para asociar tu progreso. La disponibilidad de sincronización depende de la conexión y de la configuración de la aplicación.</p></details>
+            <details class="faq-item"><summary>¿Qué hago si me equivoco?</summary><p>Equivocarte es parte del aprendizaje. Revisa la retroalimentación, identifica el paso que necesitas practicar y vuelve a intentarlo sin apresurarte.</p></details>
+            <details class="faq-item"><summary>¿Cómo cambio el tema o la apariencia?</summary><p>En esta misma Configuración puedes elegir modo claro, oscuro o automático, además de ajustar la experiencia y las animaciones.</p></details>
+            <p class="faq-empty" id="faqEmpty" hidden>No se encontraron preguntas. Prueba con otra palabra.</p>
         </div>
 
         <div class="settings-card">
@@ -3012,3 +3066,4 @@ dbClient.auth.onAuthStateChange(async (event, session) => {
 
 </body>
 </html>
+
