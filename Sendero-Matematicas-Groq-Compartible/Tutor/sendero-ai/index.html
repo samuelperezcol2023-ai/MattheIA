@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="MatheIA: aprende matemáticas a tu ritmo con un tutor adaptativo, práctica guiada y seguimiento de tu progreso.">
 <title>MatheIA — Tu tutor personal de matemáticas</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22mtLogoG%22%20gradientUnits%3D%22userSpaceOnUse%22%20x1%3D%226%22%20y1%3D%226%22%20x2%3D%2258%22%20y2%3D%2258%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%238A4DFF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF5C9A%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%2254%22%20height%3D%2243%22%20rx%3D%2216%22%20fill%3D%22url%28%23mtLogoG%29%22%2F%3E%3Cpath%20d%3D%22M15%2044L13%2060L32%2047Z%22%20fill%3D%22url%28%23mtLogoG%29%22%2F%3E%3Cpath%20d%3D%22M18%2021H46M26%2021V38M38%2021V34C38%2037.5%2039.5%2038.5%2043%2038.5%22%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%224.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
 
 <!-- ANEXO 1: SDK de Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1130,15 +1131,28 @@ input[type=range]{accent-color:var(--primary)}
 body.no-animations *{animation:none !important;transition:none !important}
 @media print{.rail,.tabbar,.topbar{display:none !important}}
 
+
+/* ---------- Logo MatheIA (Chat π) ---------- */
+.brand::before{display:none !important}
+.brand{gap:.65rem}
+.brand-logo{width:40px;height:40px;flex:0 0 auto;filter:drop-shadow(0 6px 12px rgba(138,77,255,.35))}
+.brand span.brand-word{background:none !important;-webkit-background-clip:initial !important;background-clip:initial !important;color:var(--ink) !important;margin:0 !important}
+.brand-word em{font-style:normal;color:var(--primary)}
+.brand-mark{background:none !important;box-shadow:none !important;width:52px !important;height:52px !important;border-radius:0 !important;filter:drop-shadow(0 8px 16px rgba(138,77,255,.35))}
+.brand-mark svg{width:52px;height:52px;display:block}
+.login-title span{color:var(--primary)}
+.exercise-chat-head::before{content:'' !important;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22mtLogoG%22%20gradientUnits%3D%22userSpaceOnUse%22%20x1%3D%226%22%20y1%3D%226%22%20x2%3D%2258%22%20y2%3D%2258%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%238A4DFF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF5C9A%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%2254%22%20height%3D%2243%22%20rx%3D%2216%22%20fill%3D%22url%28%23mtLogoG%29%22%2F%3E%3Cpath%20d%3D%22M15%2044L13%2060L32%2047Z%22%20fill%3D%22url%28%23mtLogoG%29%22%2F%3E%3Cpath%20d%3D%22M18%2021H46M26%2021V38M38%2021V34C38%2037.5%2039.5%2038.5%2043%2038.5%22%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%224.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat !important;box-shadow:none !important;width:44px !important;height:44px !important;border-radius:0 !important;filter:drop-shadow(0 5px 10px rgba(138,77,255,.3))}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="mtLogoG" gradientUnits="userSpaceOnUse" x1="6" y1="6" x2="58" y2="58"><stop offset="0" stop-color="#8A4DFF"/><stop offset="1" stop-color="#FF5C9A"/></linearGradient><symbol id="mtLogo" viewBox="0 0 64 64"><rect x="5" y="5" width="54" height="43" rx="16" fill="url(#mtLogoG)"/><path d="M15 44L13 60L32 47Z" fill="url(#mtLogoG)"/><path d="M18 21H46M26 21V38M38 21V34C38 37.5 39.5 38.5 43 38.5" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></symbol></defs></svg>
+
 
 <div id="app" class="auth-login">
 
   <!-- SIDEBAR (web) -->
   <div class="rail">
-    <div class="brand">Mathe<span>IA</span></div>
+    <div class="brand"><svg class="brand-logo" viewBox="0 0 64 64" aria-hidden="true"><use href="#mtLogo"/></svg><span class="brand-word">Mathe<em>IA</em></span></div>
     <div class="rail-nav">
       <button data-view="home" class="nav-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9M9 21v-7h6v7"/></svg>
@@ -1189,7 +1203,7 @@ body.no-animations *{animation:none !important;transition:none !important}
     <div class="view active" id="view-login">
       <div class="login-card">
         <div class="login-brand">
-          <div class="brand-mark">M</div>
+          <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 64 64" width="48" height="48"><use href="#mtLogo"/></svg></div>
           <div>
             <div class="login-title">Mathe<span>IA</span></div>
             <div class="login-subtitle">Tu tutor adaptativo</div>
